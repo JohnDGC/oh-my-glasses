@@ -1,0 +1,154 @@
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { ProductCardComponent } from '../../components/product-card/product-card.component';
+import { ProductService } from '../../services/product.service';
+import { Product } from '../../models/product.model';
+import { FormsModule } from '@angular/forms';
+
+interface FilterOption {
+  label: string;
+  value: string;
+}
+
+@Component({
+  selector: 'app-category',
+  standalone: true,
+  imports: [CommonModule, ProductCardComponent, FormsModule],
+  templateUrl: './categories.component.html',
+  styleUrl: './categories.component.scss'
+})
+export class CategoryComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private productService = inject(ProductService);
+
+  categoryTitle = '';
+  products: Product[] = [];
+  filteredProducts: Product[] = [];
+
+  // Filtros
+  selectedSort = 'featured';
+  selectedPriceRange = 'all';
+  selectedStyle = 'all';
+  searchTerm = '';
+
+  sortOptions: FilterOption[] = [
+    { label: 'Destacados', value: 'featured' },
+    { label: 'Precio: Menor a Mayor', value: 'price-asc' },
+    { label: 'Precio: Mayor a Menor', value: 'price-desc' },
+    { label: 'Nombre: A-Z', value: 'name-asc' },
+    { label: 'Nombre: Z-A', value: 'name-desc' }
+  ];
+
+  priceRanges: FilterOption[] = [
+    { label: 'Todos los precios', value: 'all' },
+    { label: 'Menos de $50', value: 'under-50' },
+    { label: '$50 - $100', value: '50-100' },
+    { label: '$100 - $150', value: '100-150' },
+    { label: 'Más de $150', value: 'over-150' }
+  ];
+
+  styleOptions: FilterOption[] = [
+    { label: 'Todos los estilos', value: 'all' },
+    { label: 'Clásico', value: 'classic' },
+    { label: 'Moderno', value: 'modern' },
+    { label: 'Deportivo', value: 'sport' },
+    { label: 'Casual', value: 'casual' }
+  ];
+
+  ngOnInit() {
+    this.route.url.subscribe(segments => {
+      const category = segments[0]?.path ?? 'men';
+      this.setCategoryInfo(category);
+      this.loadProducts(category);
+    });
+  }
+
+  private setCategoryInfo(category: string) {
+    const titles = {
+      'men': 'Lentes para Hombre',
+      'women': 'Lentes para Mujer',
+      'kids': 'Lentes para Niños'
+    };
+    this.categoryTitle = titles[category as keyof typeof titles] || 'Lentes';
+  }
+
+  private loadProducts(category: string) {
+    const categoryMap = {
+      'hombres': 'men',
+      'mujeres': 'women',
+      'ninos': 'kids'
+    };
+    const mappedCategory = categoryMap[category as keyof typeof categoryMap] || category;
+    this.products = this.productService.getProductsByCategory(mappedCategory as Product['category']);
+    this.applyFilters();
+  }
+
+  onSortChange() {
+    this.applyFilters();
+  }
+
+  onPriceRangeChange() {
+    this.applyFilters();
+  }
+
+  onStyleChange() {
+    this.applyFilters();
+  }
+
+  onSearch(event: Event) {
+    this.searchTerm = (event.target as HTMLInputElement).value;
+    this.applyFilters();
+  }
+
+  private applyFilters() {
+    let filtered = [...this.products];
+
+    // Aplicar búsqueda
+    if (this.searchTerm) {
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+    }
+
+    // Aplicar filtro de precio
+    if (this.selectedPriceRange !== 'all') {
+      filtered = filtered.filter(product => {
+        const price = product.discountPrice || product.price;
+        switch (this.selectedPriceRange) {
+          case 'under-50': return price < 50;
+          case '50-100': return price >= 50 && price < 100;
+          case '100-150': return price >= 100 && price < 150;
+          case 'over-150': return price >= 150;
+          default: return true;
+        }
+      });
+    }
+
+    // Aplicar ordenamiento
+    filtered.sort((a, b) => {
+      const priceA = a.discountPrice || a.price;
+      const priceB = b.discountPrice || b.price;
+
+      switch (this.selectedSort) {
+        case 'price-asc': return priceA - priceB;
+        case 'price-desc': return priceB - priceA;
+        case 'name-asc': return a.name.localeCompare(b.name);
+        case 'name-desc': return b.name.localeCompare(a.name);
+        default: return 0;
+      }
+    });
+
+    this.filteredProducts = filtered;
+  }
+
+  // constructor(private route: ActivatedRoute) { }
+
+  // ngOnInit() {
+  //   this.route.url.subscribe(segments => {
+  //     this.categoria = segments[0]?.path ?? 'hombres';
+  //     this.productos = this.allProductos[this.categoria as keyof typeof this.allProductos] || [];
+  //   });
+  // }
+}

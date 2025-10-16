@@ -1,0 +1,126 @@
+// Variables
+$primary-color: #2d3436;
+$accent-color: #0984e3;
+$transition: all 0.3s ease;
+
+.category-page {
+  min-height: 100vh;
+  background: #fff;
+}
+
+// Hero Section
+.category-hero {
+  background: linear-gradient(45deg, #f8f9fa 30%, #e9ecef 100%);
+  padding: 4rem 0;
+  margin-bottom: 2rem;
+
+  .category-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $primary-color;
+    margin-bottom: 1rem;
+  }
+
+  .category-description {
+    font-size: 1.1rem;
+    color: #636e72;
+    line-height: 1.6;
+  }
+}
+
+// Filters Section
+.filters-section {
+  background: #fff;
+  border-bottom: 1px solid #dee2e6;
+
+  .search-box {
+    position: relative;
+
+    i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #adb5bd;
+    }
+
+    input {
+      padding-left: 2.5rem;
+      border-radius: 50px;
+      border: 1px solid #dee2e6;
+      transition: $transition;
+
+      &:focus {
+        box-shadow: none;
+        border-color: $accent-color;
+      }
+    }
+  }
+
+  .form-select {
+    border-radius: 50px;
+    border: 1px solid #dee2e6;
+    transition: $transition;
+    cursor: pointer;
+
+    &:focus {
+      box-shadow: none;
+      border-color: $accent-color;
+    }
+  }
+}
+
+// Products Section
+.products-section {
+  background: #fff;
+
+  .results-info {
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// WhatsApp Float Button
+.whatsapp-float {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  bottom: 40px;
+  right: 40px;
+  background-color: #25d366;
+  border-radius: 50px;
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.3);
+  z-index: 100;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(37, 211, 102, 0.45);
+  }
+
+  @media (max-width: 576px) {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+// Responsive Adjustments
+@media (max-width: 768px) {
+  .category-hero {
+    padding: 3rem 0;
+
+    .category-title {
+      font-size: 2rem;
+    }
+  }
+
+  .filters-section {
+    .row > div {
+      margin-bottom: 1rem;
+    }
+  }
+}

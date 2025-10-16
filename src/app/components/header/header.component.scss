@@ -1,0 +1,18 @@
+.main-header {
+  .nav-link {
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: #86624e;
+    }
+  }
+
+  i {
+    cursor: pointer;
+
+    &:hover {
+      color: #86624e;
+    }
+  }
+}
