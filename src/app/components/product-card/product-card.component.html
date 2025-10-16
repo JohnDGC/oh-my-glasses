@@ -1,0 +1,40 @@
+<div class="card h-100 product-card border-0">
+  <div class="product-image-container">
+    <img [src]="product.imageUrl" [alt]="product.name" class="card-img-top product-img">
+
+    @if (product.isNew || product.isOnSale) {
+    <div class="badge-container">
+      @if (product.isNew) {
+      <span class="badge text-bg-success rounded-pill px-3 me-2">NUEVO</span>
+      }
+      @if (product.isOnSale) {
+      <span class="badge text-bg-danger rounded-pill px-3">OFERTA</span>
+      }
+    </div>
+    }
+
+    <div class="product-overlay">
+      <a [routerLink]="['/producto', product.id]" class="btn btn-light btn-sm rounded-pill">
+        Ver Detalles
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body px-2 py-3">
+    <h5 class="product-title">{{ product.name }}</h5>
+    <div class="price-container">
+      @if (product.discountPrice) {
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-decoration-line-through text-muted small">
+          ${{ product.price.toFixed(2) }}
+        </span>
+        <span class="text-danger fw-bold">
+          ${{ product.discountPrice.toFixed(2) }}
+        </span>
+      </div>
+      } @else {
+      <span class="fw-semibold">${{ product.price.toFixed(2) }}</span>
+      }
+    </div>
+  </div>
+</div>

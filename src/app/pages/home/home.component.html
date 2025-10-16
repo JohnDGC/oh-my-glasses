@@ -1,0 +1,170 @@
+<!-- Hero Banner -->
+<section class="hero-section position-relative">
+  <div class="hero-container">
+    <div class="hero-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6">
+            <h1 class="hero-title">Descubre tu estilo único</h1>
+            <p class="hero-subtitle">Colección 2025: Diseño contemporáneo meets comfort</p>
+            <div class="hero-buttons">
+              <a routerLink="/new-collection" class="btn btn-primary btn-lg me-3">Explorar Colección</a>
+              <a routerLink="/appointment" class="btn btn-outline-dark btn-lg">Agendar Cita</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="assets/images/banner.jpg" alt="Oh My Glasses Banner">
+    </div>
+  </div>
+</section>
+
+<!-- Categorías -->
+<section class="categories-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h6 class="text-primary text-uppercase mb-2">Colecciones</h6>
+      <h2 class="section-title">Encuentra tu estilo</h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-12 col-sm-6 col-lg-4" *ngFor="let cat of categories">
+        <div class="category-card">
+          <div class="category-image">
+            <img [src]="cat.img" [alt]="cat.name" class="img-fluid">
+          </div>
+          <div class="category-content">
+            <h3>{{ cat.name }}</h3>
+            <a [routerLink]="cat.link" class="category-link">
+              Explorar
+              <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Productos en Tendencia -->
+<section class="trending-section py-5">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h6 class="text-primary text-uppercase mb-2">Tendencias</h6>
+      <h2 class="section-title">Lo más deseado</h2>
+    </div>
+
+    <!-- Carousel Trending -->
+    <div id="trendingCarousel" class="carousel slide" data-bs-touch="true">
+      <div class="carousel-inner">
+        @for (group of trendingGroups; track $index) {
+          <div class="carousel-item" [class.active]="$index === currentTrendingIndex">
+            <div class="row g-4">
+              @for (product of group; track product.id) {
+                <div class="col-12 col-sm-6 col-lg-3">
+                  <app-product-card [product]="product"></app-product-card>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Botones de navegación -->
+      <button class="carousel-control-prev" type="button" (click)="prevTrending()">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" type="button" (click)="nextTrending()">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+
+      <!-- Indicadores -->
+      <div class="carousel-indicators">
+        @for (group of trendingGroups; track $index) {
+          <button type="button"
+                  data-bs-target="#trendingCarousel"
+                  [attr.data-bs-slide-to]="$index"
+                  [class.active]="$index === 0"
+                  [attr.aria-current]="$index === 0 ? 'true' : null"
+                  [attr.aria-label]="'Slide ' + ($index + 1)">
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Ofertas -->
+<section class="sales-section py-5 bg-light">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <h6 class="text-danger text-uppercase mb-2">Ofertas Especiales</h6>
+      <h2 class="section-title">Descuentos imperdibles</h2>
+      <p class="text-muted">Hasta 40% de descuento en modelos seleccionados</p>
+    </div>
+
+    <!-- Carousel Sales -->
+    <div id="salesCarousel" class="carousel slide" data-bs-touch="true">
+      <div class="carousel-inner">
+        @for (group of salesGroups; track $index) {
+          <div class="carousel-item" [class.active]="$index === currentSalesIndex">
+            <div class="row g-4">
+              @for (product of group; track product.id) {
+                <div class="col-12 col-sm-6 col-lg-3">
+                  <app-product-card [product]="product"></app-product-card>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Botones de navegación -->
+      <button class="carousel-control-prev" type="button" (click)="prevSales()">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Anterior</span>
+      </button>
+      <button class="carousel-control-next" type="button" (click)="nextSales()">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Siguiente</span>
+      </button>
+
+      <!-- Indicadores -->
+      <div class="carousel-indicators">
+        @for (group of salesGroups; track $index) {
+          <button type="button"
+                  data-bs-target="#salesCarousel"
+                  [attr.data-bs-slide-to]="$index"
+                  [class.active]="$index === 0"
+                  [attr.aria-current]="$index === 0 ? 'true' : null"
+                  [attr.aria-label]="'Slide ' + ($index + 1)">
+          </button>
+        }
+      </div>
+    </div>
+      <!-- <div class="col-12 col-sm-6 col-lg-3" *ngFor="let product of saleProducts">
+        <app-product-card [product]="product"></app-product-card>
+      </div> -->
+    </div>
+</section>
+
+<!-- WhatsApp Button -->
+<a href="https://wa.me/tunumero"
+  class="whatsapp-float d-flex align-items-center justify-content-center text-white text-decoration-none"
+  target="_blank" rel="noopener noreferrer">
+  <i class="bi bi-whatsapp fs-4"></i>
+</a>
+<!-- <div class="col-6 col-md-4 col-lg-2" *ngFor="let prod of productos">
+  <div class="product-card text-center position-relative">
+    <div class="discount-badge position-absolute top-0 start-0 bg-secondary text-white px-2 small">-40%</div>
+    <img [src]="prod.img" [alt]="prod.nombre" width="300" height="400" class="img-fluid rounded">
+    <div class="mt-2 fw-medium">{{ prod.nombre }}</div>
+    <div class="text-muted text-decoration-line-through">{{ prod.precioAnterior | currency:'COP' }}</div>
+    <div class="fw-semibold">{{ prod.precioActual | currency:'COP' }}</div>
+  </div>
+</div> -->
+<!-- </div> -->
+<!-- </section> -->

@@ -1,0 +1,111 @@
+<div class="product-detail">
+  <!-- Breadcrumb -->
+  <div class="bg-light py-2">
+    <div class="container">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a [routerLink]="['/']">Inicio</a></li>
+          <li class="breadcrumb-item">
+            <a [routerLink]="['/' + getCategoryPath(product!.category)]">
+              {{getCategoryName(product!.category)}}
+            </a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{product?.name}}</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Product Content -->
+  <div class="container py-5">
+    <div class="row">
+      <!-- Product Images -->
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="product-images">
+          <div class="main-image mb-3" *ngIf="product">
+            <img [src]="product.imageUrl" [alt]="product.name" class="img-fluid rounded-3">
+          </div>
+          <div class="image-thumbnails d-flex gap-2">
+            <div class="thumbnail active" *ngIf="product">
+              <img [src]="product.imageUrl" alt="Vista frontal" class="img-fluid rounded-2">
+            </div>
+            <div class="thumbnail" *ngIf="product">
+              <img [src]="product.imageUrl" alt="Vista lateral" class="img-fluid rounded-2">
+            </div>
+            <div class="thumbnail" *ngIf="product">
+              <img [src]="product.imageUrl" alt="Vista superior" class="img-fluid rounded-2">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="col-lg-6">
+        <div class="product-info">
+          <!-- Title and Badges -->
+          <div class="mb-4">
+            <h1 class="product-title">{{product!.name}}</h1>
+            <div class="badges" *ngIf="product">
+              @if (product.isNew) {
+                <span class="badge bg-success me-2">Nuevo</span>
+              }
+              @if (product.isOnSale) {
+                <span class="badge bg-danger">Oferta</span>
+              }
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="product-price mb-4" *ngIf="product">
+            @if (product.discountPrice) {
+              <div class="d-flex align-items-center gap-2">
+                <span class="original-price text-decoration-line-through text-muted">
+                  ${{ product!.price.toFixed(2) }}
+                </span>
+                <span class="current-price text-danger">
+                  ${{ product!.discountPrice.toFixed(2) }}
+                </span>
+                <span class="discount-badge" *ngIf="product.price && product.discountPrice">
+                  -{{calculateDiscount(product.price, product.discountPrice)}}%
+                </span>
+              </div>
+            } @else {
+              <span class="current-price">${{ product.price.toFixed(2) }}</span>
+            }
+          </div>
+
+          <!-- Description -->
+          <div class="product-description mb-4">
+            <h5 class="fw-bold mb-3">Descripción</h5>
+            <p class="text-muted">{{product?.description}}</p>
+          </div>
+
+          <!-- Features -->
+          <div class="product-features mb-4">
+            <h5 class="fw-bold mb-3">Características</h5>
+            <ul class="features-list">
+              <li>Protección UV400</li>
+              <li>Material de alta calidad</li>
+              <li>Diseño ergonómico</li>
+              <li>Incluye estuche y paño de limpieza</li>
+            </ul>
+          </div>
+
+          <!-- Actions -->
+          <div class="product-actions d-grid gap-2">
+            <button class="btn btn-primary btn-lg">
+              Programar una Prueba
+            </button>
+            <a href="https://wa.me/tunumero"
+               class="btn btn-success btn-lg"
+               target="_blank"
+               rel="noopener noreferrer">
+              <i class="bi bi-whatsapp me-2"></i>
+              Consultar por WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
