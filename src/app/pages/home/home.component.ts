@@ -1,26 +1,32 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { ProductService } from '../../services/product.service';
-import { Product } from '../../models/product.model';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
-
-declare var bootstrap: any;
-
-interface Category {
-  name: string;
-  img: string;
-  link: string;
-}
+import { Category } from '../../domain/interfaces/category.interface';
+import { Product } from '../../models/product.model';
+import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, RouterModule, ProductCardComponent],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
+  animations: [
+    trigger('slideAnimation', [
+      transition(':increment', [
+        style({ transform: 'translateX(100%)' }),
+        animate('300ms ease-out', style({ transform: 'translateX(0)' }))
+      ]),
+      transition(':decrement', [
+        style({ transform: 'translateX(-100%)' }),
+        animate('300ms ease-out', style({ transform: 'translateX(0)' }))
+      ])
+    ])
+  ]
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements OnInit {
   categories: Category[] = [
     {
       name: 'Hombres',
@@ -43,53 +49,40 @@ export class HomeComponent implements OnInit, AfterViewInit {
   saleProducts: Product[] = [];
   trendingGroups: Product[][] = [];
   salesGroups: Product[][] = [];
-
   currentTrendingIndex = 0;
   currentSalesIndex = 0;
 
-  // Métodos para el carousel de trending
-  nextTrending(): void {
-    this.currentTrendingIndex = (this.currentTrendingIndex + 1) % this.trendingGroups.length;
-  }
-
-  prevTrending(): void {
-    this.currentTrendingIndex = this.currentTrendingIndex === 0
-      ? this.trendingGroups.length - 1
-      : this.currentTrendingIndex - 1;
-  }
-
-  // Métodos para el carousel de sales
-  nextSales(): void {
-    this.currentSalesIndex = (this.currentSalesIndex + 1) % this.salesGroups.length;
-  }
-
-  prevSales(): void {
-    this.currentSalesIndex = this.currentSalesIndex === 0
-      ? this.salesGroups.length - 1
-      : this.currentSalesIndex - 1;
-  }
-
   constructor(private productService: ProductService) { }
 
-  ngOnInit(): void {
-    // Cargar productos
+  public ngOnInit(): void {
     this.trendingProducts = this.productService.getTrendingProducts();
     this.saleProducts = this.productService.getSaleProducts();
-
-    // Agrupar productos para los carruseles (4 productos por slide)
     this.trendingGroups = this.chunkArray(this.trendingProducts, 4);
     this.salesGroups = this.chunkArray(this.saleProducts, 4);
   }
 
   private chunkArray(array: Product[], size: number): Product[][] {
-    const chunked: Product[][] = [];
-    for (let i = 0; i < array.length; i += size) {
-      chunked.push(array.slice(i, i + size));
-    }
-    return chunked;
+    return array.reduce((acc, _, i) =>
+      (i % size ? acc : [...acc, array.slice(i, i + size)]), [] as Product[][]);
   }
 
-  ngAfterViewInit(): void {
-    // La inicialización ahora se maneja a través de los métodos de Angular
+  public nextTrending(): void {
+    this.currentTrendingIndex = (this.currentTrendingIndex + 1) % this.trendingGroups.length;
+  }
+
+  public prevTrending(): void {
+    this.currentTrendingIndex = this.currentTrendingIndex === 0
+      ? this.trendingGroups.length - 1
+      : this.currentTrendingIndex - 1;
+  }
+
+  public nextSales(): void {
+    this.currentSalesIndex = (this.currentSalesIndex + 1) % this.salesGroups.length;
+  }
+
+  public prevSales(): void {
+    this.currentSalesIndex = this.currentSalesIndex === 0
+      ? this.salesGroups.length - 1
+      : this.currentSalesIndex - 1;
   }
 }

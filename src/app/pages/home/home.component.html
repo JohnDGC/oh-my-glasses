@@ -56,19 +56,21 @@
     </div>
 
     <!-- Carousel Trending -->
-    <div id="trendingCarousel" class="carousel slide" data-bs-touch="true">
+    <div id="trendingCarousel" class="carousel">
       <div class="carousel-inner">
-        @for (group of trendingGroups; track $index) {
+        <div class="carousel-container" [@slideAnimation]="currentTrendingIndex">
+          @for (group of trendingGroups; track $index) {
           <div class="carousel-item" [class.active]="$index === currentTrendingIndex">
             <div class="row g-4">
               @for (product of group; track product.id) {
-                <div class="col-12 col-sm-6 col-lg-3">
-                  <app-product-card [product]="product"></app-product-card>
-                </div>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <app-product-card [product]="product"></app-product-card>
+              </div>
               }
             </div>
           </div>
-        }
+          }
+        </div>
       </div>
 
       <!-- Botones de navegación -->
@@ -80,19 +82,6 @@
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Siguiente</span>
       </button>
-
-      <!-- Indicadores -->
-      <div class="carousel-indicators">
-        @for (group of trendingGroups; track $index) {
-          <button type="button"
-                  data-bs-target="#trendingCarousel"
-                  [attr.data-bs-slide-to]="$index"
-                  [class.active]="$index === 0"
-                  [attr.aria-current]="$index === 0 ? 'true' : null"
-                  [attr.aria-label]="'Slide ' + ($index + 1)">
-          </button>
-        }
-      </div>
     </div>
   </div>
 </section>
@@ -107,19 +96,21 @@
     </div>
 
     <!-- Carousel Sales -->
-    <div id="salesCarousel" class="carousel slide" data-bs-touch="true">
+    <div id="salesCarousel" class="carousel">
       <div class="carousel-inner">
-        @for (group of salesGroups; track $index) {
+        <div class="carousel-container" [@slideAnimation]="currentSalesIndex">
+          @for (group of salesGroups; track $index) {
           <div class="carousel-item" [class.active]="$index === currentSalesIndex">
             <div class="row g-4">
               @for (product of group; track product.id) {
-                <div class="col-12 col-sm-6 col-lg-3">
-                  <app-product-card [product]="product"></app-product-card>
-                </div>
+              <div class="col-12 col-sm-6 col-lg-3">
+                <app-product-card [product]="product"></app-product-card>
+              </div>
               }
             </div>
           </div>
-        }
+          }
+        </div>
       </div>
 
       <!-- Botones de navegación -->
@@ -131,24 +122,8 @@
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Siguiente</span>
       </button>
-
-      <!-- Indicadores -->
-      <div class="carousel-indicators">
-        @for (group of salesGroups; track $index) {
-          <button type="button"
-                  data-bs-target="#salesCarousel"
-                  [attr.data-bs-slide-to]="$index"
-                  [class.active]="$index === 0"
-                  [attr.aria-current]="$index === 0 ? 'true' : null"
-                  [attr.aria-label]="'Slide ' + ($index + 1)">
-          </button>
-        }
-      </div>
     </div>
-      <!-- <div class="col-12 col-sm-6 col-lg-3" *ngFor="let product of saleProducts">
-        <app-product-card [product]="product"></app-product-card>
-      </div> -->
-    </div>
+  </div>
 </section>
 
 <!-- WhatsApp Button -->
@@ -157,14 +132,3 @@
   target="_blank" rel="noopener noreferrer">
   <i class="bi bi-whatsapp fs-4"></i>
 </a>
-<!-- <div class="col-6 col-md-4 col-lg-2" *ngFor="let prod of productos">
-  <div class="product-card text-center position-relative">
-    <div class="discount-badge position-absolute top-0 start-0 bg-secondary text-white px-2 small">-40%</div>
-    <img [src]="prod.img" [alt]="prod.nombre" width="300" height="400" class="img-fluid rounded">
-    <div class="mt-2 fw-medium">{{ prod.nombre }}</div>
-    <div class="text-muted text-decoration-line-through">{{ prod.precioAnterior | currency:'COP' }}</div>
-    <div class="fw-semibold">{{ prod.precioActual | currency:'COP' }}</div>
-  </div>
-</div> -->
-<!-- </div> -->
-<!-- </section> -->

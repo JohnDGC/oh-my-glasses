@@ -57,13 +57,17 @@ $transition: all 0.3s ease;
   }
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, #f8f9fa 0%, rgba(248,249,250,0) 100%);
+    background: linear-gradient(
+      to right,
+      #f8f9fa 0%,
+      rgba(248, 249, 250, 0) 100%
+    );
   }
 }
 
@@ -73,13 +77,13 @@ $transition: all 0.3s ease;
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   transition: $transition;
   // height: 350px;
 
   &:hover {
     transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 
     .category-image img {
       transform: scale(1.1);
@@ -116,14 +120,6 @@ $transition: all 0.3s ease;
     }
   }
 
-  .carousel-control-prev {
-    left: -20px;
-  }
-
-  .carousel-control-next {
-    right: -20px;
-  }
-
   .carousel-control-prev-icon,
   .carousel-control-next-icon {
     width: 20px;
@@ -131,31 +127,38 @@ $transition: all 0.3s ease;
   }
 }
 
-// Add padding to the carousel container to make room for the controls
 #trendingCarousel,
 #salesCarousel {
   padding: 0 30px;
+  overflow: hidden;
+  position: relative;
 
-  .carousel-indicators {
+  .carousel-inner {
+    overflow: hidden;
     position: relative;
-    margin-top: 1rem;
-    margin-bottom: 0;
+    width: 100%;
+  }
 
-    button {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: #dee2e6;
-      border: none;
-      margin: 0 5px;
-      transition: all 0.3s ease;
+  .carousel-container {
+    display: flex;
+    position: relative;
+    width: 100%;
+  }
 
-      &.active {
-        background-color: #0984e3;
-        width: 12px;
-        height: 12px;
-      }
+  .carousel-item {
+    flex: 0 0 100%;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+
+    &.active {
+      opacity: 1;
     }
+  }
+
+  .carousel-control-prev,
+  .carousel-control-next {
+    z-index: 2;
   }
 }
 
