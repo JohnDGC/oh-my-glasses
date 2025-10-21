@@ -1,57 +1,23 @@
 @use '../../../assets/scss/variables' as *;
 @use "sass:color";
 
-$transition: all 0.3s ease;
-
-// Hero Section
+// Hero Section - usando clases de Bootstrap donde sea posible
 .hero-section {
-  position: relative;
-  min-height: 90vh;
-  overflow: hidden;
+  min-height: clamp(500px, 80vh, 90vh);
   background: linear-gradient(135deg, $light 0%, color.adjust($light, $lightness: -5%) 100%);
-  display: flex;
-  align-items: center;
-}
-
-.hero-container {
-  position: relative;
-  height: 100%;
-  width: 100%;
-}
-
-.hero-content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  padding: 4rem 0;
 }
 
 .hero-title {
-  font-size: 4rem;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
-  color: $primary;
+  font-size: clamp(2rem, 6vw, 4rem);
   background: linear-gradient(135deg, $primary 0%, $secondary 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 4px 20px rgba($primary, 0.1);
   animation: fadeInUp 0.8s ease-out;
-
-  @media (max-width: 768px) {
-    font-size: 2.5rem;
-  }
 }
 
 .hero-subtitle {
-  font-size: 1.5rem;
-  color: $text-muted;
-  margin-bottom: 2.5rem;
-  font-weight: 300;
-  letter-spacing: 0.5px;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
   animation: fadeInUp 1s ease-out 0.2s both;
 }
 
@@ -59,76 +25,30 @@ $transition: all 0.3s ease;
   animation: fadeInUp 1.2s ease-out 0.4s both;
 
   .btn {
-    padding: 1rem 2.5rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
     border-radius: 50px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
     &:hover {
       transform: translateY(-3px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
-
-    &:active {
-      transform: translateY(-1px);
-    }
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -10%) 100%);
-    border: none;
-
-    &:hover {
-      background: linear-gradient(135deg, color.adjust($primary, $lightness: -5%) 0%, color.adjust($primary, $lightness: -15%) 100%);
-    }
-  }
-
-  .btn-outline-dark {
-    border: 2px solid $primary;
-    color: $primary;
-    background: transparent;
-
-    &:hover {
-      background: $primary;
-      color: $light;
-    }
   }
 }
 
 .hero-image {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 55%;
-  height: 100%;
   clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
 
-  @media (max-width: 992px) {
-    display: none;
+  @media (min-width: 1600px) {
+    width: 50%;
   }
 
   img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     filter: brightness(0.95) contrast(1.05);
   }
 
   &::after {
     content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      to right,
-      $light 0%,
-      rgba($light, 0.8) 30%,
-      transparent 100%
-    );
+    background: linear-gradient(to right, $light 0%, rgba($light, 0.8) 30%, transparent 100%);
   }
 }
 
@@ -143,26 +63,15 @@ $transition: all 0.3s ease;
   }
 }
 
-// Category Cards
+// Category Cards - reducido, usando Bootstrap
 .category-card {
-  position: relative;
   border-radius: 20px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 
   &::before {
     content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
     background: linear-gradient(135deg, $primary 0%, $secondary 100%);
     opacity: 0;
-    z-index: 1;
     transition: opacity 0.4s ease;
   }
 
@@ -183,275 +92,80 @@ $transition: all 0.3s ease;
       background: linear-gradient(to top, rgba($primary, 0.95), rgba($primary, 0.7));
       color: $light;
 
-      h3 {
+      h3, .category-link {
         color: $light;
-        transform: translateY(-5px);
       }
 
-      .category-link {
-        color: $light;
+      .category-link i {
         transform: translateX(10px);
-
-        i {
-          transform: translateX(10px);
-        }
       }
     }
   }
 }
 
 .category-image {
-  height: 350px;
-  overflow: hidden;
-  position: relative;
+  height: clamp(250px, 40vw, 350px);
 
   &::after {
     content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 50%;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
-    z-index: 1;
   }
 
   img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-.category-content {
-  padding: 2rem;
-  background: white;
-  position: relative;
-  z-index: 2;
-  transition: all 0.4s ease;
-
-  h3 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: $primary;
-    transition: all 0.3s ease;
-  }
+.category-content h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  color: $primary;
 }
 
 .category-link {
   color: $secondary;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  display: inline-flex;
-  align-items: center;
-  transition: all 0.3s ease;
+  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
 
   i {
     transition: transform 0.3s ease;
-    margin-left: 0.5rem;
   }
 }
 
-// Carousel Controls
+// Carousel Controls - simplificado
 .carousel {
-  position: relative;
-
   .carousel-control-prev,
   .carousel-control-next {
-    width: 50px;
-    height: 50px;
+    width: clamp(40px, 6vw, 50px);
+    height: clamp(40px, 6vw, 50px);
     background: linear-gradient(135deg, $primary, $secondary);
     border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0.9;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
     &:hover {
       opacity: 1;
       transform: translateY(-50%) scale(1.1);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    &:active {
-      transform: translateY(-50%) scale(0.95);
     }
   }
 
   .carousel-control-prev-icon,
   .carousel-control-next-icon {
-    width: 24px;
-    height: 24px;
+    width: clamp(18px, 3vw, 24px);
+    height: clamp(18px, 3vw, 24px);
     filter: brightness(0) invert(1);
   }
 }
 
-#trendingCarousel,
-#salesCarousel {
-  padding: 0 30px;
-  overflow: hidden;
-  position: relative;
-
-  .carousel-inner {
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-  }
-
-  .carousel-container {
-    display: flex;
-    position: relative;
-    width: 100%;
-  }
-
-  .carousel-item {
-    flex: 0 0 100%;
-    width: 100%;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-
-    &.active {
-      opacity: 1;
-    }
-  }
-
-  .carousel-control-prev,
-  .carousel-control-next {
-    z-index: 2;
-  }
-}
-
-.category-image {
-  height: 350px;
-  overflow: hidden;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 50%;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
-    z-index: 1;
-  }
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-}
-
-.category-content {
-  padding: 2rem;
-  background: white;
-  position: relative;
-  z-index: 2;
-  transition: all 0.4s ease;
-
-  h3 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: $primary;
-    transition: all 0.3s ease;
-  }
-}
-
-.category-link {
-  color: $secondary;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1.1rem;
-  display: inline-flex;
-  align-items: center;
-  transition: all 0.3s ease;
-
-  i {
-    transition: transform 0.3s ease;
-    margin-left: 0.5rem;
-  }
-}
-
-// Section Headers
+// Section Headers - reducido
 .section-header {
-  margin-bottom: 4rem;
-  position: relative;
-
   &::after {
     content: '';
-    position: absolute;
-    bottom: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
+    width: clamp(60px, 10vw, 80px);
     height: 4px;
     background: linear-gradient(90deg, $primary, $secondary);
     border-radius: 2px;
   }
 
   .section-title {
-    font-size: 3rem;
-    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3rem);
     color: $primary;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.5px;
-
-    @media (max-width: 768px) {
-      font-size: 2.25rem;
-    }
-  }
-
-  h6 {
-    font-weight: 700;
-    letter-spacing: 2px;
-    font-size: 0.875rem;
-  }
-}
-
-// WhatsApp Float
-.whatsapp-float {
-  position: fixed;
-  width: 60px;
-  height: 60px;
-  bottom: 40px;
-  right: 40px;
-  background-color: #25d366;
-  border-radius: 50px;
-  box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  transition: transform 0.3s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-
-  @media (max-width: 576px) {
-    width: 50px;
-    height: 50px;
-    bottom: 20px;
-    right: 20px;
-  }
-}
-.product-card {
-  position: relative;
-
-  .discount-badge {
-    border-radius: 0 0.5rem 0.5rem 0;
-  }
-
-  img {
-    transition: transform 0.3s;
-  }
-
-  &:hover img {
-    transform: scale(1.03);
   }
 }
