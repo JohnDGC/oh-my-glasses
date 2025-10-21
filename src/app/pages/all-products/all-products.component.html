@@ -30,7 +30,7 @@
     <div class="container">
       <div class="row g-3 align-items-center">
         <!-- Search -->
-        <div class="col-md-4">
+        <div class="col-md-3">
           <div class="search-box">
             <i class="bi bi-search"></i>
             <input
@@ -39,6 +39,18 @@
               placeholder="Buscar lentes..."
               (input)="onSearch($event)">
           </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="col-md-2">
+          <select
+            class="form-select"
+            [(ngModel)]="selectedCategory"
+            (change)="onCategoryChange()">
+            @for(category of categoryOptions; track category.value) {
+              <option [value]="category.value">{{category.label}}</option>
+            }
+          </select>
         </div>
 
         <!-- Sort -->
@@ -54,7 +66,7 @@
         </div>
 
         <!-- Price Filter -->
-        <div class="col-md-3">
+        <div class="col-md-2">
           <select
             class="form-select"
             [(ngModel)]="selectedPriceRange"

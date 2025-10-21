@@ -19,6 +19,9 @@ export class ProductDetailComponent implements OnInit {
   product: Product | undefined;
 
   ngOnInit() {
+    // Scroll to top when component loads
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
     this.route.params.subscribe(params => {
       const productId = params['id'];
       this.product = this.productService.getProducts().find(p => p.id === parseInt(productId));
@@ -34,9 +37,9 @@ export class ProductDetailComponent implements OnInit {
       'men': 'hombres',
       'women': 'mujeres',
       'kids': 'ninos',
-      'sunglasses': 'gafas-de-sol'
+      'sunglasses': 'hombres'
     };
-    return category ? paths[category as keyof typeof paths] : '';
+    return category ? paths[category as keyof typeof paths] : 'hombres';
   }
 
   getCategoryName(category: Product['category'] | undefined): string {
@@ -44,9 +47,9 @@ export class ProductDetailComponent implements OnInit {
       'men': 'Hombres',
       'women': 'Mujeres',
       'kids': 'Niños',
-      'sunglasses': 'Gafas de Sol'
+      'sunglasses': 'Hombres'
     };
-    return category ? names[category as keyof typeof names] : '';
+    return category ? names[category as keyof typeof names] : 'Hombres';
   }
 
   calculateDiscount(original?: number, discounted?: number): number {

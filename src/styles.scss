@@ -1,5 +1,6 @@
 // Import custom variables first with @use
 @use 'assets/scss/variables' as *;
+@use "sass:color";
 
 // Import Bootstrap with custom configuration
 @use 'bootstrap/scss/bootstrap' with (
@@ -9,46 +10,164 @@
 );
 
 // Global Styles
+* {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #F7F2DA;
   color: $text-dark;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 // Button Styles
+.btn {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+}
+
 .btn-primary {
+  background: linear-gradient(135deg, #21372B 0%, color.adjust(#21372B, $lightness: -10%) 100%);
+  box-shadow: 0 4px 15px rgba(33, 55, 43, 0.3);
+
   &:hover {
-    background-color: $primary-dark;
-    border-color: $primary-dark;
+    background: linear-gradient(135deg, color.adjust(#21372B, $lightness: -5%) 0%, color.adjust(#21372B, $lightness: -15%) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(33, 55, 43, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
 .btn-secondary {
+  background: linear-gradient(135deg, #642719 0%, color.adjust(#642719, $lightness: -10%) 100%);
+  box-shadow: 0 4px 15px rgba(100, 39, 25, 0.3);
+
   &:hover {
-    background-color: $secondary-dark;
-    border-color: $secondary-dark;
+    background: linear-gradient(135deg, color.adjust(#642719, $lightness: -5%) 0%, color.adjust(#642719, $lightness: -15%) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 39, 25, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
 .btn-outline-dark {
-  border-color: #21372B;
+  border: 2px solid #21372B;
   color: #21372B;
+  background: transparent;
+  font-weight: 600;
+
   &:hover {
-    background-color: #21372B;
+    background: #21372B;
+    color: #F7F2DA;
     border-color: #21372B;
-    color: white;
+    transform: translateY(-2px);
   }
 }
 
 // Links
 a {
+  color: #21372B;
+  transition: all 0.3s ease;
+
   &:hover {
-    color: $primary-dark;
+    color: color.adjust(#21372B, $lightness: -10%);
   }
 }
 
-// Section Styles
-.section-header {
-  .section-title {
-    color: #21372B;
+// Section Backgrounds
+.bg-light {
+  background: linear-gradient(135deg, #F7F2DA 0%, color.adjust(#F7F2DA, $lightness: -3%) 100%) !important;
+}
+
+// Spacing helpers
+.py-5 {
+  padding-top: 5rem !important;
+  padding-bottom: 5rem !important;
+}
+
+// Text utilities
+.text-primary {
+  color: #21372B !important;
+}
+
+.text-secondary {
+  color: #642719 !important;
+}
+
+// WhatsApp Button
+.whatsapp-float {
+  position: fixed;
+  width: 65px;
+  height: 65px;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #25d366 0%, color.adjust(#25d366, $lightness: -10%) 100%);
+  border-radius: 50%;
+  box-shadow: 0 6px 25px rgba(37, 211, 102, 0.4);
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    transform: scale(1.15) rotate(5deg);
+    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
+  }
+
+  &:active {
+    transform: scale(1.05);
+  }
+
+  i {
+    font-size: 2rem;
+    color: white;
+  }
+
+  @media (max-width: 576px) {
+    width: 55px;
+    height: 55px;
+    bottom: 20px;
+    right: 20px;
+
+    i {
+      font-size: 1.75rem;
+    }
   }
 }

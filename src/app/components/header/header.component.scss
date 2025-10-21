@@ -1,25 +1,72 @@
 @use '../../../assets/scss/variables' as *;
+@use "sass:color";
 
 .main-header {
-  background-color: $primary;
-  // background-color: $custom-light;
+  background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -5%) 100%);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+
+  &.scrolled {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  }
 
   .nav-link {
     color: $light;
     text-decoration: none;
-    transition: color 0.2s;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 80%;
+      height: 2px;
+      background: linear-gradient(90deg, $secondary, $light-dark);
+      transition: transform 0.3s ease;
+    }
 
     &:hover {
-      color: $light-dark;
+      color: $light;
+      background: rgba($secondary, 0.15);
+      transform: translateY(-2px);
+
+      &::after {
+        transform: translateX(-50%) scaleX(1);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
     }
   }
 
   i {
     color: $light;
     cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
 
     &:hover {
-      color: $light-dark;
+      color: $light;
+      background: rgba($secondary, 0.2);
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 }
@@ -33,4 +80,10 @@
 .logo-img {
   height: 900%;
   width: auto;
+  filter: brightness(1.1);
+  transition: filter 0.3s ease;
+
+  &:hover {
+    filter: brightness(1.2);
+  }
 }
