@@ -21,7 +21,7 @@ interface FilterOption {
 export class WomenComponent implements OnInit {
   private productService = inject(ProductService);
 
-  categoryTitle = 'Lentes para Mujer';
+  categoryTitle = 'Mujer';
   categoryDescription = 'Encuentra el estilo perfecto que complementa tu personalidad. Nuestra colección para mujer ofrece elegancia, comodidad y las últimas tendencias en moda óptica.';
   products: Product[] = [];
   filteredProducts: Product[] = [];

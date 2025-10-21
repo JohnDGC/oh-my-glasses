@@ -21,7 +21,7 @@ interface FilterOption {
 export class KidsComponent implements OnInit {
   private productService = inject(ProductService);
 
-  categoryTitle = 'Lentes para Niños';
+  categoryTitle = 'Niños';
   categoryDescription = 'Protección y estilo para los más pequeños. Monturas resistentes, cómodas y divertidas diseñadas especialmente para niños activos y en crecimiento.';
   products: Product[] = [];
   filteredProducts: Product[] = [];
