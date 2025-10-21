@@ -21,7 +21,7 @@ interface FilterOption {
 export class MenComponent implements OnInit {
   private productService = inject(ProductService);
 
-  categoryTitle = 'Lentes para Hombre';
+  categoryTitle = 'Hombre';
   categoryDescription = 'Descubre nuestra colección exclusiva de monturas y lentes diseñados específicamente para el hombre moderno. Combina estilo y funcionalidad con nuestras opciones premium.';
   products: Product[] = [];
   filteredProducts: Product[] = [];
