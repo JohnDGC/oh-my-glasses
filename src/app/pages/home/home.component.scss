@@ -1,7 +1,18 @@
-// Variables
-$primary-color: #2d3436;
-$accent-color: #0984e3;
+@use 'variables' as *;
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+
 $transition: all 0.3s ease;
+
+// Use Bootstrap's theme-colors mixin
+@each $color, $value in $theme-colors {
+  .text-#{$color} {
+    color: $value !important;
+  }
+  .bg-#{$color} {
+    background-color: $value !important;
+  }
+}
 
 // Hero Section
 .hero-section {
@@ -30,7 +41,7 @@ $transition: all 0.3s ease;
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1.5rem;
-  color: $primary-color;
+  color: $primary;
 
   @media (max-width: 768px) {
     font-size: 2.5rem;
@@ -39,7 +50,7 @@ $transition: all 0.3s ease;
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: #636e72;
+  color: $text-muted;
   margin-bottom: 2rem;
 }
 
@@ -90,7 +101,7 @@ $transition: all 0.3s ease;
     }
 
     .category-link {
-      color: $accent-color;
+      color: $secondary;
 
       i {
         transform: translateX(5px);
@@ -182,12 +193,12 @@ $transition: all 0.3s ease;
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 1rem;
-    color: $primary-color;
+    color: $primary;
   }
 }
 
 .category-link {
-  color: $primary-color;
+  color: $primary;
   text-decoration: none;
   font-weight: 500;
   display: inline-flex;
@@ -206,7 +217,7 @@ $transition: all 0.3s ease;
   .section-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: $primary-color;
+    color: $primary;
     margin-bottom: 1rem;
 
     @media (max-width: 768px) {

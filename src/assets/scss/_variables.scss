@@ -1,0 +1,42 @@
+@use "sass:color";
+
+// Color Palette
+$custom-primary: #21372B;
+$custom-secondary: #642719;
+$custom-light: #F7F2DA;
+
+// Override Bootstrap variables
+$primary: $custom-primary;
+$secondary: $custom-secondary;
+$light: $custom-light;
+
+// Custom color variations
+$primary-dark: color.adjust($primary, $lightness: -10%);
+$primary-light: color.adjust($primary, $lightness: 10%);
+$secondary-dark: color.adjust($secondary, $lightness: -10%);
+$secondary-light: color.adjust($secondary, $lightness: 10%);
+$light-dark: color.adjust($light, $lightness: -10%);
+$light-light: color.adjust($light, $lightness: 5%);
+
+// Text Colors
+$text-dark: $primary;
+$text-light: $light;
+$text-muted: color.mix($primary, $light, 50%);
+
+// Background Colors
+$bg-primary: $primary;
+$bg-secondary: $secondary;
+$bg-light: $light;
+
+// Border Colors
+$border-primary: $primary;
+$border-secondary: $secondary;
+$border-light: $light;
+
+// Component Specific Colors
+$header-bg: $primary;
+$footer-bg: $primary;
+$hero-bg: $light;
+$card-bg: white;
+$button-primary-bg: $primary;
+$button-secondary-bg: $secondary;
