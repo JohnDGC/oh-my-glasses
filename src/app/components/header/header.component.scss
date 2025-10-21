@@ -1,18 +1,25 @@
+@use '../../../assets/scss/variables' as *;
+
 .main-header {
+  background-color: $primary;
+  // background-color: $custom-light;
+
   .nav-link {
+    color: $light;
     text-decoration: none;
     transition: color 0.2s;
 
     &:hover {
-      color: #86624e;
+      color: $light-dark;
     }
   }
 
   i {
+    color: $light;
     cursor: pointer;
 
     &:hover {
-      color: #86624e;
+      color: $light-dark;
     }
   }
 }

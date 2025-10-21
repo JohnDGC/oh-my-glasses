@@ -1,6 +1,6 @@
 // Variables
-$primary-color: #2d3436;
-$accent-color: #0984e3;
+// $primary-color: #2d3436;
+@use '../../../assets/scss/variables' as *;
 $transition: all 0.3s ease;
 
 .category-page {
@@ -17,7 +17,7 @@ $transition: all 0.3s ease;
   .category-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: $primary-color;
+    color: $primary;
     margin-bottom: 1rem;
   }
 
@@ -52,7 +52,7 @@ $transition: all 0.3s ease;
 
       &:focus {
         box-shadow: none;
-        border-color: $accent-color;
+        border-color: $secondary;
       }
     }
   }
@@ -65,7 +65,7 @@ $transition: all 0.3s ease;
 
     &:focus {
       box-shadow: none;
-      border-color: $accent-color;
+      border-color: $secondary;
     }
   }
 }

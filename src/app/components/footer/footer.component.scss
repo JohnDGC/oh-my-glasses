@@ -1,0 +1,36 @@
+@import '../../../assets/scss/variables';
+
+.footer {
+  background-color: $primary;
+  color: $light;
+  padding: 3rem 0;
+
+  a {
+    color: $light;
+    text-decoration: none;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $light-dark;
+    }
+  }
+
+  .footer-title {
+    color: $light;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .social-links {
+    a {
+      margin-right: 1rem;
+      font-size: 1.5rem;
+    }
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba($light, 0.1);
+    margin-top: 2rem;
+    padding-top: 2rem;
+  }
+}
