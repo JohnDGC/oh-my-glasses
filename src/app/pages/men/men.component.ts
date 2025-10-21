@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
@@ -12,19 +12,17 @@ interface FilterOption {
 }
 
 @Component({
-  selector: 'app-category',
+  selector: 'app-men',
   standalone: true,
   imports: [CommonModule, ProductCardComponent, FormsModule, RouterModule],
-  templateUrl: './categories.component.html',
-  styleUrl: './categories.component.scss'
+  templateUrl: './men.component.html',
+  styleUrl: './men.component.scss'
 })
-export class CategoryComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+export class MenComponent implements OnInit {
   private productService = inject(ProductService);
 
-  categoryTitle = '';
-  categoryDescription = '';
+  categoryTitle = 'Lentes para Hombre';
+  categoryDescription = 'Descubre nuestra colección exclusiva de monturas y lentes diseñados específicamente para el hombre moderno. Combina estilo y funcionalidad con nuestras opciones premium.';
   products: Product[] = [];
   filteredProducts: Product[] = [];
 
@@ -59,45 +57,8 @@ export class CategoryComponent implements OnInit {
   ];
 
   ngOnInit() {
-    // Scroll to top when component loads
     window.scrollTo({ top: 0, behavior: 'instant' });
-
-    this.route.url.subscribe(segments => {
-      const path = segments[0]?.path ?? 'hombres';
-      this.setCategoryInfo(path);
-      this.loadProducts(path);
-    });
-  }
-
-  private setCategoryInfo(path: string) {
-    const categoryInfo = {
-      'hombres': {
-        title: 'Hombres',
-        description: 'Descubre nuestra colección exclusiva de monturas y lentes diseñados específicamente para el hombre moderno. Combina estilo y funcionalidad con nuestras opciones premium.'
-      },
-      'mujeres': {
-        title: 'Mujeres',
-        description: 'Encuentra el estilo perfecto que complementa tu personalidad. Nuestra colección para mujer ofrece elegancia, comodidad y las últimas tendencias en moda óptica.'
-      },
-      'ninos': {
-        title: 'Niños',
-        description: 'Protección y estilo para los más pequeños. Monturas resistentes, cómodas y divertidas diseñadas especialmente para niños activos y en crecimiento.'
-      }
-    };
-
-    const info = categoryInfo[path as keyof typeof categoryInfo] || categoryInfo['hombres'];
-    this.categoryTitle = info.title;
-    this.categoryDescription = info.description;
-  }
-
-  private loadProducts(path: string) {
-    const categoryMap = {
-      'hombres': 'men',
-      'mujeres': 'women',
-      'ninos': 'kids'
-    };
-    const mappedCategory = categoryMap[path as keyof typeof categoryMap] || 'men';
-    this.products = this.productService.getProductsByCategory(mappedCategory as Product['category']);
+    this.products = this.productService.getProductsByCategory('men');
     this.applyFilters();
   }
 
@@ -121,7 +82,6 @@ export class CategoryComponent implements OnInit {
   private applyFilters() {
     let filtered = [...this.products];
 
-    // Aplicar búsqueda
     if (this.searchTerm) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -129,7 +89,6 @@ export class CategoryComponent implements OnInit {
       );
     }
 
-    // Aplicar filtro de precio
     if (this.selectedPriceRange !== 'all') {
       filtered = filtered.filter(product => {
         const price = product.discountPrice || product.price;
@@ -143,7 +102,6 @@ export class CategoryComponent implements OnInit {
       });
     }
 
-    // Aplicar ordenamiento
     filtered.sort((a, b) => {
       const priceA = a.discountPrice || a.price;
       const priceB = b.discountPrice || b.price;
@@ -159,13 +117,4 @@ export class CategoryComponent implements OnInit {
 
     this.filteredProducts = filtered;
   }
-
-  // constructor(private route: ActivatedRoute) { }
-
-  // ngOnInit() {
-  //   this.route.url.subscribe(segments => {
-  //     this.categoria = segments[0]?.path ?? 'hombres';
-  //     this.productos = this.allProductos[this.categoria as keyof typeof this.allProductos] || [];
-  //   });
-  // }
 }

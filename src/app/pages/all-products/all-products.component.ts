@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
@@ -12,19 +12,17 @@ interface FilterOption {
 }
 
 @Component({
-  selector: 'app-category',
+  selector: 'app-all-products',
   standalone: true,
   imports: [CommonModule, ProductCardComponent, FormsModule, RouterModule],
-  templateUrl: './categories.component.html',
-  styleUrl: './categories.component.scss'
+  templateUrl: './all-products.component.html',
+  styleUrl: './all-products.component.scss'
 })
-export class CategoryComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+export class AllProductsComponent implements OnInit {
   private productService = inject(ProductService);
 
-  categoryTitle = '';
-  categoryDescription = '';
+  categoryTitle = 'Todos los Lentes';
+  categoryDescription = 'Explora nuestra colección completa de lentes para toda la familia. Encuentra el par perfecto que se adapte a tu estilo y necesidades.';
   products: Product[] = [];
   filteredProducts: Product[] = [];
 
@@ -32,6 +30,7 @@ export class CategoryComponent implements OnInit {
   selectedSort = 'featured';
   selectedPriceRange = 'all';
   selectedStyle = 'all';
+  selectedCategory = 'all';
   searchTerm = '';
 
   sortOptions: FilterOption[] = [
@@ -58,46 +57,16 @@ export class CategoryComponent implements OnInit {
     { label: 'Casual', value: 'casual' }
   ];
 
+  categoryOptions: FilterOption[] = [
+    { label: 'Todas las categorías', value: 'all' },
+    { label: 'Hombres', value: 'men' },
+    { label: 'Mujeres', value: 'women' },
+    { label: 'Niños', value: 'kids' }
+  ];
+
   ngOnInit() {
-    // Scroll to top when component loads
     window.scrollTo({ top: 0, behavior: 'instant' });
-
-    this.route.url.subscribe(segments => {
-      const path = segments[0]?.path ?? 'hombres';
-      this.setCategoryInfo(path);
-      this.loadProducts(path);
-    });
-  }
-
-  private setCategoryInfo(path: string) {
-    const categoryInfo = {
-      'hombres': {
-        title: 'Hombres',
-        description: 'Descubre nuestra colección exclusiva de monturas y lentes diseñados específicamente para el hombre moderno. Combina estilo y funcionalidad con nuestras opciones premium.'
-      },
-      'mujeres': {
-        title: 'Mujeres',
-        description: 'Encuentra el estilo perfecto que complementa tu personalidad. Nuestra colección para mujer ofrece elegancia, comodidad y las últimas tendencias en moda óptica.'
-      },
-      'ninos': {
-        title: 'Niños',
-        description: 'Protección y estilo para los más pequeños. Monturas resistentes, cómodas y divertidas diseñadas especialmente para niños activos y en crecimiento.'
-      }
-    };
-
-    const info = categoryInfo[path as keyof typeof categoryInfo] || categoryInfo['hombres'];
-    this.categoryTitle = info.title;
-    this.categoryDescription = info.description;
-  }
-
-  private loadProducts(path: string) {
-    const categoryMap = {
-      'hombres': 'men',
-      'mujeres': 'women',
-      'ninos': 'kids'
-    };
-    const mappedCategory = categoryMap[path as keyof typeof categoryMap] || 'men';
-    this.products = this.productService.getProductsByCategory(mappedCategory as Product['category']);
+    this.products = this.productService.getProducts();
     this.applyFilters();
   }
 
@@ -113,6 +82,10 @@ export class CategoryComponent implements OnInit {
     this.applyFilters();
   }
 
+  onCategoryChange() {
+    this.applyFilters();
+  }
+
   onSearch(event: Event) {
     this.searchTerm = (event.target as HTMLInputElement).value;
     this.applyFilters();
@@ -121,7 +94,6 @@ export class CategoryComponent implements OnInit {
   private applyFilters() {
     let filtered = [...this.products];
 
-    // Aplicar búsqueda
     if (this.searchTerm) {
       filtered = filtered.filter(product =>
         product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -129,7 +101,10 @@ export class CategoryComponent implements OnInit {
       );
     }
 
-    // Aplicar filtro de precio
+    if (this.selectedCategory !== 'all') {
+      filtered = filtered.filter(product => product.category === this.selectedCategory);
+    }
+
     if (this.selectedPriceRange !== 'all') {
       filtered = filtered.filter(product => {
         const price = product.discountPrice || product.price;
@@ -143,7 +118,6 @@ export class CategoryComponent implements OnInit {
       });
     }
 
-    // Aplicar ordenamiento
     filtered.sort((a, b) => {
       const priceA = a.discountPrice || a.price;
       const priceB = b.discountPrice || b.price;
@@ -159,13 +133,4 @@ export class CategoryComponent implements OnInit {
 
     this.filteredProducts = filtered;
   }
-
-  // constructor(private route: ActivatedRoute) { }
-
-  // ngOnInit() {
-  //   this.route.url.subscribe(segments => {
-  //     this.categoria = segments[0]?.path ?? 'hombres';
-  //     this.productos = this.allProductos[this.categoria as keyof typeof this.allProductos] || [];
-  //   });
-  // }
 }

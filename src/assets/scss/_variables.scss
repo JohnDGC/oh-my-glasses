@@ -1,14 +1,9 @@
 @use "sass:color";
 
 // Color Palette
-$custom-primary: #21372B;
-$custom-secondary: #642719;
-$custom-light: #F7F2DA;
-
-// Override Bootstrap variables
-$primary: $custom-primary;
-$secondary: $custom-secondary;
-$light: $custom-light;
+$primary: #21372B;
+$secondary: #642719;
+$light: #F7F2DA;
 
 // Custom color variations
 $primary-dark: color.adjust($primary, $lightness: -10%);

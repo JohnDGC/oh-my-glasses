@@ -1,36 +1,282 @@
-@import '../../../assets/scss/variables';
+@use '../../../assets/scss/variables' as *;
+@use "sass:color";
 
 .footer {
-  background-color: $primary;
+  background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -8%) 100%);
   color: $light;
-  padding: 3rem 0;
+  padding: 3rem 0 0;
+  position: relative;
+  overflow: hidden;
 
-  a {
-    color: $light;
-    text-decoration: none;
-    transition: color 0.2s;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+      radial-gradient(circle at 20% 50%, rgba($secondary, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba($secondary, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
 
-    &:hover {
-      color: $light-dark;
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+
+  // Banner de características
+  .footer-features {
+    border-bottom: 1px solid rgba($light, 0.15);
+    padding-bottom: 2rem;
+
+    .feature-card {
+      padding: 1.5rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: rgba($light, 0.05);
+        transform: translateY(-5px);
+      }
+
+      .feature-icon {
+        font-size: 2.5rem;
+        color: $secondary;
+        margin-bottom: 1rem;
+        display: block;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .feature-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        color: $light;
+      }
+
+      .feature-text {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        margin: 0;
+        color: rgba($light, 0.85);
+      }
     }
   }
 
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  // Títulos de secciones
   .footer-title {
     color: $light;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.15rem;
     margin-bottom: 1.5rem;
-  }
+    position: relative;
+    padding-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 
-  .social-links {
-    a {
-      margin-right: 1rem;
-      font-size: 1.5rem;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, $secondary, transparent);
+      border-radius: 2px;
     }
   }
 
-  .footer-bottom {
-    border-top: 1px solid rgba($light, 0.1);
+  // Links del footer
+  .footer-links {
+    li {
+      margin-bottom: 0.75rem;
+    }
+
+    a {
+      color: rgba($light, 0.85);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.95rem;
+
+      &:hover {
+        color: $light;
+        transform: translateX(5px);
+        text-decoration: underline;
+      }
+
+      i {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  // Redes sociales
+  .social-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: rgba($light, 0.1);
+      color: $light;
+      font-size: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+
+      &:hover {
+        background: linear-gradient(135deg, $secondary, color.adjust($secondary, $lightness: -10%));
+        transform: translateY(-5px) rotate(5deg);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        border-color: rgba($light, 0.2);
+      }
+    }
+  }
+
+  // Newsletter
+  .newsletter-text {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+    color: rgba($light, 0.85);
+  }
+
+  .newsletter-form {
+    .form-control {
+      background: rgba($light, 0.1);
+      border: 2px solid rgba($light, 0.2);
+      color: $light;
+      border-radius: 50px;
+      padding: 0.75rem 1.25rem;
+      transition: all 0.3s ease;
+
+      &::placeholder {
+        color: rgba($light, 0.5);
+      }
+
+      &:focus {
+        background: rgba($light, 0.15);
+        border-color: $secondary;
+        box-shadow: 0 0 0 3px rgba($secondary, 0.2);
+        color: $light;
+      }
+    }
+
+    .btn-newsletter {
+      width: 100%;
+      background: linear-gradient(135deg, $secondary 0%, color.adjust($secondary, $lightness: -10%) 100%);
+      color: $light;
+      border: none;
+      border-radius: 50px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, color.adjust($secondary, $lightness: -10%) 0%, $secondary 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba($secondary, 0.4);
+      }
+    }
+  }
+
+  // Métodos de pago
+  .payment-methods {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-top: 1px solid rgba($light, 0.15);
     margin-top: 2rem;
-    padding-top: 2rem;
+
+    i {
+      font-size: 2.5rem;
+      color: rgba($light, 0.7);
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $light;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Copyright
+  .footer-bottom {
+    border-top: 1px solid rgba($light, 0.15);
+    margin-top: 2rem;
+    padding: 2rem 0;
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    background: rgba(0, 0, 0, 0.1);
+
+    p {
+      color: rgba($light, 0.9);
+    }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    .footer-features {
+      .feature-card {
+        margin-bottom: 1rem;
+
+        .feature-icon {
+          font-size: 2rem;
+        }
+
+        .feature-title {
+          font-size: 1rem;
+        }
+
+        .feature-text {
+          font-size: 0.85rem;
+        }
+      }
+    }
+
+    .footer-title {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .social-links {
+      justify-content: flex-start;
+
+      a {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+      }
+    }
+
+    .payment-methods {
+      gap: 1rem;
+
+      i {
+        font-size: 2rem;
+      }
+    }
   }
 }
+
