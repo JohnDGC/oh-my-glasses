@@ -1,18 +1,6 @@
-@use 'variables' as *;
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
+@use '../../../assets/scss/variables' as *;
 
 $transition: all 0.3s ease;
-
-// Use Bootstrap's theme-colors mixin
-@each $color, $value in $theme-colors {
-  .text-#{$color} {
-    color: $value !important;
-  }
-  .bg-#{$color} {
-    background-color: $value !important;
-  }
-}
 
 // Hero Section
 .hero-section {

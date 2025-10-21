@@ -1,78 +1,54 @@
-@use 'assets/scss/variables' as custom;
+// Import custom variables first with @use
+@use 'assets/scss/variables' as *;
 
-@use '../node_modules/bootstrap/scss/bootstrap' with (
-  $primary: custom.$primary,
-  $secondary: custom.$secondary,
-  $light: custom.$light
+// Import Bootstrap with custom configuration
+@use 'bootstrap/scss/bootstrap' with (
+  $primary: #21372B,
+  $secondary: #642719,
+  $light: #F7F2DA
 );
 
 // Global Styles
 body {
-  background-color: custom.$light;
-  color: custom.$text-dark;
+  background-color: #F7F2DA;
+  color: $text-dark;
 }
 
 // Button Styles
 .btn-primary {
-  background-color: custom.$primary;
-  border-color: custom.$primary;
   &:hover {
-    background-color: custom.$primary-dark;
-    border-color: custom.$primary-dark;
+    background-color: $primary-dark;
+    border-color: $primary-dark;
   }
 }
 
 .btn-secondary {
-  background-color: custom.$secondary;
-  border-color: custom.$secondary;
   &:hover {
-    background-color: custom.$secondary-dark;
-    border-color: custom.$secondary-dark;
+    background-color: $secondary-dark;
+    border-color: $secondary-dark;
   }
 }
 
 .btn-outline-dark {
-  border-color: custom.$primary;
-  color: custom.$primary;
+  border-color: #21372B;
+  color: #21372B;
   &:hover {
-    background-color: custom.$primary;
-    border-color: custom.$primary;
+    background-color: #21372B;
+    border-color: #21372B;
+    color: white;
   }
-}
-
-// Text Colors
-.text-primary {
-  color: custom.$primary !important;
-}
-
-.text-secondary {
-  color: custom.$secondary !important;
-}
-
-// Background Colors
-.bg-primary {
-  background-color: custom.$primary !important;
-}
-
-.bg-secondary {
-  background-color: custom.$secondary !important;
-}
-
-.bg-light {
-  background-color: custom.$light !important;
 }
 
 // Links
 a {
-  color: custom.$primary;
   &:hover {
-    color: custom.$primary-dark;
+    color: $primary-dark;
   }
 }
 
 // Section Styles
 .section-header {
   .section-title {
-    color: custom.$primary;
+    color: #21372B;
   }
 }
