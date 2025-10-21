@@ -1,11 +1,11 @@
-<div class="card h-100 product-card border-0">
-  <div class="product-image-container">
+<div class="card h-100 product-card border-0 rounded-4 overflow-hidden shadow position-relative">
+  <div class="product-image-container position-relative overflow-hidden">
     <img [src]="product.imageUrl" [alt]="product.name" class="card-img-top product-img">
 
     @if (product.isNew || product.isOnSale) {
-    <div class="badge-container">
+    <div class="badge-container position-absolute z-2 d-flex gap-2" style="top: 15px; left: 15px;">
       @if (product.isNew) {
-      <span class="badge text-bg-success rounded-pill px-3 me-2">NUEVO</span>
+      <span class="badge text-bg-success rounded-pill px-3">NUEVO</span>
       }
       @if (product.isOnSale) {
       <span class="badge text-bg-danger rounded-pill px-3">OFERTA</span>
@@ -13,28 +13,29 @@
     </div>
     }
 
-    <div class="product-overlay">
-      <a [routerLink]="['/producto', product.id]" class="btn btn-light btn-sm rounded-pill">
+    <div class="product-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+      <a [routerLink]="['/producto', product.id]" class="btn btn-light btn-sm rounded-pill fw-semibold px-4 py-3">
         Ver Detalles
       </a>
     </div>
   </div>
 
-  <div class="card-body px-2 py-3">
-    <h5 class="product-title">{{ product.name }}</h5>
-    <div class="price-container">
+  <div class="card-body p-4">
+    <h5 class="product-title fw-semibold mb-3 lh-sm" style="font-size: clamp(1rem, 1.8vw, 1.1rem);">{{ product.name }}</h5>
+    <div class="price-container fw-bold" style="font-size: clamp(1.15rem, 2vw, 1.25rem);">
       @if (product.discountPrice) {
       <div class="d-flex align-items-center gap-2">
-        <span class="text-decoration-line-through text-muted small">
+        <span class="text-decoration-line-through text-muted fw-medium small" style="font-size: clamp(0.85rem, 1.5vw, 0.9rem);">
           ${{ product.price.toFixed(2) }}
         </span>
-        <span class="text-danger fw-bold">
+        <span class="text-danger fw-bold" style="font-size: clamp(1.3rem, 2.2vw, 1.4rem);">
           ${{ product.discountPrice.toFixed(2) }}
         </span>
       </div>
       } @else {
-      <span class="fw-semibold">${{ product.price.toFixed(2) }}</span>
+      <span class="fw-bold">${{ product.price.toFixed(2) }}</span>
       }
     </div>
   </div>
 </div>
+

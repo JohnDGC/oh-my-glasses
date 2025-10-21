@@ -1,14 +1,10 @@
 @use '../../../assets/scss/variables' as *;
 @use "sass:color";
 
+// Estilos personalizados mínimos (usando Bootstrap para el resto)
 .main-header {
   background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -5%) 100%);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  transition: all 0.3s ease;
 
   &.scrolled {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
@@ -16,74 +12,211 @@
 
   .nav-link {
     color: $light;
-    text-decoration: none;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    padding: 0.5rem 1rem;
     border-radius: 8px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
 
     &::after {
       content: '';
       position: absolute;
       bottom: 0;
       left: 50%;
-      transform: translateX(-50%) scaleX(0);
-      width: 80%;
+      width: 0;
       height: 2px;
-      background: linear-gradient(90deg, $secondary, $light-dark);
-      transition: transform 0.3s ease;
+      background: linear-gradient(90deg, $secondary, color.adjust($light, $lightness: -20%));
+      transform: translateX(-50%);
+      transition: width 0.3s ease;
     }
 
     &:hover {
       color: $light;
       background: rgba($secondary, 0.15);
-      transform: translateY(-2px);
 
       &::after {
-        transform: translateX(-50%) scaleX(1);
+        width: 80%;
       }
     }
 
-    &:active {
-      transform: translateY(0);
+    &.active {
+      &::after {
+        width: 80%;
+      }
     }
   }
 
   i {
     color: $light;
-    cursor: pointer;
-    font-size: 1.25rem;
-    padding: 0.5rem;
     border-radius: 50%;
-    transition: all 0.3s ease;
 
     &:hover {
       color: $light;
       background: rgba($secondary, 0.2);
-      transform: scale(1.1) rotate(5deg);
+    }
+  }
+
+  .navbar-toggler {
+    border-color: rgba($light, 0.3);
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($light, 0.2);
     }
 
-    &:active {
-      transform: scale(0.95);
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28247, 242, 218, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+  }
+
+  @media (max-width: 992px) {
+    .navbar-collapse {
+      background: linear-gradient(135deg, color.adjust($primary, $lightness: -3%) 0%, color.adjust($primary, $lightness: -8%) 100%);
+      border-radius: 0 0 12px 12px;
     }
   }
 }
 
 .logo-container {
-  height: 20px;
-  display: flex;
-  align-items: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba($light, 0.3), transparent);
+    transition: left 0.6s ease;
+  }
+
+  &:hover::before {
+    left: 100%;
+  }
 }
 
 .logo-img {
-  height: 900%;
-  width: auto;
   filter: brightness(1.1);
-  transition: filter 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     filter: brightness(1.2);
+    transform: scale(1.05);
+  }
+}
+
+// Botón burger
+.burger-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  background: rgba($secondary, 0.2);
+  position: relative;
+  z-index: 1001;
+
+  &:hover {
+    background: rgba($secondary, 0.35);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .burger-line {
+    width: 26px;
+    height: 3px;
+    background: $light;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Menú móvil
+.mobile-menu {
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 9999;
+  pointer-events: none;
+
+  &.active {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+
+    .mobile-menu-content {
+      transform: translateX(0);
+    }
+  }
+
+  .mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+    z-index: 9998;
+  }
+
+  .mobile-menu-content {
+    width: 280px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    background: $primary;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+  }
+
+  .mobile-menu-header {
+    background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -5%) 100%);
+    border-bottom: 1px solid rgba($light, 0.1);
+
+    .btn-close {
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+      width: 32px;
+      height: 32px;
+      background-size: 20px;
+
+      &:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .mobile-menu-links {
+    background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: -5%) 100%);
+  }
+
+  .nav-link-mobile {
+    color: $light;
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    letter-spacing: 0.5px;
+    border-left: 3px solid transparent;
+    transition: all 0.3s ease;
+    background: rgba($light, 0.08);
+    margin-bottom: 0.5rem;
+
+    &:hover {
+      background: rgba($secondary, 0.25);
+      border-left-color: $light;
+      padding-left: 1.5rem;
+      transform: translateX(5px);
+    }
+
+    &:active {
+      background: rgba($secondary, 0.4);
+    }
   }
 }

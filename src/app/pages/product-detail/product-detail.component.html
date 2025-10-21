@@ -1,39 +1,49 @@
-<div class="product-detail">
+<div class="product-detail min-vh-100">
   <!-- Breadcrumb -->
   <div class="bg-light py-2">
     <div class="container">
       <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0">
-          <li class="breadcrumb-item"><a [routerLink]="['/']">Inicio</a></li>
+        <ol class="breadcrumb mb-0 small">
           <li class="breadcrumb-item">
-            <a [routerLink]="['/' + getCategoryPath(product!.category)]">
-              {{getCategoryName(product!.category)}}
+            <a [routerLink]="['/']" class="text-decoration-none fw-medium">Inicio</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a [routerLink]="['/' + getCategoryPath(product!.category)]" class="text-decoration-none fw-medium">
+              {{ getCategoryName(product!.category) }}
             </a>
           </li>
-          <li class="breadcrumb-item active" aria-current="page">{{product?.name}}</li>
+          <li class="breadcrumb-item active fw-semibold" aria-current="page">
+            {{ product?.name }}
+          </li>
         </ol>
       </nav>
     </div>
   </div>
 
+
   <!-- Product Content -->
-  <div class="container py-5">
+  <div class="container py-3 py-md-4">
     <div class="row">
       <!-- Product Images -->
-      <div class="col-lg-6 mb-4 mb-lg-0">
-        <div class="product-images">
-          <div class="main-image mb-3" *ngIf="product">
-            <img [src]="product.imageUrl" [alt]="product.name" class="img-fluid rounded-3">
+      <div class="col-lg-6 mb-3 mb-lg-0">
+        <div class="product-images position-sticky" style="top: 80px;">
+          <div class="main-image mb-2 text-center" *ngIf="product" style="padding: clamp(0.5rem, 2vw, 1rem);">
+            <img [src]="product.imageUrl" [alt]="product.name" class="img-fluid rounded-3"
+              style="max-height: clamp(250px, 40vw, 400px); object-fit: contain;">
           </div>
           <div class="image-thumbnails d-flex gap-2">
-            <div class="thumbnail active" *ngIf="product">
-              <img [src]="product.imageUrl" alt="Vista frontal" class="img-fluid rounded-2">
+            <div class="thumbnail active text-center" *ngIf="product"
+              style="flex: 1; padding: clamp(0.2rem, 0.8vw, 0.4rem);">
+              <img [src]="product.imageUrl" alt="Vista frontal" class="img-fluid rounded-2"
+                style="height: clamp(50px, 8vw, 70px); object-fit: contain;">
             </div>
-            <div class="thumbnail" *ngIf="product">
-              <img [src]="product.imageUrl" alt="Vista lateral" class="img-fluid rounded-2">
+            <div class="thumbnail text-center" *ngIf="product" style="flex: 1; padding: clamp(0.2rem, 0.8vw, 0.4rem);">
+              <img [src]="product.imageUrl" alt="Vista lateral" class="img-fluid rounded-2"
+                style="height: clamp(50px, 8vw, 70px); object-fit: contain;">
             </div>
-            <div class="thumbnail" *ngIf="product">
-              <img [src]="product.imageUrl" alt="Vista superior" class="img-fluid rounded-2">
+            <div class="thumbnail text-center" *ngIf="product" style="flex: 1; padding: clamp(0.2rem, 0.8vw, 0.4rem);">
+              <img [src]="product.imageUrl" alt="Vista superior" class="img-fluid rounded-2"
+                style="height: clamp(50px, 8vw, 70px); object-fit: contain;">
             </div>
           </div>
         </div>
@@ -43,66 +53,83 @@
       <div class="col-lg-6">
         <div class="product-info">
           <!-- Title and Badges -->
-          <div class="mb-4">
-            <h1 class="product-title">{{product!.name}}</h1>
-            <div class="badges" *ngIf="product">
+          <div class="mb-3">
+            <h1 class="product-title mb-2" style="font-size: clamp(1.5rem, 3.5vw, 2rem); line-height: 1.2;">
+              {{product!.name}}</h1>
+            <div class="badges d-flex gap-2" *ngIf="product">
               @if (product.isNew) {
-                <span class="badge bg-success me-2">Nuevo</span>
+              <span class="badge bg-success"
+                style="padding: 0.4rem 0.9rem; font-size: clamp(0.75rem, 1.1vw, 0.8rem); border-radius: 50px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">Nuevo</span>
               }
               @if (product.isOnSale) {
-                <span class="badge bg-danger">Oferta</span>
+              <span class="badge bg-danger"
+                style="padding: 0.4rem 0.9rem; font-size: clamp(0.75rem, 1.1vw, 0.8rem); border-radius: 50px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">Oferta</span>
               }
             </div>
           </div>
 
           <!-- Price -->
-          <div class="product-price mb-4" *ngIf="product">
+          <div class="product-price mb-3 rounded-4 shadow-sm border border-2" *ngIf="product"
+            style="padding: clamp(0.8rem, 1.5vw, 1.2rem);">
             @if (product.discountPrice) {
-              <div class="d-flex align-items-center gap-2">
-                <span class="original-price text-decoration-line-through text-muted">
-                  ${{ product!.price.toFixed(2) }}
-                </span>
-                <span class="current-price text-danger">
-                  ${{ product!.discountPrice.toFixed(2) }}
-                </span>
-                <span class="discount-badge" *ngIf="product.price && product.discountPrice">
-                  -{{calculateDiscount(product.price, product.discountPrice)}}%
-                </span>
-              </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="original-price text-decoration-line-through text-muted"
+                style="font-size: clamp(1rem, 1.8vw, 1.2rem);">
+                ${{ product!.price.toFixed(2) }}
+              </span>
+              <span class="current-price" style="font-size: clamp(1.75rem, 3.5vw, 2.2rem);">
+                ${{ product!.discountPrice.toFixed(2) }}
+              </span>
+              <span class="discount-badge" *ngIf="product.price && product.discountPrice"
+                style="padding: 0.35rem 0.7rem; border-radius: 50px; font-size: clamp(0.75rem, 1.1vw, 0.85rem);">
+                -{{calculateDiscount(product.price, product.discountPrice)}}%
+              </span>
+            </div>
             } @else {
-              <span class="current-price">${{ product.price.toFixed(2) }}</span>
+            <span class="current-price" style="font-size: clamp(1.75rem, 3.5vw, 2.2rem);">${{ product.price.toFixed(2)
+              }}</span>
             }
           </div>
 
           <!-- Description -->
-          <div class="product-description mb-4">
-            <h5 class="fw-bold mb-3">Descripción</h5>
-            <p class="text-muted">{{product?.description}}</p>
+          <div class="product-description mb-3">
+            <h5 class="fw-bold mb-2 position-relative pb-2" style="font-size: clamp(1rem, 1.8vw, 1.2rem);">Descripción
+            </h5>
+            <p class="text-muted lh-base mb-0" style="font-size: clamp(0.9rem, 1.4vw, 1rem);">{{product?.description}}
+            </p>
           </div>
 
           <!-- Features -->
-          <div class="product-features mb-4">
-            <h5 class="fw-bold mb-3">Características</h5>
-            <ul class="features-list">
-              <li>Protección UV400</li>
-              <li>Material de alta calidad</li>
-              <li>Diseño ergonómico</li>
-              <li>Incluye estuche y paño de limpieza</li>
+          <div class="product-features mb-3">
+            <h5 class="fw-bold mb-2 position-relative pb-2" style="font-size: clamp(1rem, 1.8vw, 1.2rem);">
+              Características</h5>
+            <ul class="features-list list-unstyled m-0">
+              <li class="p-2 mb-2 rounded-3 fw-medium" style="font-size: clamp(0.85rem, 1.3vw, 0.95rem);">Protección
+                UV400</li>
+              <li class="p-2 mb-2 rounded-3 fw-medium" style="font-size: clamp(0.85rem, 1.3vw, 0.95rem);">Material de
+                alta calidad</li>
+              <li class="p-2 mb-2 rounded-3 fw-medium" style="font-size: clamp(0.85rem, 1.3vw, 0.95rem);">Diseño
+                ergonómico</li>
+              <li class="p-2 mb-2 rounded-3 fw-medium" style="font-size: clamp(0.85rem, 1.3vw, 0.95rem);">Incluye
+                estuche y paño de limpieza</li>
             </ul>
           </div>
 
           <!-- Actions -->
-          <div class="product-actions d-grid gap-2">
-            <button class="btn btn-primary btn-lg">
-              Programar una Prueba
-            </button>
-            <a href="https://wa.me/tunumero"
-               class="btn btn-success btn-lg"
-               target="_blank"
-               rel="noopener noreferrer">
-              <i class="bi bi-whatsapp me-2"></i>
-              Consultar por WhatsApp
-            </a>
+          <div class="product-actions mt-3">
+            <div class="d-grid gap-2 d-md-flex">
+              <button class="btn btn-primary btn-lg position-relative overflow-hidden border-0"
+                style="padding: clamp(0.8rem, 1.5vw, 1rem); font-size: clamp(0.9rem, 1.3vw, 1rem); border-radius: 50px; min-width: 180px; box-shadow: 0 8px 20px rgba(33, 55, 43, 0.3);">
+                Programar una Prueba
+              </button>
+              <a href="https://wa.me/tunumero" class="btn btn-success btn-lg position-relative overflow-hidden border-0"
+                target="_blank" rel="noopener noreferrer"
+                style="padding: clamp(0.8rem, 1.5vw, 1rem); font-size: clamp(0.9rem, 1.3vw, 1rem); border-radius: 50px; min-width: 180px; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);">
+                <i class="bi bi-whatsapp me-2"
+                  style="font-size: clamp(1rem, 1.8vw, 1.2rem); vertical-align: middle;"></i>
+                Consultar por WhatsApp
+              </a>
+            </div>
           </div>
         </div>
       </div>

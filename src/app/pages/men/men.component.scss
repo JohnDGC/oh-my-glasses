@@ -1,102 +1,10 @@
 @use '../../../assets/scss/variables' as *;
 @use 'sass:color';
 
-$transition: all 0.3s ease;
-
-.category-page {
-  min-height: 100vh;
-  background: linear-gradient(to bottom, $light 0%, #fff 100%);
-  animation: fadeIn 0.5s ease;
-}
-
+// Animaciones
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-// Breadcrumb styling
-.bg-light {
-  background: linear-gradient(135deg, rgba($primary, 0.05) 0%, rgba($light, 0.5) 100%) !important;
-  border-bottom: 1px solid color.adjust($primary, $lightness: 70%);
-
-  .breadcrumb {
-    font-size: 0.9rem;
-
-    a {
-      color: $secondary;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      font-weight: 500;
-
-      &:hover {
-        color: $primary;
-        text-decoration: underline;
-      }
-    }
-
-    .breadcrumb-item.active {
-      color: $primary;
-      font-weight: 600;
-    }
-  }
-}
-
-// Hero Section
-.category-hero {
-  background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: 10%) 100%);
-  padding: 5rem 0 4rem;
-  margin-bottom: 0;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 20% 50%, rgba($secondary, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba($light, 0.15) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-  }
-
-  .category-title {
-    font-size: 3rem;
-    font-weight: 700;
-    color: $light;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    animation: slideInUp 0.6s ease;
-  }
-
-  .category-description {
-    font-size: 1.2rem;
-    color: rgba($light, 0.95);
-    line-height: 1.8;
-    animation: slideInUp 0.8s ease;
-  }
-
-  @media (max-width: 768px) {
-    padding: 3rem 0 2rem;
-
-    .category-title {
-      font-size: 2rem;
-    }
-
-    .category-description {
-      font-size: 1rem;
-    }
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideInUp {
@@ -107,88 +15,6 @@ $transition: all 0.3s ease;
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-// Filters Section
-.filters-section {
-  background: #fff;
-  border-bottom: 2px solid color.adjust($primary, $lightness: 70%);
-  box-shadow: 0 2px 15px rgba($primary, 0.08);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  backdrop-filter: blur(10px);
-
-  .search-box {
-    position: relative;
-
-    i {
-      position: absolute;
-      left: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: $secondary;
-      font-size: 1.1rem;
-    }
-
-    input {
-      padding-left: 2.5rem;
-      border-radius: 50px;
-      border: 2px solid color.adjust($primary, $lightness: 70%);
-      transition: $transition;
-      background: rgba($light, 0.3);
-
-      &:focus {
-        box-shadow: 0 0 0 3px rgba($secondary, 0.1);
-        border-color: $secondary;
-        background: #fff;
-      }
-
-      &::placeholder {
-        color: color.adjust($primary, $lightness: 50%);
-      }
-    }
-  }
-
-  .form-select {
-    border-radius: 50px;
-    border: 2px solid color.adjust($primary, $lightness: 70%);
-    transition: $transition;
-    cursor: pointer;
-    background: rgba($light, 0.3);
-    font-weight: 500;
-    color: $primary;
-
-    &:focus {
-      box-shadow: 0 0 0 3px rgba($secondary, 0.1);
-      border-color: $secondary;
-      background: #fff;
-    }
-
-    &:hover {
-      border-color: $secondary;
-    }
-  }
-}
-
-// Products Section
-.products-section {
-  background: transparent;
-
-  .results-info {
-    p {
-      margin: 0;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: $primary;
-      padding-left: 0.5rem;
-      border-left: 3px solid $secondary;
-    }
-  }
-
-  .row {
-    animation: fadeInProducts 0.6s ease;
   }
 }
 
@@ -203,50 +29,80 @@ $transition: all 0.3s ease;
   }
 }
 
-// Empty State
-.text-center {
-  .bi-search {
-    color: color.adjust($primary, $lightness: 60%);
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  h3 {
-    color: $primary;
-    font-weight: 600;
-  }
-}
-
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// Estilos personalizados (lo que no puede Bootstrap)
+.category-page {
+  background: linear-gradient(to bottom, $light 0%, #fff 100%);
+  animation: fadeIn 0.5s ease;
+}
+
+.category-hero {
+  background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: 10%) 100%);
+
+  &::before {
+    content: '';
+    background: radial-gradient(circle at 20% 50%, rgba($secondary, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba($light, 0.15) 0%, transparent 50%);
   }
-  50% {
-    opacity: 0.5;
+
+  .category-title {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    animation: slideInUp 0.6s ease;
+  }
+
+  .category-description {
+    animation: slideInUp 0.8s ease;
   }
 }
 
-// WhatsApp Float Button
-.whatsapp-float {
-  position: fixed;
-  width: 60px;
-  height: 60px;
-  bottom: 40px;
-  right: 40px;
-  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-  border-radius: 50px;
-  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
-  z-index: 100;
-  transition: all 0.3s ease;
+.filters-section {
+  box-shadow: 0 2px 15px rgba($primary, 0.08);
+  backdrop-filter: blur(10px);
 
-  &:hover {
-    transform: scale(1.15) rotate(5deg);
-    box-shadow: 0 12px 35px rgba(37, 211, 102, 0.5);
+  .search-box i {
+    color: $secondary;
   }
 
-  @media (max-width: 576px) {
-    width: 50px;
-    height: 50px;
-    bottom: 20px;
-    right: 20px;
+  input, .form-select {
+    border-radius: 50px;
+    border-color: color.adjust($primary, $lightness: 70%);
+    background: rgba($light, 0.3);
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($secondary, 0.1);
+      border-color: $secondary;
+    }
   }
+
+  .form-select {
+    color: $primary;
+
+    &:hover {
+      border-color: $secondary;
+    }
+  }
+}
+
+.products-section {
+  .results-info p {
+    color: $primary;
+    border-left: 3px solid $secondary;
+  }
+
+  .row {
+    animation: fadeInProducts 0.6s ease;
+  }
+}
+
+.text-center .bi-search {
+  color: color.adjust($primary, $lightness: 60%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.text-center h3 {
+  color: $primary;
 }

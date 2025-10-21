@@ -1,12 +1,12 @@
 // Import custom variables first with @use
-@use 'assets/scss/variables' as *;
+@use "assets/scss/variables" as *;
 @use "sass:color";
 
 // Import Bootstrap with custom configuration
-@use 'bootstrap/scss/bootstrap' with (
-  $primary: #21372B,
+@use "bootstrap/scss/bootstrap" with (
+  $primary: #21372b,
   $secondary: #642719,
-  $light: #F7F2DA
+  $light: #f7f2da
 );
 
 // Global Styles
@@ -14,18 +14,98 @@
   scroll-behavior: smooth;
 }
 
+html {
+  // Prevent horizontal scroll
+  overflow-x: hidden;
+  // Better font rendering
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  // Responsive base font size
+  font-size: 16px;
+
+  @media (max-width: 1400px) {
+    font-size: 15px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+}
+
 body {
-  background-color: #F7F2DA;
+  background-color: #f7f2da;
   color: $text-dark;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
+  // Responsive body text
+  font-size: 1rem;
+  min-height: 100vh;
+  position: relative;
+  width: 100%;
+}
+
+// Responsive container constraints
+.container,
+.container-fluid {
+  max-width: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+
+  @media (min-width: 1400px) {
+    max-width: 1320px;
+  }
+
+  @media (min-width: 1600px) {
+    max-width: 1440px;
+  }
+
+  @media (min-width: 1920px) {
+    max-width: 1600px;
+  }
 }
 
 // Typography
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   line-height: 1.2;
+  word-wrap: break-word;
+}
+
+// Responsive typography
+h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+h2 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+h4 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
+h5 {
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+}
+
+h6 {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+}
+
+p {
+  font-size: clamp(0.875rem, 1.5vw, 1rem);
+  line-height: 1.6;
 }
 
 // Button Styles
@@ -36,9 +116,12 @@ h1, h2, h3, h4, h5, h6 {
   border: none;
   position: relative;
   overflow: hidden;
+  &:hover {
+    border-color: transparent !important;
+  }
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -57,11 +140,20 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #21372B 0%, color.adjust(#21372B, $lightness: -10%) 100%);
+  --bs-btn-border-color: transparent !important;
+  background: linear-gradient(
+    135deg,
+    #21372b 0%,
+    color.adjust(#21372b, $lightness: -10%) 100%
+  );
   box-shadow: 0 4px 15px rgba(33, 55, 43, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, color.adjust(#21372B, $lightness: -5%) 0%, color.adjust(#21372B, $lightness: -15%) 100%);
+    background: linear-gradient(
+      135deg,
+      color.adjust(#21372b, $lightness: -5%) 0%,
+      color.adjust(#21372b, $lightness: -15%) 100%
+    );
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(33, 55, 43, 0.4);
   }
@@ -72,11 +164,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #642719 0%, color.adjust(#642719, $lightness: -10%) 100%);
+  background: linear-gradient(
+    135deg,
+    #642719 0%,
+    color.adjust(#642719, $lightness: -10%) 100%
+  );
   box-shadow: 0 4px 15px rgba(100, 39, 25, 0.3);
 
   &:hover {
-    background: linear-gradient(135deg, color.adjust(#642719, $lightness: -5%) 0%, color.adjust(#642719, $lightness: -15%) 100%);
+    background: linear-gradient(
+      135deg,
+      color.adjust(#642719, $lightness: -5%) 0%,
+      color.adjust(#642719, $lightness: -15%) 100%
+    );
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(100, 39, 25, 0.4);
   }
@@ -87,32 +187,59 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-outline-dark {
-  border: 2px solid #21372B;
-  color: #21372B;
+  border: 2px solid #21372b;
+  color: #21372b;
   background: transparent;
   font-weight: 600;
 
   &:hover {
-    background: #21372B;
-    color: #F7F2DA;
-    border-color: #21372B;
+    background: #21372b;
+    color: #f7f2da;
+    border-color: #21372b;
     transform: translateY(-2px);
   }
 }
 
 // Links
 a {
-  color: #21372B;
+  color: #21372b;
   transition: all 0.3s ease;
 
   &:hover {
-    color: color.adjust(#21372B, $lightness: -10%);
+    color: color.adjust(#21372b, $lightness: -10%);
   }
 }
 
 // Section Backgrounds
 .bg-light {
-  background: linear-gradient(135deg, #F7F2DA 0%, color.adjust(#F7F2DA, $lightness: -3%) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    #f7f2da 0%,
+    color.adjust(#f7f2da, $lightness: -3%) 100%
+  ) !important;
+}
+
+// Breadcrumbs (usado en páginas de categorías y detalles)
+.bg-light {
+  background: linear-gradient(
+    135deg,
+    rgba(#21372b, 0.05) 0%,
+    rgba(#f7f2da, 0.5) 100%
+  ) !important;
+  border-bottom: 1px solid color.adjust(#21372b, $lightness: 70%);
+
+  .breadcrumb a {
+    color: #642719;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #21372b;
+    }
+  }
+
+  .breadcrumb-item.active {
+    color: #21372b;
+  }
 }
 
 // Spacing helpers
@@ -123,7 +250,7 @@ a {
 
 // Text utilities
 .text-primary {
-  color: #21372B !important;
+  color: #21372b !important;
 }
 
 .text-secondary {
@@ -133,11 +260,15 @@ a {
 // WhatsApp Button
 .whatsapp-float {
   position: fixed;
-  width: 65px;
-  height: 65px;
-  bottom: 30px;
-  right: 30px;
-  background: linear-gradient(135deg, #25d366 0%, color.adjust(#25d366, $lightness: -10%) 100%);
+  width: clamp(50px, 8vw, 65px);
+  height: clamp(50px, 8vw, 65px);
+  bottom: clamp(20px, 3vw, 30px);
+  right: clamp(20px, 3vw, 30px);
+  background: linear-gradient(
+    135deg,
+    #25d366 0%,
+    color.adjust(#25d366, $lightness: -10%) 100%
+  );
   border-radius: 50%;
   box-shadow: 0 6px 25px rgba(37, 211, 102, 0.4);
   z-index: 1000;
@@ -156,18 +287,18 @@ a {
   }
 
   i {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
     color: white;
   }
+}
 
-  @media (max-width: 576px) {
-    width: 55px;
-    height: 55px;
-    bottom: 20px;
-    right: 20px;
+// Responsive images
+img {
+  max-width: 100%;
+  height: auto;
+}
 
-    i {
-      font-size: 1.75rem;
-    }
-  }
+// Prevent layout shift
+* {
+  box-sizing: border-box;
 }

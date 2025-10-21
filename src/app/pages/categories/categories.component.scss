@@ -18,33 +18,6 @@ $transition: all 0.3s ease;
   }
 }
 
-// Breadcrumb styling
-.bg-light {
-  background: linear-gradient(135deg, rgba($primary, 0.05) 0%, rgba($light, 0.5) 100%) !important;
-  border-bottom: 1px solid color.adjust($primary, $lightness: 70%);
-
-  .breadcrumb {
-    font-size: 0.9rem;
-
-    a {
-      color: $secondary;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      font-weight: 500;
-
-      &:hover {
-        color: $primary;
-        text-decoration: underline;
-      }
-    }
-
-    .breadcrumb-item.active {
-      color: $primary;
-      font-weight: 600;
-    }
-  }
-}
-
 // Hero Section
 .category-hero {
   background: linear-gradient(135deg, $primary 0%, color.adjust($primary, $lightness: 10%) 100%);
@@ -222,31 +195,5 @@ $transition: all 0.3s ease;
   }
   50% {
     opacity: 0.5;
-  }
-}
-
-// WhatsApp Float Button (ya está en global styles, pero lo dejamos por si acaso)
-.whatsapp-float {
-  position: fixed;
-  width: 60px;
-  height: 60px;
-  bottom: 40px;
-  right: 40px;
-  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-  border-radius: 50px;
-  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
-  z-index: 100;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: scale(1.15) rotate(5deg);
-    box-shadow: 0 12px 35px rgba(37, 211, 102, 0.5);
-  }
-
-  @media (max-width: 576px) {
-    width: 50px;
-    height: 50px;
-    bottom: 20px;
-    right: 20px;
   }
 }
