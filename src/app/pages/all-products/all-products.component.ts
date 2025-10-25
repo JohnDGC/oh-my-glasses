@@ -5,6 +5,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
 import { FormsModule } from '@angular/forms';
+import { SupabaseService } from '../../services/supabase.service';
 
 interface FilterOption {
   label: string;
@@ -20,19 +21,15 @@ interface FilterOption {
 })
 export class AllProductsComponent implements OnInit {
   private productService = inject(ProductService);
-
   categoryTitle = 'Todos los Lentes';
   categoryDescription = 'Explora nuestra colección completa de lentes para toda la familia. Encuentra el par perfecto que se adapte a tu estilo y necesidades.';
   products: Product[] = [];
   filteredProducts: Product[] = [];
-
-  // Filtros
   selectedSort = 'featured';
   selectedPriceRange = 'all';
   selectedStyle = 'all';
   selectedCategory = 'all';
   searchTerm = '';
-
   sortOptions: FilterOption[] = [
     { label: 'Destacados', value: 'featured' },
     { label: 'Precio: Menor a Mayor', value: 'price-asc' },
@@ -40,15 +37,13 @@ export class AllProductsComponent implements OnInit {
     { label: 'Nombre: A-Z', value: 'name-asc' },
     { label: 'Nombre: Z-A', value: 'name-desc' }
   ];
-
   priceRanges: FilterOption[] = [
     { label: 'Todos los precios', value: 'all' },
-    { label: 'Menos de $50', value: 'under-50' },
-    { label: '$50 - $100', value: '50-100' },
-    { label: '$100 - $150', value: '100-150' },
-    { label: 'Más de $150', value: 'over-150' }
+    { label: 'Menos de $200.000', value: 'under-200k' },
+    { label: '$200.000 - $400.000', value: '200k-400k' },
+    { label: '$400.000 - $600.000', value: '400k-600k' },
+    { label: 'Más de $600.000', value: 'over-600k' }
   ];
-
   styleOptions: FilterOption[] = [
     { label: 'Todos los estilos', value: 'all' },
     { label: 'Clásico', value: 'classic' },
@@ -56,7 +51,6 @@ export class AllProductsComponent implements OnInit {
     { label: 'Deportivo', value: 'sport' },
     { label: 'Casual', value: 'casual' }
   ];
-
   categoryOptions: FilterOption[] = [
     { label: 'Todas las categorías', value: 'all' },
     { label: 'Hombres', value: 'men' },
@@ -64,10 +58,17 @@ export class AllProductsComponent implements OnInit {
     { label: 'Niños', value: 'kids' }
   ];
 
-  ngOnInit() {
+  constructor(private supabase: SupabaseService) { }
+
+  async ngOnInit() {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    this.products = this.productService.getProducts();
-    this.applyFilters();
+    try {
+      this.products = await this.productService.getProducts();
+      this.applyFilters();
+      console.log('Products loaded from Supabase:', this.products.length);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    }
   }
 
   onSortChange() {
@@ -107,20 +108,20 @@ export class AllProductsComponent implements OnInit {
 
     if (this.selectedPriceRange !== 'all') {
       filtered = filtered.filter(product => {
-        const price = product.discountPrice || product.price;
+        const price = product.originalPrice && product.originalPrice > product.price ? product.price : product.price;
         switch (this.selectedPriceRange) {
-          case 'under-50': return price < 50;
-          case '50-100': return price >= 50 && price < 100;
-          case '100-150': return price >= 100 && price < 150;
-          case 'over-150': return price >= 150;
+          case 'under-200k': return price < 200000;
+          case '200k-400k': return price >= 200000 && price < 400000;
+          case '400k-600k': return price >= 400000 && price < 600000;
+          case 'over-600k': return price >= 600000;
           default: return true;
         }
       });
     }
 
     filtered.sort((a, b) => {
-      const priceA = a.discountPrice || a.price;
-      const priceB = b.discountPrice || b.price;
+      const priceA = a.price;
+      const priceB = b.price;
 
       switch (this.selectedSort) {
         case 'price-asc': return priceA - priceB;

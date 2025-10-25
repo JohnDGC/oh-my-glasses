@@ -1,40 +1,6 @@
 @use '../../../assets/scss/variables' as *;
 @use 'sass:color';
 
-// Animaciones
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInProducts {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-// Estilos personalizados (lo que no puede Bootstrap)
 .category-page {
   background: linear-gradient(to bottom, $light 0%, #fff 100%);
   animation: fadeIn 0.5s ease;
@@ -68,7 +34,6 @@
   }
 
   input, .form-select {
-    border-radius: 50px;
     border-color: color.adjust($primary, $lightness: 70%);
     background: rgba($light, 0.3);
 
@@ -94,7 +59,7 @@
   }
 
   .row {
-    animation: fadeInProducts 0.6s ease;
+    animation: fadeInUp 0.6s ease;
   }
 }
 

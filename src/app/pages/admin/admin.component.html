@@ -1,0 +1,420 @@
+<div class="admin-panel py-4">
+  <div class="container-fluid">
+    <div class="row mb-4">
+      <div class="col-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h1 class="h2 mb-2">
+            <i class="bi bi-shield-lock me-2"></i>
+            Panel de Administración
+          </h1>
+          <p class="text-muted mb-0">Gestiona el catálogo de productos de OhMyGlasses</p>
+        </div>
+        <button type="button" class="btn btn-outline-danger d-flex align-items-center gap-2" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="h5 mb-0">
+              <i class="bi bi-plus-circle me-2"></i>
+              {{ editingProduct ? 'Editar Producto' : 'Nuevo Producto' }}
+            </h3>
+            @if (editingProduct) {
+              <button type="button" class="btn btn-sm btn-light" (click)="cancelEdit()">
+                <i class="bi bi-x-circle me-1"></i>
+                Cancelar
+              </button>
+            }
+          </div>
+          <div class="card-body">
+            <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h5 class="border-bottom pb-2 mb-3">Información Básica</h5>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Nombre del Producto *</label>
+                  <input type="text" class="form-control" formControlName="name"
+                    placeholder="Ej: Classic Ray-Ban Aviator">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Marca *</label>
+                  <input type="text" class="form-control" formControlName="brand" placeholder="Ej: Ray-Ban">
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label">Descripción *</label>
+                  <textarea class="form-control" formControlName="description" rows="3"
+                    placeholder="Descripción detallada del producto"></textarea>
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h5 class="border-bottom pb-2 mb-3">Categorización</h5>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Categoría *</label>
+                  <select class="form-select" formControlName="category">
+                    <option value="">Seleccionar...</option>
+                    @for (cat of categories; track cat) {
+                      <option [value]="cat">{{ cat }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Estilo *</label>
+                  <select class="form-select" formControlName="style">
+                    <option value="">Seleccionar...</option>
+                    @for (st of styles; track st) {
+                      <option [value]="st">{{ st }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label">Color *</label>
+                  <input type="text" class="form-control" formControlName="color" placeholder="Ej: Dorado/Negro">
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h5 class="border-bottom pb-2 mb-3">Precios e Inventario</h5>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Precio *</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" formControlName="price" min="0" step="0.01">
+                  </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Precio Original</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" formControlName="originalPrice" min="0" step="0.01">
+                  </div>
+                  <small class="form-text text-muted">Para productos en descuento</small>
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Descuento %</label>
+                  <input type="number" class="form-control" formControlName="discount" min="0" max="100">
+                </div>
+                <div class="col-md-3 mb-3">
+                  <label class="form-label">Stock *</label>
+                  <input type="number" class="form-control" formControlName="stock" min="0">
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Material *</label>
+                  <input type="text" class="form-control" formControlName="material" placeholder="Ej: Metal/Acetato">
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold">Estado del Producto</label>
+                  <div class="d-flex gap-3 pt-2 flex-wrap">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" formControlName="isNew" id="isNew">
+                      <label class="form-check-label" for="isNew">
+                        Nuevo
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" formControlName="isFeatured" id="isFeatured">
+                      <label class="form-check-label" for="isFeatured">
+                        Destacado (Tendencias)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" formControlName="isOnSale" id="isOnSale">
+                      <label class="form-check-label" for="isOnSale">
+                        En Oferta
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-12 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="bi bi-house-door me-2"></i>Mostrar en Página Principal
+                  </label>
+                  <div class="alert alert-info py-2 mb-2">
+                    <small>
+                      <i class="bi bi-info-circle me-1"></i>
+                      Solo los primeros 8 productos seleccionados aparecerán en cada sección del Home
+                    </small>
+                  </div>
+                  <div class="d-flex gap-3 pt-2 flex-wrap">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" formControlName="showInHomeTrending"
+                        id="showInHomeTrending">
+                      <label class="form-check-label" [class.text-muted]="!isTrendingCheckboxEnabled"
+                        [style.cursor]="!isTrendingCheckboxEnabled ? 'not-allowed' : 'pointer'"
+                        for="showInHomeTrending">
+                        <i class="bi bi-fire text-warning me-1"></i>
+                        Mostrar en "Tendencias"
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" formControlName="showInHomeSales"
+                        id="showInHomeSales">
+                      <label class="form-check-label" [class.text-muted]="!isSalesCheckboxEnabled"
+                        [style.cursor]="!isSalesCheckboxEnabled ? 'not-allowed' : 'pointer'" for="showInHomeSales">
+                        <i class="bi bi-tag text-danger me-1"></i>
+                        Mostrar en "Ofertas"
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h5 class="border-bottom pb-2 mb-3">Imágenes del Producto</h5>
+                </div>
+                <div class="col-12 mb-3">
+                  <label class="form-label">Seleccionar Imágenes</label>
+                  <input type="file" class="form-control" (change)="onFileSelect($event)" accept="image/*" multiple>
+                  <small class="form-text text-muted">Puedes seleccionar múltiples imágenes. La primera será la
+                    principal.</small>
+                </div>
+                @if (imagePreviews.length > 0) {
+                  <div class="col-12">
+                    <div class="row g-3">
+                      @for (preview of imagePreviews; track $index; let i = $index) {
+                        <div class="col-md-3 col-sm-4 col-6">
+                          <div class="image-preview-card position-relative">
+                            <img [src]="preview" alt="Preview" class="img-fluid rounded">
+                            <div class="image-overlay">
+                              <button type="button" class="btn btn-sm btn-danger mb-1" (click)="removeImage(i)"
+                                title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                              <button type="button" class="btn btn-sm btn-primary mb-1" (click)="setMainImage(i)"
+                                [class.active]="images.at(i).value.isMain" title="Imagen principal">
+                                <i class="bi bi-star-fill"></i>
+                              </button>
+                              <div class="btn-group-vertical">
+                                <button type="button" class="btn btn-sm btn-secondary" (click)="moveImageUp(i)"
+                                  [disabled]="i === 0" title="Subir">
+                                  <i class="bi bi-arrow-up"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-secondary" (click)="moveImageDown(i)"
+                                  [disabled]="i === imagePreviews.length - 1" title="Bajar">
+                                  <i class="bi bi-arrow-down"></i>
+                                </button>
+                              </div>
+                            </div>
+                            @if (images.at(i).value.isMain) {
+                              <div class="image-badge">
+                                <span class="badge bg-warning text-dark">Principal</span>
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-12">
+                  <h5 class="border-bottom pb-2 mb-3">Características del Producto</h5>
+                </div>
+                <div class="col-12 mb-3">
+                  <button type="button" class="btn btn-outline-primary btn-sm" (click)="addFeature()">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Agregar Característica
+                  </button>
+                </div>
+                <div class="col-12" formArrayName="features">
+                  @for (feature of features.controls; track $index; let i = $index) {
+                    <div class="row g-2 mb-2" [formGroupName]="i">
+                      <div class="col-md-8 col-sm-7 col-12">
+                        <input type="text" class="form-control" formControlName="feature"
+                          placeholder="Ej: Protección UV400">
+                      </div>
+                      <div class="col-md-4 col-sm-5 col-12">
+                        <div class="btn-group w-100">
+                          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="moveFeatureUp(i)"
+                            [disabled]="i === 0">
+                            <i class="bi bi-arrow-up"></i>
+                          </button>
+                          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="moveFeatureDown(i)"
+                            [disabled]="i === features.length - 1">
+                            <i class="bi bi-arrow-down"></i>
+                          </button>
+                          <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeFeature(i)">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-12">
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isLoading">
+                      @if (isLoading) {
+                        <span>
+                          <span class="spinner-border spinner-border-sm me-2"></span>
+                          Guardando...
+                        </span>
+                      } @else {
+                        <span>
+                          <i class="bi bi-save me-2"></i>
+                          {{ editingProduct ? 'Actualizar' : 'Guardar' }} Producto
+                        </span>
+                      }
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()"
+                      [disabled]="isLoading">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">
+            <h3 class="h5 mb-0">
+              <i class="bi bi-grid-3x3-gap me-2"></i>
+              Catálogo de Productos ({{ filteredProducts.length }})
+            </h3>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" class="form-control" [(ngModel)]="searchTerm" (input)="searchProducts()"
+                    placeholder="Buscar por nombre, marca o categoría...">
+                </div>
+              </div>
+            </div>
+
+            @if (isLoading) {
+              <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-3 text-muted">Cargando productos...</p>
+              </div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 80px">Imagen</th>
+                      <th>Nombre</th>
+                      <th>Marca</th>
+                      <th>Categoría</th>
+                      <th>Precio</th>
+                      <th>Stock</th>
+                      <th>Estado</th>
+                      <th style="width: 150px">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (product of filteredProducts; track product.id) {
+                      <tr>
+                        <td>
+                          <img
+                            [src]="product.images && product.images.length > 0 ? product.images[0].imageUrl : 'assets/images/placeholder.jpg'"
+                            alt="{{ product.name }}" class="img-thumbnail"
+                            style="width: 60px; height: 60px; object-fit: cover;">
+                        </td>
+                        <td>
+                          <strong>{{ product.name }}</strong>
+                          <br>
+                          <small class="text-muted">{{ product.style }}</small>
+                        </td>
+                        <td>{{ product.brand }}</td>
+                        <td>
+                          <span class="badge bg-info">{{ product.category }}</span>
+                        </td>
+                        <td>
+                          <strong>{{ product.price | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</strong>
+                          @if (product.originalPrice && product.originalPrice > product.price) {
+                            <span class="text-muted text-decoration-line-through ms-1">
+                              <small>{{ product.originalPrice | currency:'COP':'symbol-narrow':'1.0-0':'es-CO'
+                                }}</small>
+                            </span>
+                          }
+                        </td>
+                        <td>
+                          <span class="badge" [class.bg-success]="product.stock > 10"
+                            [class.bg-warning]="product.stock > 0 && product.stock <= 10"
+                            [class.bg-danger]="product.stock === 0">
+                            {{ product.stock }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="d-flex flex-column gap-1">
+                            @if (product.isNew) {
+                              <span class="badge bg-success" style="font-size: 0.7rem">Nuevo</span>
+                            }
+                            @if (product.isFeatured) {
+                              <span class="badge bg-primary" style="font-size: 0.7rem">Destacado</span>
+                            }
+                            @if (product.isOnSale) {
+                              <span class="badge bg-danger" style="font-size: 0.7rem">Oferta</span>
+                            }
+                          </div>
+                        </td>
+                        <td>
+                          <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary" (click)="editProduct(product)"
+                              title="Editar">
+                              <i class="bi bi-pencil"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-danger" (click)="deleteProduct(product)"
+                              title="Eliminar">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="8">
+                          <div class="text-center py-5">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <p class="mt-3 text-muted">No se encontraron productos</p>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

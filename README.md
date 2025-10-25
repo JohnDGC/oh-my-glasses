@@ -19,6 +19,7 @@ E-commerce moderno y responsivo especializado en lentes de prescripción y gafas
 - 🌐 **SEO Friendly**: Estructura optimizada para motores de búsqueda
 - 💬 **Integración WhatsApp**: Botón flotante para consultas directas
 - 🍔 **Menú Burger**: Navegación móvil con overlay y blur
+- 🗄️ **Backend con Supabase**: Base de datos PostgreSQL y storage para imágenes
 
 ## 📋 Requisitos Previos
 
@@ -33,6 +34,10 @@ E-commerce moderno y responsivo especializado en lentes de prescripción y gafas
 - **TypeScript**: 5.9.3 - Lenguaje de programación
 - **RxJS**: 7.8.0 - Programación reactiva
 - **Zone.js**: 0.15.0 - Detección de cambios de Angular
+
+### Backend
+- **Supabase**: PostgreSQL database + Storage + Auth
+- **@supabase/supabase-js**: 2.x - Cliente JavaScript
 
 ### UI/Styling
 - **Bootstrap**: 5.3.8 - Framework CSS para layout responsive
@@ -56,14 +61,18 @@ cd oh-my-glasses
 npm install
 ```
 
-3. **Iniciar servidor de desarrollo**
+3. **Configurar Supabase (Opcional para desarrollo)**
+   - Sigue la guía completa en [`SUPABASE_SETUP.md`](SUPABASE_SETUP.md)
+   - O usa los datos mock mientras desarrollas
+
+4. **Iniciar servidor de desarrollo**
 ```bash
 npm start
 # o
 ng serve
 ```
 
-4. **Abrir en el navegador**
+5. **Abrir en el navegador**
 ```
 http://localhost:4200/
 ```
@@ -164,12 +173,13 @@ Los archivos optimizados se generan en el directorio `dist/`. Incluye:
 | Ruta | Componente | Descripción |
 |------|-----------|-------------|
 | `/` | `HomeComponent` | Página de inicio con destacados |
-| `/men` | `MenComponent` | Catálogo de lentes para hombres |
-| `/women` | `WomenComponent` | Catálogo de lentes para mujeres |
-| `/kids` | `KidsComponent` | Catálogo de lentes para niños |
-| `/all-products` | `AllProductsComponent` | Todos los productos disponibles |
+| `/hombres` | `MenComponent` | Catálogo de lentes para hombres |
+| `/mujeres` | `WomenComponent` | Catálogo de lentes para mujeres |
+| `/ninos` | `KidsComponent` | Catálogo de lentes para niños |
+| `/todos` | `AllProductsComponent` | Todos los productos disponibles |
 | `/categories` | `CategoriesComponent` | Vista general de categorías |
-| `/product/:id` | `ProductDetailComponent` | Detalle individual de producto |
+| `/producto/:id` | `ProductDetailComponent` | Detalle individual de producto |
+| `/admin` | `AdminComponent` | 🔒 Panel de administración (CRUD) |
 
 Todas las rutas utilizan `MainLayoutComponent` como wrapper para header y footer consistentes.
 
@@ -207,7 +217,34 @@ El proyecto implementa un enfoque **mobile-first** con múltiples breakpoints:
 - **Product Detail**: 61% reducción (350 → 135 líneas)
 - **Global Deduplication**: ~140 líneas eliminadas
 
-Ver `.github/copilot-instructions.md` para guías detalladas de desarrollo.
+## 🗄️ Backend con Supabase
+
+El proyecto está configurado para usar **Supabase** como backend completo:
+
+### Características Principales
+- 🗄️ **PostgreSQL Database**: Base de datos relacional con productos, imágenes y características
+- 📦 **Storage**: Almacenamiento de imágenes de productos
+- 🔒 **Row Level Security**: Políticas de seguridad configuradas
+- 📊 **Admin Panel**: Interfaz completa para gestión de productos en `/admin`
+
+### Panel de Administración (`/admin`)
+
+Interfaz completa de administración con:
+- ✅ CRUD completo de productos
+- 📸 Gestión de múltiples imágenes
+- 🏷️ Editor dinámico de características
+- 🔍 Búsqueda y filtrado en tiempo real
+- 📋 Tabla responsive con acciones rápidas
+
+### Desarrollo Local
+```bash
+# Para usar datos mock (sin Supabase)
+# En src/environments/environment.ts:
+useMockData: true
+
+# Para usar Supabase (backend real)
+useMockData: false
+```
 
 ## 🤝 Contribuir
 

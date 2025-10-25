@@ -43,3 +43,11 @@ Thumbs.db
 
 # GitHub Copilot instructions
 .github/copilot-instructions.md
+
+# Documentation and SQL files (private)
+docs/
+*.sql
+
+# Environment variables
+.env
+.env.local
