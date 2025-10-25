@@ -2,7 +2,9 @@
   <div class="product-image-container position-relative overflow-hidden">
     <img
       [src]="product.images && product.images.length > 0 ? product.images[0].imageUrl : 'https://via.placeholder.com/400x300?text=No+Image'"
-      [alt]="product.name" class="card-img-top product-img">
+      [alt]="product.name"
+      class="card-img-top product-img"
+      loading="lazy">
 
     @if (product.isNew || product.isOnSale) {
     <div class="badge-container position-absolute z-2 d-flex gap-2" style="top: 15px; left: 15px;">

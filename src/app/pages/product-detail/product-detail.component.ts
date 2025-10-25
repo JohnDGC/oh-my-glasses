@@ -93,15 +93,15 @@ export class ProductDetailComponent implements OnInit {
     }
 
     // Abrir el widget de Wompi
-    this.paymentService.openCheckout({
-      amountInCents: this.paymentService.convertToCents(this.product.price),
-      reference: this.paymentService.generateReference(),
-      customerData: {
-        email: 'cliente@ejemplo.com', // TODO: Obtener del usuario logueado
-        fullName: 'Cliente Ejemplo', // TODO: Obtener del usuario logueado
-        phoneNumber: '3001234567', // TODO: Obtener del usuario logueado (sin prefijo +57)
-        phoneNumberPrefix: '+57' // Prefijo para Colombia
-      }
-    });
+    // this.paymentService.openCheckout({
+    //   amountInCents: this.paymentService.convertToCents(this.product.price),
+    //   reference: this.paymentService.generateReference(),
+    //   customerData: {
+    //     email: 'cliente@ejemplo.com', // TODO: Obtener del usuario logueado
+    //     fullName: 'Cliente Ejemplo', // TODO: Obtener del usuario logueado
+    //     phoneNumber: '3001234567', // TODO: Obtener del usuario logueado (sin prefijo +57)
+    //     phoneNumberPrefix: '+57' // Prefijo para Colombia
+    //   }
+    // });
   }
 }

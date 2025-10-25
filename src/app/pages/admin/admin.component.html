@@ -194,7 +194,7 @@
                       @for (preview of imagePreviews; track $index; let i = $index) {
                         <div class="col-md-3 col-sm-4 col-6">
                           <div class="image-preview-card position-relative">
-                            <img [src]="preview" alt="Preview" class="img-fluid rounded">
+                            <img [src]="preview" alt="Preview" class="img-fluid rounded" loading="lazy">
                             <div class="image-overlay">
                               <button type="button" class="btn btn-sm btn-danger mb-1" (click)="removeImage(i)"
                                 title="Eliminar">
@@ -345,7 +345,8 @@
                           <img
                             [src]="product.images && product.images.length > 0 ? product.images[0].imageUrl : 'assets/images/placeholder.jpg'"
                             alt="{{ product.name }}" class="img-thumbnail"
-                            style="width: 60px; height: 60px; object-fit: cover;">
+                            style="width: 60px; height: 60px; object-fit: cover;"
+                            loading="lazy">
                         </td>
                         <td>
                           <strong>{{ product.name }}</strong>
