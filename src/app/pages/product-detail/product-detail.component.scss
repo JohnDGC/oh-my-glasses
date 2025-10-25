@@ -4,31 +4,56 @@
 .product-detail {
   background: linear-gradient(to bottom, $light 0%, #fff 30%);
   animation: fadeIn 0.5s ease;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 .product-images {
+  touch-action: manipulation;
+
   .main-image {
     animation: slideInLeft 0.6s ease;
+
+    img {
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+    }
 
     &:hover {
       box-shadow: 0 15px 50px rgba($primary, 0.25);
     }
   }
 
-  .image-thumbnails .thumbnail {
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba($primary, 0.2);
+  .image-thumbnails {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+
+    .thumbnail {
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba($primary, 0.2);
+
+        img {
+          opacity: 1 !important;
+          border-color: $primary !important;
+        }
+      }
+
+      &.active img {
+        border-color: $primary !important;
+        box-shadow: 0 3px 10px rgba($primary, 0.3);
+      }
 
       img {
-        opacity: 1 !important;
-        border-color: $primary !important;
+        pointer-events: none;
+        -webkit-user-drag: none;
       }
-    }
-
-    &.active img {
-      border-color: $primary !important;
-      box-shadow: 0 3px 10px rgba($primary, 0.3);
     }
   }
 }

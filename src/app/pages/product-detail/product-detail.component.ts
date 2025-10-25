@@ -21,7 +21,10 @@ export class ProductDetailComponent implements OnInit {
   currentImageUrl: string = '';
 
   async ngOnInit() {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
+
     this.route.params.subscribe(async params => {
       const productId = params['id'];
       try {
@@ -47,7 +50,11 @@ export class ProductDetailComponent implements OnInit {
     return mainImage ? mainImage.imageUrl : this.product.images[0].imageUrl;
   }
 
-  selectImage(imageUrl: string): void {
+  selectImage(imageUrl: string, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.currentImageUrl = imageUrl;
   }
 
