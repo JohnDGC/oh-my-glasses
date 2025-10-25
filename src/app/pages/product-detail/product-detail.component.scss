@@ -1,57 +1,6 @@
 @use '../../../assets/scss/variables' as *;
 @use 'sass:color';
 
-// Animaciones
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes bounceIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-// Estilos personalizados (reducidos al mínimo)
 .product-detail {
   background: linear-gradient(to bottom, $light 0%, #fff 30%);
   animation: fadeIn 0.5s ease;
@@ -68,12 +17,18 @@
 
   .image-thumbnails .thumbnail {
     &:hover {
-      box-shadow: 0 5px 15px rgba($primary, 0.15);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba($primary, 0.2);
+
+      img {
+        opacity: 1 !important;
+        border-color: $primary !important;
+      }
     }
 
-    &.active {
-      border-color: $secondary;
-      box-shadow: 0 5px 20px rgba($secondary, 0.3);
+    &.active img {
+      border-color: $primary !important;
+      box-shadow: 0 3px 10px rgba($primary, 0.3);
     }
   }
 }
@@ -89,18 +44,6 @@
   background-clip: text;
 }
 
-.badges .badge {
-  animation: bounceIn 0.8s ease;
-
-  &.bg-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
-  }
-
-  &.bg-danger {
-    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%) !important;
-  }
-}
-
 .product-price {
   background: linear-gradient(135deg, rgba($light, 0.5) 0%, rgba($secondary, 0.1) 100%);
   border-color: color.adjust($primary, $lightness: 70%);
@@ -113,7 +56,6 @@
   }
 
   .discount-badge {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
     animation: pulse 2s ease-in-out infinite;
   }
 }
@@ -146,12 +88,8 @@
   }
 }
 
-// Botón de WhatsApp personalizado (no es Bootstrap)
 .product-actions .btn-success {
   background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
 
   &::before {
     content: '';
@@ -166,17 +104,8 @@
     transition: width 0.6s, height 0.6s;
   }
 
-  &:hover {
-    box-shadow: 0 12px 30px rgba(37, 211, 102, 0.4);
-    transform: translateY(-2px);
-
-    &::before {
-      width: 300px;
-      height: 300px;
-    }
-  }
-
-  &:active {
-    transform: translateY(0);
+  &:hover::before {
+    width: 300px;
+    height: 300px;
   }
 }

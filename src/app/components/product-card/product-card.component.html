@@ -1,6 +1,8 @@
 <div class="card h-100 product-card border-0 rounded-4 overflow-hidden shadow position-relative">
   <div class="product-image-container position-relative overflow-hidden">
-    <img [src]="product.imageUrl" [alt]="product.name" class="card-img-top product-img">
+    <img
+      [src]="product.images && product.images.length > 0 ? product.images[0].imageUrl : 'https://via.placeholder.com/400x300?text=No+Image'"
+      [alt]="product.name" class="card-img-top product-img">
 
     @if (product.isNew || product.isOnSale) {
     <div class="badge-container position-absolute z-2 d-flex gap-2" style="top: 15px; left: 15px;">
@@ -13,7 +15,8 @@
     </div>
     }
 
-    <div class="product-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+    <div
+      class="product-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
       <a [routerLink]="['/producto', product.id]" class="btn btn-light btn-sm rounded-pill fw-semibold px-4 py-3">
         Ver Detalles
       </a>
@@ -21,21 +24,22 @@
   </div>
 
   <div class="card-body p-4">
-    <h5 class="product-title fw-semibold mb-3 lh-sm" style="font-size: clamp(1rem, 1.8vw, 1.1rem);">{{ product.name }}</h5>
+    <h5 class="product-title fw-semibold mb-3 lh-sm" style="font-size: clamp(1rem, 1.8vw, 1.1rem);">{{ product.name }}
+    </h5>
     <div class="price-container fw-bold" style="font-size: clamp(1.15rem, 2vw, 1.25rem);">
-      @if (product.discountPrice) {
+      @if (product.originalPrice && product.originalPrice > product.price) {
       <div class="d-flex align-items-center gap-2">
-        <span class="text-decoration-line-through text-muted fw-medium small" style="font-size: clamp(0.85rem, 1.5vw, 0.9rem);">
-          ${{ product.price.toFixed(2) }}
+        <span class="text-decoration-line-through text-muted fw-medium small"
+          style="font-size: clamp(0.85rem, 1.5vw, 0.9rem);">
+          {{ product.originalPrice | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
         </span>
         <span class="text-danger fw-bold" style="font-size: clamp(1.3rem, 2.2vw, 1.4rem);">
-          ${{ product.discountPrice.toFixed(2) }}
+          {{ product.price | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
         </span>
       </div>
       } @else {
-      <span class="fw-bold">${{ product.price.toFixed(2) }}</span>
+      <span class="fw-bold">{{ product.price | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
       }
     </div>
   </div>
 </div>
-

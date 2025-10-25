@@ -1,10 +1,47 @@
 @use '../../../assets/scss/variables' as *;
 @use "sass:color";
 
-// Hero Section - usando clases de Bootstrap donde sea posible
 .hero-section {
-  min-height: clamp(500px, 80vh, 90vh);
-  background: linear-gradient(135deg, $light 0%, color.adjust($light, $lightness: -5%) 100%);
+  min-height: clamp(600px, 85vh, 95vh);
+  background-image: url('/assets/images/banner.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+
+  // Overlay para que el texto sea legible
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right,
+      rgba($light, 0.95) 0%,      // Sólido a la izquierda
+      rgba($light, 0.85) 30%,     // Transición
+      rgba($light, 0.40) 60%,     // Más transparente
+      rgba($light, 0.20) 80%,     // Muy transparente
+      transparent 100%            // Totalmente transparente
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  @media (max-width: 991.98px) {
+    min-height: clamp(550px, 70vh, 750px);
+    background-position: 65% center; // Centrar la cara en móvil
+
+    &::before {
+      background: linear-gradient(to bottom,
+        rgba($primary, 0.60) 0%,
+        rgba($primary, 0.45) 40%,
+        rgba($primary, 0.65) 100%
+      );
+    }
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2; // Por encima del overlay
 }
 
 .hero-title {
@@ -14,11 +51,31 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: fadeInUp 0.8s ease-out;
+
+  @media (max-width: 991.98px) {
+    color: $light !important;
+    -webkit-text-fill-color: $light;
+    background: none;
+    text-shadow:
+      3px 3px 6px rgba(0, 0, 0, 0.9),
+      0 0 15px rgba(0, 0, 0, 0.6),
+      0 0 30px rgba(0, 0, 0, 0.4);
+    font-weight: 700 !important;
+  }
 }
 
 .hero-subtitle {
   font-size: clamp(1rem, 2.5vw, 1.5rem);
   animation: fadeInUp 1s ease-out 0.2s both;
+
+  @media (max-width: 991.98px) {
+    color: rgba($light, 0.95) !important;
+    text-shadow:
+      2px 2px 4px rgba(0, 0, 0, 0.8),
+      0 0 10px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(0, 0, 0, 0.3);
+    font-weight: 600 !important;
+  }
 }
 
 .hero-buttons {
@@ -33,46 +90,44 @@
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
   }
-}
 
-.hero-image {
-  clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+  @media (max-width: 991.98px) {
+    .btn-outline-dark {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      font-weight: 600;
 
-  @media (min-width: 1600px) {
-    width: 50%;
-  }
+      &:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
+      }
+    }
 
-  img {
-    filter: brightness(0.95) contrast(1.05);
-  }
-
-  &::after {
-    content: "";
-    background: linear-gradient(to right, $light 0%, rgba($light, 0.8) 30%, transparent 100%);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    .btn-primary {
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
   }
 }
 
-// Category Cards - reducido, usando Bootstrap
+// Ya no necesitamos los divs de imágenes separados
+// La imagen ahora es el background de toda la sección
+
 .category-card {
   border-radius: 20px;
   cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &::before {
     content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
     background: linear-gradient(135deg, $primary 0%, $secondary 100%);
     opacity: 0;
     transition: opacity 0.4s ease;
+    z-index: 0;
   }
 
   &:hover {
@@ -105,10 +160,15 @@
 
 .category-image {
   height: clamp(250px, 40vw, 350px);
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
 
   &::after {
     content: '';
+    position: absolute;
+    inset: 0;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
+    pointer-events: none;
   }
 
   img {
@@ -116,21 +176,27 @@
   }
 }
 
-.category-content h3 {
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  color: $primary;
+.category-content {
+  border-radius: 0 0 20px 20px;
+  transition: all 0.4s ease;
+
+  h3 {
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    color: $primary;
+    transition: color 0.3s ease;
+  }
 }
 
 .category-link {
   color: $secondary;
   font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+  transition: all 0.3s ease;
 
   i {
     transition: transform 0.3s ease;
   }
 }
 
-// Carousel Controls - simplificado
 .carousel {
   .carousel-control-prev,
   .carousel-control-next {
@@ -139,10 +205,12 @@
     background: linear-gradient(135deg, $primary, $secondary);
     border-radius: 50%;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 
     &:hover {
       opacity: 1;
       transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
   }
 
@@ -154,18 +222,21 @@
   }
 }
 
-// Section Headers - reducido
 .section-header {
   &::after {
     content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
     width: clamp(60px, 10vw, 80px);
     height: 4px;
     background: linear-gradient(90deg, $primary, $secondary);
     border-radius: 2px;
   }
+}
 
-  .section-title {
-    font-size: clamp(2rem, 5vw, 3rem);
-    color: $primary;
-  }
+.section-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: $primary;
 }

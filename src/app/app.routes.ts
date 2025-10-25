@@ -5,8 +5,15 @@ import { WomenComponent } from './pages/women/women.component';
 import { KidsComponent } from './pages/kids/kids.component';
 import { AllProductsComponent } from './pages/all-products/all-products.component';
 import { MainLayoutComponent } from './components/layouts/main-layout/main-layout.component';
+import { AdminComponent } from './pages/admin/admin.component';
+import { LoginComponent } from './pages/login/login.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    component: LoginComponent
+  },
   {
     path: '',
     component: MainLayoutComponent,
@@ -16,6 +23,11 @@ export const routes: Routes = [
       { path: 'mujeres', component: WomenComponent },
       { path: 'ninos', component: KidsComponent },
       { path: 'todos', component: AllProductsComponent },
+      {
+        path: 'admin',
+        component: AdminComponent,
+        canActivate: [authGuard]
+      },
       {
         path: 'producto/:id',
         loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent)

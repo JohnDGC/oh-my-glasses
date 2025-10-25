@@ -51,14 +51,21 @@ export class HomeComponent implements OnInit {
   salesGroups: Product[][] = [];
   currentTrendingIndex = 0;
   currentSalesIndex = 0;
+  isLoading = true;
 
   constructor(private productService: ProductService) { }
 
-  public ngOnInit(): void {
-    this.trendingProducts = this.productService.getTrendingProducts();
-    this.saleProducts = this.productService.getSaleProducts();
-    this.trendingGroups = this.chunkArray(this.trendingProducts, 4);
-    this.salesGroups = this.chunkArray(this.saleProducts, 4);
+  public async ngOnInit(): Promise<void> {
+    try {
+      this.trendingProducts = await this.productService.getTrendingProducts();
+      this.saleProducts = await this.productService.getSaleProducts();
+      this.trendingGroups = this.chunkArray(this.trendingProducts, 4);
+      this.salesGroups = this.chunkArray(this.saleProducts, 4);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   private chunkArray(array: Product[], size: number): Product[][] {

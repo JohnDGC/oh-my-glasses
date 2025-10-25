@@ -1,40 +1,34 @@
-<!-- Hero Banner -->
 <section class="hero-section position-relative overflow-hidden d-flex align-items-center">
-  <div class="hero-container position-relative w-100 h-100">
-    <div class="hero-content position-relative h-100 d-flex align-items-center py-3 py-md-4" style="z-index: 2;">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-6">
-            <h1 class="hero-title fw-bold lh-sm mb-3">Descubre tu estilo único</h1>
-            <p class="hero-subtitle text-muted fw-light mb-3">Colección 2025: Diseño contemporáneo meets comfort</p>
-            <div class="hero-buttons d-flex gap-2 flex-wrap">
-              <a routerLink="/new-collection" class="btn btn-primary btn-lg px-4" style="padding: 0.75rem 1.5rem !important;">Explorar Colección</a>
-              <a routerLink="/appointment" class="btn btn-outline-dark btn-lg px-4" style="padding: 0.75rem 1.5rem !important;">Agendar Cita</a>
-            </div>
+  <div class="hero-content position-relative w-100 h-100 d-flex align-items-center py-3 py-md-4">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <h1 class="hero-title fw-bold lh-sm mb-3">Descubre tu estilo único</h1>
+          <p class="hero-subtitle text-muted fw-light mb-3">Colección 2025: Diseño contemporáneo meets comfort</p>
+          <div class="hero-buttons d-flex gap-2 flex-wrap">
+            <a routerLink="/new-collection" class="btn btn-primary btn-lg px-4" style="padding: 0.75rem 1.5rem !important;">Explorar Colección</a>
+            <a routerLink="/appointment" class="btn btn-outline-dark btn-lg px-4" style="padding: 0.75rem 1.5rem !important;">Agendar Cita</a>
           </div>
         </div>
       </div>
     </div>
-    <div class="hero-image position-absolute top-0 end-0 w-50 h-100 d-none d-lg-block">
-      <img src="assets/images/banner.jpg" alt="Oh My Glasses Banner" class="w-100 h-100 object-fit-cover">
-    </div>
   </div>
 </section>
 
-<!-- Categorías -->
 <section class="categories-section py-3 py-md-4 bg-light">
   <div class="container">
     <div class="section-header text-center mb-4 position-relative">
       <h6 class="text-danger text-uppercase mb-2 fw-bold" style="letter-spacing: 2px; font-size: clamp(0.75rem, 1.2vw, 0.85rem);">Colecciones</h6>
       <h2 class="section-title fw-bold mb-2" style="letter-spacing: -0.5px;">Encuentra tu estilo</h2>
     </div>
-    <div class="row g-3">
-      <div class="col-12 col-sm-6 col-lg-4" *ngFor="let cat of categories">
-        <div class="category-card position-relative overflow-hidden bg-white shadow-sm mb-3 transition-all">
-          <div class="category-image position-relative overflow-hidden">
+    <div class="row g-3" style="padding-top: 1rem;">
+      @for (cat of categories; track cat.name) {
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="category-card position-relative bg-white shadow-sm mb-3 transition-all" style="border-radius: 20px; overflow: visible;">
+          <div class="category-image position-relative" style="overflow: hidden; border-radius: 20px 20px 0 0;">
             <img [src]="cat.img" [alt]="cat.name" class="img-fluid w-100 h-100 object-fit-cover">
           </div>
-          <div class="category-content p-3 bg-white position-relative">
+          <div class="category-content p-3 bg-white position-relative" style="border-radius: 0 0 20px 20px;">
             <h3 class="fw-bold mb-2" style="font-size: clamp(1.1rem, 2vw, 1.4rem);">{{ cat.name }}</h3>
             <a [routerLink]="cat.link" class="category-link text-decoration-none fw-semibold d-inline-flex align-items-center" style="font-size: clamp(0.9rem, 1.5vw, 1rem);">
               Explorar
@@ -43,11 +37,11 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
 </section>
 
-<!-- Productos en Tendencia -->
 <section class="trending-section py-3 py-md-4">
   <div class="container">
     <div class="section-header text-center mb-4 position-relative">
@@ -55,13 +49,22 @@
       <h2 class="section-title fw-bold mb-2" style="letter-spacing: -0.5px;">Lo más deseado</h2>
     </div>
 
-    <!-- Carousel Trending -->
-    <div id="trendingCarousel" class="carousel position-relative overflow-hidden px-2 px-md-3">
-      <div class="carousel-inner overflow-hidden position-relative w-100">
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando productos...</span>
+        </div>
+        <p class="text-muted mt-3">Cargando productos...</p>
+      </div>
+    }
+
+    @if (!isLoading && trendingGroups.length > 0) {
+    <div id="trendingCarousel" class="carousel position-relative px-2 px-md-3" style="overflow: visible;">
+      <div class="carousel-inner position-relative w-100" style="overflow: visible;">
         <div class="carousel-container d-flex position-relative w-100" [@slideAnimation]="currentTrendingIndex">
           @for (group of trendingGroups; track $index) {
           <div class="carousel-item flex-shrink-0 w-100" [class.active]="$index === currentTrendingIndex" [style.opacity]="$index === currentTrendingIndex ? 1 : 0">
-            <div class="row g-3">
+            <div class="row g-3" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">
               @for (product of group; track product.id) {
               <div class="col-12 col-sm-6 col-lg-3">
                 <app-product-card [product]="product"></app-product-card>
@@ -73,7 +76,6 @@
         </div>
       </div>
 
-      <!-- Botones de navegación -->
       <button class="carousel-control-prev position-absolute top-50 translate-middle-y start-0 opacity-75 transition-all d-none d-sm-flex align-items-center justify-content-center" type="button" (click)="prevTrending()">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Anterior</span>
@@ -83,10 +85,17 @@
         <span class="visually-hidden">Siguiente</span>
       </button>
     </div>
+    }
+
+    @if (!isLoading && trendingGroups.length === 0) {
+      <div class="text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted"></i>
+        <p class="text-muted mt-3">No hay productos destacados disponibles</p>
+      </div>
+    }
   </div>
 </section>
 
-<!-- Ofertas -->
 <section class="sales-section py-3 py-md-4 bg-light">
   <div class="container">
     <div class="section-header text-center mb-4 position-relative">
@@ -95,13 +104,22 @@
       <p class="text-muted mb-0" style="font-size: clamp(0.9rem, 1.5vw, 1rem);">Hasta 40% de descuento en modelos seleccionados</p>
     </div>
 
-    <!-- Carousel Sales -->
-    <div id="salesCarousel" class="carousel position-relative overflow-hidden px-2 px-md-3">
-      <div class="carousel-inner overflow-hidden position-relative w-100">
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando ofertas...</span>
+        </div>
+        <p class="text-muted mt-3">Cargando ofertas...</p>
+      </div>
+    }
+
+    @if (!isLoading && salesGroups.length > 0) {
+    <div id="salesCarousel" class="carousel position-relative px-2 px-md-3" style="overflow: visible;">
+      <div class="carousel-inner position-relative w-100" style="overflow: visible;">
         <div class="carousel-container d-flex position-relative w-100" [@slideAnimation]="currentSalesIndex">
           @for (group of salesGroups; track $index) {
           <div class="carousel-item flex-shrink-0 w-100" [class.active]="$index === currentSalesIndex" [style.opacity]="$index === currentSalesIndex ? 1 : 0">
-            <div class="row g-3">
+            <div class="row g-3" style="padding-top: 0.5rem; padding-bottom: 0.5rem;">
               @for (product of group; track product.id) {
               <div class="col-12 col-sm-6 col-lg-3">
                 <app-product-card [product]="product"></app-product-card>
@@ -113,7 +131,6 @@
         </div>
       </div>
 
-      <!-- Botones de navegación -->
       <button class="carousel-control-prev position-absolute top-50 translate-middle-y start-0 opacity-75 transition-all d-none d-sm-flex align-items-center justify-content-center" type="button" (click)="prevSales()">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Anterior</span>
@@ -123,10 +140,17 @@
         <span class="visually-hidden">Siguiente</span>
       </button>
     </div>
+    }
+
+    @if (!isLoading && salesGroups.length === 0) {
+      <div class="text-center py-5">
+        <i class="bi bi-tag display-1 text-muted"></i>
+        <p class="text-muted mt-3">No hay ofertas disponibles en este momento</p>
+      </div>
+    }
   </div>
 </section>
 
-<!-- WhatsApp Button -->
 <a href="https://wa.me/tunumero"
   class="whatsapp-float d-flex align-items-center justify-content-center text-white text-decoration-none"
   target="_blank" rel="noopener noreferrer">
