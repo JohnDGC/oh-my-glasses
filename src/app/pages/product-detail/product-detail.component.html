@@ -1,4 +1,4 @@
-<div class="product-detail min-vh-100">
+<div class="product-detail min-vh-100" style="overscroll-behavior-y: contain;">
   @if (product) {
     <div class="bg-light py-2">
       <div class="container">
@@ -21,7 +21,7 @@
     </div>
   }
 
-  <div class="container py-3 py-md-4">
+  <div class="container py-3 py-md-4" style="padding-bottom: 2rem !important;">
     <div class="row">
       <div class="col-lg-6 mb-3 mb-lg-0">
         <div class="product-images position-sticky" style="top: 80px;">
@@ -37,11 +37,12 @@
                  style="overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #21372B #f0f0f0; padding-bottom: 0.5rem;">
               @for (img of product.images; track img.imageUrl; let i = $index) {
                 <div class="thumbnail text-center position-relative"
-                     (click)="selectImage(img.imageUrl)"
+                     (click)="selectImage(img.imageUrl, $event)"
+                     (touchstart)="selectImage(img.imageUrl, $event)"
                      [class.active]="currentImageUrl === img.imageUrl"
-                     style="flex: 0 0 auto; padding: clamp(0.2rem, 0.8vw, 0.4rem); cursor: pointer; transition: all 0.3s ease;">
+                     style="flex: 0 0 auto; padding: clamp(0.2rem, 0.8vw, 0.4rem); cursor: pointer; transition: all 0.3s ease; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;">
                   <img [src]="img.imageUrl" [alt]="'Vista ' + (i + 1)" class="img-fluid rounded-2"
-                    style="height: clamp(50px, 8vw, 70px); width: clamp(50px, 8vw, 70px); object-fit: cover; border: 2px solid transparent; transition: all 0.3s ease;"
+                    style="height: clamp(50px, 8vw, 70px); width: clamp(50px, 8vw, 70px); object-fit: cover; border: 2px solid transparent; transition: all 0.3s ease; pointer-events: none;"
                     [style.border-color]="currentImageUrl === img.imageUrl ? '#21372B' : 'transparent'"
                     [style.opacity]="currentImageUrl === img.imageUrl ? '1' : '0.6'"
                     loading="lazy">
