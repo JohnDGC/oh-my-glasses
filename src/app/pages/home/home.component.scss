@@ -1,25 +1,24 @@
-@use '../../../assets/scss/variables' as *;
-@use "sass:color";
+@use "../../../assets/scss/variables" as *;
 
 .hero-section {
   min-height: clamp(600px, 85vh, 95vh);
-  background-image: url('/assets/images/banner.jpg');
+  background-image: url("/assets/images/banner.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
 
-  // Overlay para que el texto sea legible
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(to right,
-      rgba($light, 0.95) 0%,      // Sólido a la izquierda
-      rgba($light, 0.85) 30%,     // Transición
-      rgba($light, 0.40) 60%,     // Más transparente
-      rgba($light, 0.20) 80%,     // Muy transparente
-      transparent 100%            // Totalmente transparente
+    background: linear-gradient(
+      to right,
+      rgba($light, 0.95) 0%,
+      rgba($light, 0.85) 30%,
+      rgba($light, 0.4) 60%,
+      rgba($light, 0.2) 80%,
+      transparent 100%
     );
     z-index: 1;
     pointer-events: none;
@@ -27,11 +26,12 @@
 
   @media (max-width: 991.98px) {
     min-height: clamp(550px, 70vh, 750px);
-    background-position: 65% center; // Centrar la cara en móvil
+    background-position: 65% center;
 
     &::before {
-      background: linear-gradient(to bottom,
-        rgba($primary, 0.60) 0%,
+      background: linear-gradient(
+        to bottom,
+        rgba($primary, 0.6) 0%,
         rgba($primary, 0.45) 40%,
         rgba($primary, 0.65) 100%
       );
@@ -41,7 +41,7 @@
 
 .hero-content {
   position: relative;
-  z-index: 2; // Por encima del overlay
+  z-index: 2;
 }
 
 .hero-title {
@@ -56,9 +56,7 @@
     color: $light !important;
     -webkit-text-fill-color: $light;
     background: none;
-    text-shadow:
-      3px 3px 6px rgba(0, 0, 0, 0.9),
-      0 0 15px rgba(0, 0, 0, 0.6),
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9), 0 0 15px rgba(0, 0, 0, 0.6),
       0 0 30px rgba(0, 0, 0, 0.4);
     font-weight: 700 !important;
   }
@@ -70,9 +68,7 @@
 
   @media (max-width: 991.98px) {
     color: rgba($light, 0.95) !important;
-    text-shadow:
-      2px 2px 4px rgba(0, 0, 0, 0.8),
-      0 0 10px rgba(0, 0, 0, 0.5),
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5),
       0 0 20px rgba(0, 0, 0, 0.3);
     font-weight: 600 !important;
   }
@@ -81,27 +77,12 @@
 .hero-buttons {
   animation: fadeInUp 1.2s ease-out 0.4s both;
 
-  .btn {
-    border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-  }
-
   @media (max-width: 991.98px) {
     .btn-outline-dark {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
       border: 2px solid rgba(255, 255, 255, 0.3);
       font-weight: 600;
-
-      &:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: translateY(-2px);
-      }
     }
 
     .btn-primary {
@@ -111,25 +92,7 @@
   }
 }
 
-// Ya no necesitamos los divs de imágenes separados
-// La imagen ahora es el background de toda la sección
-
 .category-card {
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 20px;
-    background: linear-gradient(135deg, $primary 0%, $secondary 100%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    z-index: 0;
-  }
-
   &:hover {
     transform: translateY(-15px) scale(1.02);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
@@ -137,17 +100,22 @@
     &::before {
       opacity: 0.1;
     }
-
     .category-image img {
       transform: scale(1.15);
       filter: brightness(1.1);
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .category-content {
-      background: linear-gradient(to top, rgba($primary, 0.95), rgba($primary, 0.7));
+      background: linear-gradient(
+        to top,
+        rgba($primary, 0.95),
+        rgba($primary, 0.7)
+      );
       color: $light;
 
-      h3, .category-link {
+      h3,
+      .category-link {
         color: $light;
       }
 
@@ -160,41 +128,16 @@
 
 .category-image {
   height: clamp(250px, 40vw, 350px);
-  border-radius: 20px 20px 0 0;
-  overflow: hidden;
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.3), transparent);
-    pointer-events: none;
-  }
-
-  img {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
 }
 
-.category-content {
-  border-radius: 0 0 20px 20px;
-  transition: all 0.4s ease;
-
-  h3 {
-    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-    color: $primary;
-    transition: color 0.3s ease;
-  }
+.category-content h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  color: $primary;
 }
 
 .category-link {
   color: $secondary;
   font-size: clamp(0.95rem, 1.5vw, 1.1rem);
-  transition: all 0.3s ease;
-
-  i {
-    transition: transform 0.3s ease;
-  }
 }
 
 .carousel {
@@ -205,10 +148,8 @@
     background: linear-gradient(135deg, $primary, $secondary);
     border-radius: 50%;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
 
     &:hover {
-      opacity: 1;
       transform: translateY(-50%) scale(1.1);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     }
@@ -219,20 +160,6 @@
     width: clamp(18px, 3vw, 24px);
     height: clamp(18px, 3vw, 24px);
     filter: brightness(0) invert(1);
-  }
-}
-
-.section-header {
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: clamp(60px, 10vw, 80px);
-    height: 4px;
-    background: linear-gradient(90deg, $primary, $secondary);
-    border-radius: 2px;
   }
 }
 
