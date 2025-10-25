@@ -128,6 +128,19 @@ html {
   }
 }
 
+html {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: auto;
+  height: 100%;
+
+  @media (max-width: 991.98px) {
+    // Forzar altura fija en móvil para prevenir bounce
+    position: fixed;
+    overflow: hidden;
+    width: 100%;
+  }
+}
+
 body {
   background-color: #f7f2da;
   color: $text-dark;
@@ -139,8 +152,18 @@ body {
   min-height: 100vh;
   position: relative;
   width: 100%;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: auto;
+
+  @media (max-width: 991.98px) {
+    // Crear un contenedor de scroll propio
+    position: fixed;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 .container,
