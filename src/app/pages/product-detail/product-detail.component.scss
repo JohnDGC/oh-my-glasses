@@ -6,6 +6,8 @@
   animation: fadeIn 0.5s ease;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .product-images {

@@ -139,6 +139,8 @@ body {
   min-height: 100vh;
   position: relative;
   width: 100%;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .container,
