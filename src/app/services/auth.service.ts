@@ -5,12 +5,13 @@ import { SupabaseService } from './supabase.service';
 import { User, Session } from '@supabase/supabase-js';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
-  private readonly SESSION_KEY = 'ohmyglasses_session';
+  private initializationPromise: Promise<void>;
+  private _isInitialized = false;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -18,59 +19,41 @@ export class AuthService {
   ) {
     this.currentUserSubject = new BehaviorSubject<User | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
-    this.initAuthListener();
+    this.initializationPromise = this.initAuthListener();
   }
 
-  private async initAuthListener() {
-    try {
-      const savedSession = this.getStoredSession();
-      if (savedSession) {
-        const { data: { user } } = await this.supabaseService.client.auth.getUser(savedSession.access_token);
-        if (user)
-          this.currentUserSubject.next(user);
-        else
-          this.clearStoredSession();
+  public async waitForInitialization(): Promise<void> {
+    await this.initializationPromise;
+  }
 
+  public get isInitialized(): boolean {
+    return this._isInitialized;
+  }
+
+  private async initAuthListener(): Promise<void> {
+    try {
+      // Obtener la sesión actual de Supabase (maneja persistencia automáticamente)
+      const {
+        data: { session },
+      } = await this.supabaseService.client.auth.getSession();
+
+      if (session?.user) {
+        this.currentUserSubject.next(session.user);
       }
     } catch (error: any) {
       console.error('Error initializing auth listener:', error);
-      this.clearStoredSession();
+    } finally {
+      this._isInitialized = true;
     }
 
+    // Escuchar cambios de autenticación
     this.supabaseService.client.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        this.storeSession(session);
+      if (session?.user) {
         this.currentUserSubject.next(session.user);
       } else {
-        this.clearStoredSession();
         this.currentUserSubject.next(null);
       }
     });
-  }
-
-  private storeSession(session: Session): void {
-    try {
-      localStorage.setItem(this.SESSION_KEY, JSON.stringify(session));
-    } catch (error) {
-      console.error('Error storing session:', error);
-    }
-  }
-
-  private getStoredSession(): Session | null {
-    try {
-      const stored = localStorage.getItem(this.SESSION_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  private clearStoredSession(): void {
-    try {
-      localStorage.removeItem(this.SESSION_KEY);
-    } catch (error) {
-      console.error('Error clearing session:', error);
-    }
   }
 
   public get currentUserValue(): User | null {
@@ -78,10 +61,11 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string) {
-    const { data, error } = await this.supabaseService.client.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { data, error } =
+      await this.supabaseService.client.auth.signInWithPassword({
+        email,
+        password,
+      });
 
     if (error) throw error;
     return data;
@@ -91,42 +75,41 @@ export class AuthService {
     const { error } = await this.supabaseService.client.auth.signOut();
     if (error) throw error;
 
-    this.clearStoredSession();
     this.currentUserSubject.next(null);
     await this.router.navigate(['/login']);
   }
 
   async isAuthenticated(): Promise<boolean> {
+    // Si no está inicializado, esperar
+    if (!this._isInitialized) {
+      await this.waitForInitialization();
+    }
+
+    // Usar el valor actual del Subject (ya verificado en la inicialización)
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser) return true;
+
+    // Doble verificación consultando Supabase directamente
     try {
-      const savedSession = this.getStoredSession();
-      if (!savedSession) return false;
-
-      const expiresAt = savedSession.expires_at || 0;
-      if (Date.now() / 1000 > expiresAt) {
-        this.clearStoredSession();
-        return false;
+      const {
+        data: { session },
+      } = await this.supabaseService.client.auth.getSession();
+      if (session?.user) {
+        this.currentUserSubject.next(session.user);
+        return true;
       }
-
-      const { data: { user } } = await this.supabaseService.client.auth.getUser(savedSession.access_token);
-      return !!user;
+      return false;
     } catch (error: any) {
-      this.clearStoredSession();
       return false;
     }
   }
 
   async getSession(): Promise<Session | null> {
     try {
-      const savedSession = this.getStoredSession();
-      if (!savedSession) return null;
-
-      const expiresAt = savedSession.expires_at || 0;
-      if (Date.now() / 1000 > expiresAt) {
-        this.clearStoredSession();
-        return null;
-      }
-
-      return savedSession;
+      const {
+        data: { session },
+      } = await this.supabaseService.client.auth.getSession();
+      return session;
     } catch (error: any) {
       return null;
     }

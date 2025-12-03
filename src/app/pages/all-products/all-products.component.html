@@ -1,5 +1,4 @@
-<div class="category-page min-vh-100">
-  <!-- Breadcrumb -->
+<div class="category-page min-vh-100 bg-gradient">
   <div class="bg-light py-2">
     <div class="container">
       <nav aria-label="breadcrumb">
@@ -11,128 +10,20 @@
     </div>
   </div>
 
-  <!-- Hero Section -->
-  <div class="category-hero position-relative overflow-hidden py-3 py-md-4 mb-0">
-    <div class="container position-relative" style="z-index: 1;">
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <h1 class="category-title fw-bold text-white mb-2 mb-md-3" style="font-size: clamp(1.75rem, 4.5vw, 2.5rem);">{{categoryTitle}}</h1>
-          <p class="category-description text-white opacity-95 lh-base mb-0" style="font-size: clamp(0.95rem, 1.8vw, 1.1rem);">
-            {{categoryDescription}}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+  <app-category-hero [title]="categoryTitle" [description]="categoryDescription">
+  </app-category-hero>
 
-  <!-- Filters Section -->
-  <div class="filters-section py-2 py-md-3 border-bottom bg-white position-sticky top-0" style="z-index: 10;">
-    <div class="container">
-      <div class="row g-2 align-items-center">
-        <!-- Search -->
-        <div class="col-md-3">
-          <div class="search-box position-relative">
-            <i class="bi bi-search position-absolute top-50 translate-middle-y start-0 ms-3" style="font-size: clamp(0.9rem, 1.3vw, 1rem);"></i>
-            <input
-              type="text"
-              class="form-control ps-5 pe-3"
-              style="font-size: clamp(0.85rem, 1.1vw, 0.95rem); padding: 0.5rem 1rem;"
-              placeholder="Buscar lentes..."
-              (input)="onSearch($event)">
-          </div>
-        </div>
+  <app-category-filters [sortOptions]="sortOptions" [priceRanges]="priceRanges" [styleOptions]="styleOptions"
+    [categoryOptions]="categoryOptions" [showCategoryFilter]="true" [filterState]="filterState"
+    (filterChange)="onFilterChange($event)" (search)="onSearch($event)">
+  </app-category-filters>
 
-        <!-- Category Filter -->
-        <div class="col-md-2">
-          <select
-            class="form-select fw-medium"
-            style="font-size: clamp(0.85rem, 1.1vw, 0.95rem); padding: 0.5rem 1rem;"
-            [(ngModel)]="selectedCategory"
-            (change)="onCategoryChange()">
-            @for(category of categoryOptions; track category.value) {
-              <option [value]="category.value">{{category.label}}</option>
-            }
-          </select>
-        </div>
+  <app-products-grid [products]="filteredProducts">
+  </app-products-grid>
 
-        <!-- Sort -->
-        <div class="col-md-3">
-          <select
-            class="form-select fw-medium"
-            style="font-size: clamp(0.85rem, 1.1vw, 0.95rem); padding: 0.5rem 1rem;"
-            [(ngModel)]="selectedSort"
-            (change)="onSortChange()">
-            @for(option of sortOptions; track option.value) {
-              <option [value]="option.value">{{option.label}}</option>
-            }
-          </select>
-        </div>
-
-        <!-- Price Filter -->
-        <div class="col-md-2">
-          <select
-            class="form-select fw-medium"
-            style="font-size: clamp(0.85rem, 1.1vw, 0.95rem); padding: 0.5rem 1rem;"
-            [(ngModel)]="selectedPriceRange"
-            (change)="onPriceRangeChange()">
-            @for(range of priceRanges; track range.value) {
-              <option [value]="range.value">{{range.label}}</option>
-            }
-          </select>
-        </div>
-
-        <!-- Style Filter -->
-        <div class="col-md-2">
-          <select
-            class="form-select fw-medium"
-            style="font-size: clamp(0.85rem, 1.1vw, 0.95rem); padding: 0.5rem 1rem;"
-            [(ngModel)]="selectedStyle"
-            (change)="onStyleChange()">
-            @for(style of styleOptions; track style.value) {
-              <option [value]="style.value">{{style.label}}</option>
-            }
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Products Grid -->
-  <div class="products-section py-3 py-md-4">
-    <div class="container">
-      <!-- Results Info -->
-      <div class="results-info mb-3">
-        <p class="text-muted mb-0 small fw-medium ps-2">
-          Mostrando {{filteredProducts.length}} productos
-        </p>
-      </div>
-
-      <!-- Products Grid -->
-      <div class="row g-3">
-        @for(product of filteredProducts; track product.id) {
-          <div class="col-6 col-md-4 col-lg-3">
-            <app-product-card [product]="product"></app-product-card>
-          </div>
-        }
-      </div>
-
-      <!-- Empty State -->
-      @if(filteredProducts.length === 0) {
-        <div class="text-center py-5">
-          <i class="bi bi-search display-1 text-muted"></i>
-          <h3 class="mt-3 fw-semibold">No se encontraron productos</h3>
-          <p class="text-muted">Intenta ajustar los filtros de búsqueda</p>
-        </div>
-      }
-    </div>
-  </div>
-
-  <!-- WhatsApp Float -->
   <a href="https://wa.me/tunumero"
-     class="whatsapp-float d-flex align-items-center justify-content-center text-white text-decoration-none position-fixed rounded-circle shadow"
-     style="width: 60px; height: 60px; bottom: 40px; right: 40px; background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); z-index: 100;"
-     target="_blank"
-     rel="noopener noreferrer">
+    class="whatsapp-float d-flex align-items-center justify-content-center text-white text-decoration-none"
+    target="_blank" rel="noopener noreferrer">
     <i class="bi bi-whatsapp fs-4"></i>
   </a>
 </div>

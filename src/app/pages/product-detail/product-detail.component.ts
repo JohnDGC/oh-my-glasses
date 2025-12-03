@@ -19,9 +19,10 @@ export class ProductDetailComponent implements OnInit {
   private paymentService = inject(PaymentService);
   product: Product | undefined;
   currentImageUrl: string = '';
+  private startY: number = 0;
 
   async ngOnInit() {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    this.preventPullToRefresh();
     this.route.params.subscribe(async params => {
       const productId = params['id'];
       try {
@@ -47,7 +48,11 @@ export class ProductDetailComponent implements OnInit {
     return mainImage ? mainImage.imageUrl : this.product.images[0].imageUrl;
   }
 
-  selectImage(imageUrl: string): void {
+  selectImage(imageUrl: string, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     this.currentImageUrl = imageUrl;
   }
 
@@ -103,5 +108,26 @@ export class ProductDetailComponent implements OnInit {
     //     phoneNumberPrefix: '+57' // Prefijo para Colombia
     //   }
     // });
+  }
+
+  /**
+   * Prevenir pull-to-refresh en dispositivos móviles (iOS/Android)
+   */
+  private preventPullToRefresh(): void {
+    let lastY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      lastY = e.touches[0].clientY;
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+      const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      const currentY = e.touches[0].clientY;
+      if (scrollTop <= 0 && currentY > lastY) {
+        e.preventDefault();
+      }
+
+      lastY = currentY;
+    }, { passive: false });
   }
 }
