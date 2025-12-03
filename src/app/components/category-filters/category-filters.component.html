@@ -1,0 +1,136 @@
+<div class="filters-section py-2 py-md-3 border-bottom bg-white position-sticky top-0" style="z-index: 10;">
+  <div class="container">
+    <div class="d-md-none mb-2">
+      <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+        (click)="toggleFilters()">
+        <i class="bi bi-funnel-fill"></i>
+        <span>Filtros</span>
+        @if (hasActiveFilters()) {
+        <span class="badge bg-danger rounded-pill">{{ getActiveFiltersCount() }}</span>
+        }
+      </button>
+    </div>
+
+    <div class="row g-2 align-items-center d-none d-md-flex">
+      <div [class]="showCategoryFilter ? 'col-md-3' : 'col-md-4'">
+        <div class="position-relative">
+          <i class="bi bi-search position-absolute top-50 translate-middle-y start-0 ms-3 text-secondary"></i>
+          <input type="text" class="form-control form-control-sm ps-5 pe-3 rounded-pill" placeholder="Buscar lentes..."
+            [(ngModel)]="filterState.searchTerm" (input)="onSearch($event)">
+        </div>
+      </div>
+
+      @if (showCategoryFilter && categoryOptions) {
+      <div class="col-md-2">
+        <select class="form-select form-select-sm fw-medium rounded-pill" [(ngModel)]="filterState.selectedCategory"
+          (change)="onFilterChange()">
+          @for(category of categoryOptions; track category.value) {
+          <option [value]="category.value">{{category.label}}</option>
+          }
+        </select>
+      </div>
+      }
+
+      <div [class]="showCategoryFilter ? 'col-md-3' : 'col-md-3'">
+        <select class="form-select form-select-sm fw-medium rounded-pill" [(ngModel)]="filterState.selectedSort"
+          (change)="onFilterChange()">
+          @for(option of sortOptions; track option.value) {
+          <option [value]="option.value">{{option.label}}</option>
+          }
+        </select>
+      </div>
+
+      <div [class]="showCategoryFilter ? 'col-md-2' : 'col-md-3'">
+        <select class="form-select form-select-sm fw-medium rounded-pill" [(ngModel)]="filterState.selectedPriceRange"
+          (change)="onFilterChange()">
+          @for(range of priceRanges; track range.value) {
+          <option [value]="range.value">{{range.label}}</option>
+          }
+        </select>
+      </div>
+
+      <div class="col-md-2">
+        <select class="form-select form-select-sm fw-medium rounded-pill" [(ngModel)]="filterState.selectedStyle"
+          (change)="onFilterChange()">
+          @for(style of styleOptions; track style.value) {
+          <option [value]="style.value">{{style.label}}</option>
+          }
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+@if (showFilters) {
+<div class="filters-overlay d-md-none position-fixed top-0 start-0 end-0 bottom-0"
+  style="background: rgba(0, 0, 0, 0.5); z-index: 9999;" (click)="toggleFilters()">
+  <div class="filters-modal bg-white rounded-4 shadow-lg m-auto"
+    style="max-width: 90%; max-height: 90vh; margin-top: 5vh !important; margin-bottom: 5vh !important;"
+    (click)="$event.stopPropagation()">
+
+    <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+      <h5 class="mb-0 fw-bold">Filtros</h5>
+      <button type="button" class="btn-close" (click)="toggleFilters()"></button>
+    </div>
+
+    <div class="p-3 overflow-auto" style="max-height: calc(90vh - 140px);">
+      <div class="mb-3">
+        <label class="form-label fw-semibold small text-uppercase">Buscar</label>
+        <div class="position-relative">
+          <i class="bi bi-search position-absolute top-50 translate-middle-y start-0 ms-3 text-secondary"></i>
+          <input type="text" class="form-control ps-5 rounded-pill" placeholder="Buscar lentes..."
+            [(ngModel)]="filterState.searchTerm" (input)="onSearch($event)">
+        </div>
+      </div>
+
+      @if (showCategoryFilter && categoryOptions) {
+      <div class="mb-3">
+        <label class="form-label fw-semibold small text-uppercase">Categoría</label>
+        <select class="form-select rounded-pill" [(ngModel)]="filterState.selectedCategory" (change)="onFilterChange()">
+          @for(category of categoryOptions; track category.value) {
+          <option [value]="category.value">{{category.label}}</option>
+          }
+        </select>
+      </div>
+      }
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold small text-uppercase">Ordenar por</label>
+        <select class="form-select rounded-pill" [(ngModel)]="filterState.selectedSort" (change)="onFilterChange()">
+          @for(option of sortOptions; track option.value) {
+          <option [value]="option.value">{{option.label}}</option>
+          }
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold small text-uppercase">Rango de precio</label>
+        <select class="form-select rounded-pill" [(ngModel)]="filterState.selectedPriceRange"
+          (change)="onFilterChange()">
+          @for(range of priceRanges; track range.value) {
+          <option [value]="range.value">{{range.label}}</option>
+          }
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold small text-uppercase">Estilo</label>
+        <select class="form-select rounded-pill" [(ngModel)]="filterState.selectedStyle" (change)="onFilterChange()">
+          @for(style of styleOptions; track style.value) {
+          <option [value]="style.value">{{style.label}}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 p-3 border-top">
+      <button class="btn btn-outline-secondary flex-fill rounded-pill fw-semibold" (click)="clearFilters()">
+        Limpiar filtros
+      </button>
+      <button class="btn btn-primary flex-fill rounded-pill fw-semibold shadow-sm" (click)="toggleFilters()">
+        Aplicar filtros
+      </button>
+    </div>
+  </div>
+</div>
+}

@@ -1,0 +1,19 @@
+@use '../../../assets/scss/variables' as *;
+
+.formula-page {
+  background: linear-gradient(to bottom, $light 0%, #fff 100%);
+
+  h1 {
+    color: $primary;
+  }
+
+  .feature-card {
+    min-width: 150px;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+}

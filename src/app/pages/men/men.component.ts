@@ -1,20 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
-import { FormsModule } from '@angular/forms';
-
-interface FilterOption {
-  label: string;
-  value: string;
-}
+import { CategoryHeroComponent } from '../../components/category-hero/category-hero.component';
+import { CategoryFiltersComponent, FilterOption, FilterState } from '../../components/category-filters/category-filters.component';
+import { ProductsGridComponent } from '../../components/products-grid/products-grid.component';
 
 @Component({
   selector: 'app-men',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent, FormsModule, RouterModule],
+  imports: [CommonModule, RouterModule, CategoryHeroComponent, CategoryFiltersComponent, ProductsGridComponent],
   templateUrl: './men.component.html',
   styleUrl: './men.component.scss'
 })
@@ -24,10 +20,12 @@ export class MenComponent implements OnInit {
   categoryDescription = 'Descubre nuestra colección exclusiva de monturas y lentes diseñados específicamente para el hombre moderno. Combina estilo y funcionalidad con nuestras opciones premium.';
   products: Product[] = [];
   filteredProducts: Product[] = [];
-  selectedSort = 'featured';
-  selectedPriceRange = 'all';
-  selectedStyle = 'all';
-  searchTerm = '';
+  filterState: FilterState = {
+    searchTerm: '',
+    selectedSort: 'featured',
+    selectedPriceRange: 'all',
+    selectedStyle: 'all'
+  };
   sortOptions: FilterOption[] = [
     { label: 'Destacados', value: 'featured' },
     { label: 'Precio: Menor a Mayor', value: 'price-asc' },
@@ -60,37 +58,30 @@ export class MenComponent implements OnInit {
     }
   }
 
-  onSortChange() {
+  onFilterChange(filterState: FilterState) {
+    this.filterState = filterState;
     this.applyFilters();
   }
 
-  onPriceRangeChange() {
-    this.applyFilters();
-  }
-
-  onStyleChange() {
-    this.applyFilters();
-  }
-
-  onSearch(event: Event) {
-    this.searchTerm = (event.target as HTMLInputElement).value;
+  onSearch(searchTerm: string) {
+    this.filterState.searchTerm = searchTerm;
     this.applyFilters();
   }
 
   private applyFilters() {
     let filtered = [...this.products];
 
-    if (this.searchTerm) {
+    if (this.filterState.searchTerm) {
       filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(this.searchTerm.toLowerCase())
+        product.name.toLowerCase().includes(this.filterState.searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(this.filterState.searchTerm.toLowerCase())
       );
     }
 
-    if (this.selectedPriceRange !== 'all') {
+    if (this.filterState.selectedPriceRange !== 'all') {
       filtered = filtered.filter(product => {
-        const price = product.originalPrice && product.originalPrice > product.price ? product.price : product.price;
-        switch (this.selectedPriceRange) {
+        const price = product.price;
+        switch (this.filterState.selectedPriceRange) {
           case 'under-200k': return price < 200000;
           case '200k-400k': return price >= 200000 && price < 400000;
           case '400k-600k': return price >= 400000 && price < 600000;
@@ -104,7 +95,7 @@ export class MenComponent implements OnInit {
       const priceA = a.price;
       const priceB = b.price;
 
-      switch (this.selectedSort) {
+      switch (this.filterState.selectedSort) {
         case 'price-asc': return priceA - priceB;
         case 'price-desc': return priceB - priceA;
         case 'name-asc': return a.name.localeCompare(b.name);

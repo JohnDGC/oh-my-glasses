@@ -1,7 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Product, ProductImage, ProductFeature } from '../../models/product.model';
+import {
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from '@angular/forms';
+import {
+  Product,
+  ProductImage,
+  ProductFeature,
+} from '../../models/product.model';
 import { SupabaseProductService } from '../../services/supabase-product.service';
 import { SupabaseService } from '../../services/supabase.service';
 
@@ -9,7 +20,7 @@ import { SupabaseService } from '../../services/supabase.service';
   selector: 'app-admin',
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.scss'
+  styleUrl: './admin.component.scss',
 })
 export class AdminComponent implements OnInit {
   productForm!: FormGroup;
@@ -21,25 +32,34 @@ export class AdminComponent implements OnInit {
   searchTerm = '';
   filteredProducts: Product[] = [];
   categories = ['Hombres', 'Mujeres', 'Niños'];
-  styles = ['Aviador', 'Cuadrado', 'Redondo', 'Cat Eye', 'Rectangular', 'Ovalado', 'Mariposa', 'Deportivo'];
+  styles = [
+    'Aviador',
+    'Cuadrado',
+    'Redondo',
+    'Cat Eye',
+    'Rectangular',
+    'Ovalado',
+    'Mariposa',
+    'Deportivo',
+  ];
 
   private categoryMap: { [key: string]: string } = {
-    'Hombres': 'men',
-    'Mujeres': 'women',
-    'Niños': 'kids'
+    Hombres: 'men',
+    Mujeres: 'women',
+    Niños: 'kids',
   };
 
   private categoryReverseMap: { [key: string]: string } = {
-    'men': 'Hombres',
-    'women': 'Mujeres',
-    'kids': 'Niños'
+    men: 'Hombres',
+    women: 'Mujeres',
+    kids: 'Niños',
   };
 
   constructor(
     private fb: FormBuilder,
     private productService: SupabaseProductService,
     private supabaseService: SupabaseService
-  ) { }
+  ) {}
 
   async logout() {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
@@ -76,10 +96,10 @@ export class AdminComponent implements OnInit {
       showInHomeTrending: [false],
       showInHomeSales: [false],
       images: this.fb.array([]),
-      features: this.fb.array([])
+      features: this.fb.array([]),
     });
 
-    this.productForm.get('isFeatured')?.valueChanges.subscribe(value => {
+    this.productForm.get('isFeatured')?.valueChanges.subscribe((value) => {
       const trendingControl = this.productForm.get('showInHomeTrending');
       if (value) {
         trendingControl?.enable();
@@ -89,7 +109,7 @@ export class AdminComponent implements OnInit {
       }
     });
 
-    this.productForm.get('isOnSale')?.valueChanges.subscribe(value => {
+    this.productForm.get('isOnSale')?.valueChanges.subscribe((value) => {
       const salesControl = this.productForm.get('showInHomeSales');
       if (value) {
         salesControl?.enable();
@@ -138,10 +158,11 @@ export class AdminComponent implements OnInit {
       return;
     }
     const term = this.searchTerm.toLowerCase();
-    this.filteredProducts = this.products.filter(p =>
-      p.name.toLowerCase().includes(term) ||
-      (p.brand && p.brand.toLowerCase().includes(term)) ||
-      p.category.toLowerCase().includes(term)
+    this.filteredProducts = this.products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(term) ||
+        (p.brand && p.brand.toLowerCase().includes(term)) ||
+        p.category.toLowerCase().includes(term)
     );
   }
 
@@ -150,17 +171,19 @@ export class AdminComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       const filesArray = Array.from(input.files);
 
-      filesArray.forEach(file => {
+      filesArray.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           const currentIndex = this.images.length;
           this.imagePreviews.push(e.target?.result as string);
           this.imageFiles[currentIndex] = file;
-          this.images.push(this.fb.group({
-            imageUrl: [''],
-            isMain: [this.images.length === 0],
-            orderIndex: [currentIndex]
-          }));
+          this.images.push(
+            this.fb.group({
+              imageUrl: [''],
+              isMain: [this.images.length === 0],
+              orderIndex: [currentIndex],
+            })
+          );
         };
         reader.readAsDataURL(file);
       });
@@ -171,26 +194,30 @@ export class AdminComponent implements OnInit {
     const imageControl = this.images.at(index);
     const imageUrl = imageControl.value.imageUrl;
     if (imageUrl && imageUrl.includes('supabase')) {
-      if (!confirm('¿Eliminar esta imagen? Se borrará permanentemente del storage.')) {
+      if (
+        !confirm(
+          '¿Eliminar esta imagen? Se borrará permanentemente del storage.'
+        )
+      ) {
         return;
       }
 
       try {
-        const deleted = await this.supabaseService.deleteImage(imageUrl, 'products');
-        if (deleted) {
-          console.log('✅ Imagen eliminada del storage:', imageUrl);
-        }
+        const deleted = await this.supabaseService.deleteImage(
+          imageUrl,
+          'products'
+        );
       } catch (error) {
         console.error('❌ Error al eliminar imagen del storage:', error);
-        alert('Error al eliminar la imagen del storage. Se quitará del formulario de todas formas.');
+        alert(
+          'Error al eliminar la imagen del storage. Se quitará del formulario de todas formas.'
+        );
       }
     }
 
-    if (index < this.imageFiles.length)
-      this.imageFiles.splice(index, 1);
+    if (index < this.imageFiles.length) this.imageFiles.splice(index, 1);
 
-    if (index < this.imagePreviews.length)
-      this.imagePreviews.splice(index, 1);
+    if (index < this.imagePreviews.length) this.imagePreviews.splice(index, 1);
 
     this.images.removeAt(index);
 
@@ -216,8 +243,14 @@ export class AdminComponent implements OnInit {
   moveImageUp(index: number) {
     if (index === 0) return;
 
-    [this.imageFiles[index], this.imageFiles[index - 1]] = [this.imageFiles[index - 1], this.imageFiles[index]];
-    [this.imagePreviews[index], this.imagePreviews[index - 1]] = [this.imagePreviews[index - 1], this.imagePreviews[index]];
+    [this.imageFiles[index], this.imageFiles[index - 1]] = [
+      this.imageFiles[index - 1],
+      this.imageFiles[index],
+    ];
+    [this.imagePreviews[index], this.imagePreviews[index - 1]] = [
+      this.imagePreviews[index - 1],
+      this.imagePreviews[index],
+    ];
     const temp = this.images.at(index).value;
     this.images.at(index).patchValue(this.images.at(index - 1).value);
     this.images.at(index - 1).patchValue(temp);
@@ -232,10 +265,12 @@ export class AdminComponent implements OnInit {
   }
 
   addFeature() {
-    this.features.push(this.fb.group({
-      feature: ['', Validators.required],
-      orderIndex: [this.features.length]
-    }));
+    this.features.push(
+      this.fb.group({
+        feature: ['', Validators.required],
+        orderIndex: [this.features.length],
+      })
+    );
   }
 
   removeFeature(index: number) {
@@ -263,7 +298,8 @@ export class AdminComponent implements OnInit {
 
   editProduct(product: Product) {
     this.editingProduct = product;
-    const categoryDisplay = this.categoryReverseMap[product.category] || product.category;
+    const categoryDisplay =
+      this.categoryReverseMap[product.category] || product.category;
     this.productForm.patchValue({
       name: product.name,
       description: product.description,
@@ -280,18 +316,15 @@ export class AdminComponent implements OnInit {
       isFeatured: product.isFeatured,
       isOnSale: product.isOnSale,
       showInHomeTrending: product.showInHomeTrending !== false,
-      showInHomeSales: product.showInHomeSales !== false
+      showInHomeSales: product.showInHomeSales !== false,
     });
 
     if (product.isFeatured)
       this.productForm.get('showInHomeTrending')?.enable();
-    else
-      this.productForm.get('showInHomeTrending')?.disable();
+    else this.productForm.get('showInHomeTrending')?.disable();
 
-    if (product.isOnSale)
-      this.productForm.get('showInHomeSales')?.enable();
-    else
-      this.productForm.get('showInHomeSales')?.disable();
+    if (product.isOnSale) this.productForm.get('showInHomeSales')?.enable();
+    else this.productForm.get('showInHomeSales')?.disable();
 
     this.images.clear();
     this.features.clear();
@@ -301,20 +334,24 @@ export class AdminComponent implements OnInit {
     if (product.images && product.images.length > 0) {
       product.images.forEach((img, index) => {
         this.imagePreviews.push(img.imageUrl);
-        this.images.push(this.fb.group({
-          imageUrl: [img.imageUrl],
-          isMain: [img.isMain],
-          orderIndex: [index]
-        }));
+        this.images.push(
+          this.fb.group({
+            imageUrl: [img.imageUrl],
+            isMain: [img.isMain],
+            orderIndex: [index],
+          })
+        );
       });
     }
 
     if (product.features && product.features.length > 0) {
       product.features.forEach((feat, index) => {
-        this.features.push(this.fb.group({
-          feature: [feat.feature],
-          orderIndex: [index]
-        }));
+        this.features.push(
+          this.fb.group({
+            feature: [feat.feature],
+            orderIndex: [index],
+          })
+        );
       });
     }
 
@@ -366,36 +403,46 @@ export class AdminComponent implements OnInit {
         const imageControl = this.images.at(i);
         const imageUrl = imageControl.value.imageUrl;
 
-        if (imageUrl && (imageUrl.includes('supabase') || imageUrl.includes('http'))) {
+        if (
+          imageUrl &&
+          (imageUrl.includes('supabase') || imageUrl.includes('http'))
+        ) {
           allImages.push({
             imageUrl: imageUrl,
             isMain: imageControl.value.isMain,
-            orderIndex: i
+            orderIndex: i,
           });
-        }
-        else if (this.imageFiles[i]) {
+        } else if (this.imageFiles[i]) {
           const file = this.imageFiles[i];
-          const uploadedUrl = await this.supabaseService.uploadImage(file, 'products');
+          const uploadedUrl = await this.supabaseService.uploadImage(
+            file,
+            'products'
+          );
           if (uploadedUrl) {
             allImages.push({
               imageUrl: uploadedUrl,
               isMain: imageControl.value.isMain,
-              orderIndex: i
+              orderIndex: i,
             });
           }
         }
       }
 
-      const categoryValue = this.categoryMap[this.productForm.value.category] || this.productForm.value.category.toLowerCase();
+      const categoryValue =
+        this.categoryMap[this.productForm.value.category] ||
+        this.productForm.value.category.toLowerCase();
       const productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> = {
         ...this.productForm.value,
         category: categoryValue,
         images: allImages,
-        features: this.features.value as ProductFeature[]
+        features: this.features.value as ProductFeature[],
       };
 
       if (this.editingProduct) {
-        await this.productService.updateProduct(this.editingProduct.id, productData);
+        await this.productService.updateProduct(
+          this.editingProduct.id,
+          productData
+        );
         alert('Producto actualizado exitosamente');
       } else {
         await this.productService.createProduct(productData);
