@@ -3,7 +3,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
@@ -14,10 +14,13 @@ export class SupabaseService {
       environment.supabase.anonKey,
       {
         auth: {
-          persistSession: false,
-          autoRefreshToken: false,
+          persistSession: true,
+          autoRefreshToken: true,
           detectSessionInUrl: false,
-        }
+          storage: window.localStorage,
+          storageKey: 'ohmyglasses-auth-token',
+          flowType: 'pkce',
+        },
       }
     );
   }
@@ -26,7 +29,10 @@ export class SupabaseService {
     return this.supabase;
   }
 
-  async uploadImage(file: File, bucket: string = 'products'): Promise<string | null> {
+  async uploadImage(
+    file: File,
+    bucket: string = 'products'
+  ): Promise<string | null> {
     try {
       const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
 
@@ -39,9 +45,9 @@ export class SupabaseService {
         return null;
       }
 
-      const { data: { publicUrl } } = this.supabase.storage
-        .from(bucket)
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = this.supabase.storage.from(bucket).getPublicUrl(fileName);
 
       return publicUrl;
     } catch (error) {
@@ -50,7 +56,10 @@ export class SupabaseService {
     }
   }
 
-  async deleteImage(imageUrl: string, bucket: string = 'products'): Promise<boolean> {
+  async deleteImage(
+    imageUrl: string,
+    bucket: string = 'products'
+  ): Promise<boolean> {
     try {
       const fileName = imageUrl.split('/').pop();
       if (!fileName) return false;

@@ -7,12 +7,14 @@ import { AllProductsComponent } from './pages/all-products/all-products.componen
 import { MainLayoutComponent } from './components/layouts/main-layout/main-layout.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { LoginComponent } from './pages/login/login.component';
+import { ClientesComponent } from './pages/clientes/clientes.component';
+import { FormulaComponent } from './pages/formula/formula.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
   },
   {
     path: '',
@@ -26,12 +28,25 @@ export const routes: Routes = [
       {
         path: 'admin',
         component: AdminComponent,
-        canActivate: [authGuard]
+        canActivate: [authGuard],
+      },
+      {
+        path: 'clientes',
+        component: ClientesComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'formula',
+        component: FormulaComponent,
+        canActivate: [authGuard],
       },
       {
         path: 'producto/:id',
-        loadComponent: () => import('./pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
-      }
-    ]
-  }
+        loadComponent: () =>
+          import('./pages/product-detail/product-detail.component').then(
+            (m) => m.ProductDetailComponent
+          ),
+      },
+    ],
+  },
 ];

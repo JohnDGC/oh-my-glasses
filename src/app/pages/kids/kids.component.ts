@@ -1,117 +1,102 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { ProductCardComponent } from '../../components/product-card/product-card.component';
-import { ProductService } from '../../services/product.service';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Product } from '../../models/product.model';
-import { FormsModule } from '@angular/forms';
-
-interface FilterOption {
-  label: string;
-  value: string;
-}
+import { ProductService } from '../../services/product.service';
+import { CategoryHeroComponent } from '../../components/category-hero/category-hero.component';
+import { CategoryFiltersComponent, FilterState } from '../../components/category-filters/category-filters.component';
+import { ProductsGridComponent } from '../../components/products-grid/products-grid.component';
 
 @Component({
   selector: 'app-kids',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent, FormsModule, RouterModule],
+  imports: [RouterLink, CategoryHeroComponent, CategoryFiltersComponent, ProductsGridComponent],
   templateUrl: './kids.component.html',
   styleUrl: './kids.component.scss'
 })
 export class KidsComponent implements OnInit {
-  private productService = inject(ProductService);
   categoryTitle = 'Niños';
-  categoryDescription = 'Protección y estilo para los más pequeños. Monturas resistentes, cómodas y divertidas diseñadas especialmente para niños activos y en crecimiento.';
+  categoryDescription = 'Gafas divertidas, resistentes y diseñadas especialmente para los más pequeños de la casa.';
   products: Product[] = [];
   filteredProducts: Product[] = [];
-  selectedSort = 'featured';
-  selectedPriceRange = 'all';
-  selectedStyle = 'all';
-  searchTerm = '';
-  sortOptions: FilterOption[] = [
-    { label: 'Destacados', value: 'featured' },
-    { label: 'Precio: Menor a Mayor', value: 'price-asc' },
-    { label: 'Precio: Mayor a Menor', value: 'price-desc' },
-    { label: 'Nombre: A-Z', value: 'name-asc' },
-    { label: 'Nombre: Z-A', value: 'name-desc' }
+  filterState: FilterState = {
+    searchTerm: '',
+    selectedSort: 'featured',
+    selectedPriceRange: 'all',
+    selectedStyle: 'all'
+  };
+  sortOptions = [
+    { value: 'featured', label: 'Destacados' },
+    { value: 'name-asc', label: 'Nombre: A-Z' },
+    { value: 'name-desc', label: 'Nombre: Z-A' },
+    { value: 'price-asc', label: 'Precio: Menor a Mayor' },
+    { value: 'price-desc', label: 'Precio: Mayor a Menor' }
   ];
-  priceRanges: FilterOption[] = [
-    { label: 'Todos los precios', value: 'all' },
-    { label: 'Menos de $200.000', value: 'under-200k' },
-    { label: '$200.000 - $400.000', value: '200k-400k' },
-    { label: '$400.000 - $600.000', value: '400k-600k' },
-    { label: 'Más de $600.000', value: 'over-600k' }
+  priceRanges = [
+    { value: 'all', label: 'Todos los precios' },
+    { value: '0-50', label: 'Menos de $50' },
+    { value: '50-100', label: '$50 - $100' },
+    { value: '100-200', label: '$100 - $200' },
+    { value: '200-up', label: 'Más de $200' }
   ];
-  styleOptions: FilterOption[] = [
-    { label: 'Todos los estilos', value: 'all' },
-    { label: 'Clásico', value: 'classic' },
-    { label: 'Moderno', value: 'modern' },
-    { label: 'Deportivo', value: 'sport' },
-    { label: 'Casual', value: 'casual' }
+  styleOptions = [
+    { value: 'all', label: 'Todos los estilos' },
+    { value: 'clasico', label: 'Clásico' },
+    { value: 'moderno', label: 'Moderno' },
+    { value: 'deportivo', label: 'Deportivo' },
+    { value: 'casual', label: 'Casual' }
   ];
+
+  constructor(private productService: ProductService) { }
 
   async ngOnInit() {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    try {
-      this.products = await this.productService.getProductsByCategory('kids');
-      this.applyFilters();
-    } catch (error) {
-      console.error('Error loading products:', error);
-    }
-  }
-
-  onSortChange() {
+    this.products = await this.productService.getProductsByCategory('kids');
     this.applyFilters();
   }
 
-  onPriceRangeChange() {
+  onFilterChange(filterState: FilterState) {
+    this.filterState = filterState;
     this.applyFilters();
   }
 
-  onStyleChange() {
+  onSearch(searchTerm: string) {
+    this.filterState.searchTerm = searchTerm;
     this.applyFilters();
   }
 
-  onSearch(event: Event) {
-    this.searchTerm = (event.target as HTMLInputElement).value;
-    this.applyFilters();
-  }
-
-  private applyFilters() {
+  applyFilters() {
     let filtered = [...this.products];
 
-    if (this.searchTerm) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(this.searchTerm.toLowerCase())
+    if (this.filterState.searchTerm) {
+      const searchLower = this.filterState.searchTerm.toLowerCase();
+      filtered = filtered.filter(p =>
+        p.name.toLowerCase().includes(searchLower) ||
+        (p.description && p.description.toLowerCase().includes(searchLower))
       );
     }
 
-    if (this.selectedPriceRange !== 'all') {
-      filtered = filtered.filter(product => {
-        const price = product.originalPrice && product.originalPrice > product.price ? product.price : product.price;
-        switch (this.selectedPriceRange) {
-          case 'under-200k': return price < 200000;
-          case '200k-400k': return price >= 200000 && price < 400000;
-          case '400k-600k': return price >= 400000 && price < 600000;
-          case 'over-600k': return price >= 600000;
-          default: return true;
-        }
-      });
+    if (this.filterState.selectedPriceRange !== 'all') {
+      const [min, max] = this.filterState.selectedPriceRange.split('-').map(v => v === 'up' ? Infinity : Number(v));
+      filtered = filtered.filter(p => p.price >= min && p.price < max);
     }
 
-    filtered.sort((a, b) => {
-      const priceA = a.price;
-      const priceB = b.price;
+    if (this.filterState.selectedStyle !== 'all') {
+      filtered = filtered.filter(p => p.style === this.filterState.selectedStyle);
+    }
 
-      switch (this.selectedSort) {
-        case 'price-asc': return priceA - priceB;
-        case 'price-desc': return priceB - priceA;
-        case 'name-asc': return a.name.localeCompare(b.name);
-        case 'name-desc': return b.name.localeCompare(a.name);
-        default: return 0;
-      }
-    });
+    switch (this.filterState.selectedSort) {
+      case 'name-asc':
+        filtered.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        filtered.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'price-asc':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+    }
 
     this.filteredProducts = filtered;
   }
