@@ -330,11 +330,21 @@ export class ClientesComponent implements OnInit {
           nuevoClienteId
         ) {
           try {
+            let cashbackGenerado = 0;
+            if (this.rangoPrecioCompra) {
+              const cashbackInfo = this.whatsAppService.calcularCashback(
+                this.rangoPrecioCompra
+              );
+              cashbackGenerado = cashbackInfo.monto;
+            }
+
             await this.clienteService.createReferido({
               cliente_referidor_id: formValue.cliente_referidor_id,
               cliente_referido_id: nuevoClienteId,
               fecha_referido: new Date().toISOString(),
               estado: 'activo',
+              cashback_generado: cashbackGenerado,
+              rango_precio_compra: this.rangoPrecioCompra || undefined,
             });
 
             // Obtener datos del referidor para el mensaje de WhatsApp
@@ -347,18 +357,14 @@ export class ClientesComponent implements OnInit {
                 telefono: referidor.telefono,
               };
 
-              // Calcular y agregar cashback al referidor basado en el rango de precio
-              if (this.rangoPrecioCompra) {
-                const cashbackInfo = this.whatsAppService.calcularCashback(
-                  this.rangoPrecioCompra
-                );
+              // Agregar el nuevo cashback al referidor en la BD
+              if (cashbackGenerado > 0) {
                 this.cashbackAcumuladoReferidor =
                   referidor.cashback_acumulado || 0;
 
-                // Agregar el nuevo cashback al referidor en la BD
                 await this.clienteService.addCashback(
                   formValue.cliente_referidor_id,
-                  cashbackInfo.monto
+                  cashbackGenerado
                 );
               }
             }
@@ -517,6 +523,90 @@ export class ClientesComponent implements OnInit {
       alert('Error al cargar los referidos del cliente');
     } finally {
       this.isLoadingReferidos = false;
+    }
+  }
+
+  calcularCashbackDisponible(): number {
+    return this.referidos
+      .filter((r) => r.estado === 'activo')
+      .reduce((sum, r) => sum + (r.cashback_generado || 0), 0);
+  }
+
+  calcularCashbackRedimido(): number {
+    return this.referidos
+      .filter((r) => r.estado === 'redimido')
+      .reduce((sum, r) => sum + (r.cashback_generado || 0), 0);
+  }
+
+  calcularReferidosRedimidos(): number {
+    return this.referidos.filter((r) => r.estado === 'redimido').length;
+  }
+
+  calcularReferidosActivos(): number {
+    return this.referidos.filter((r) => r.estado === 'activo').length;
+  }
+
+  async redimirTodosReferidos(): Promise<void> {
+    if (!this.selectedCliente?.id) return;
+
+    const cashbackDisponible = this.calcularCashbackDisponible();
+    const referidosActivos = this.calcularReferidosActivos();
+
+    if (referidosActivos === 0 || cashbackDisponible === 0) {
+      alert('No hay cashback disponible para redimir.');
+      return;
+    }
+
+    const confirmacion = confirm(
+      `¿Confirmas redimir $${cashbackDisponible.toLocaleString(
+        'es-CO'
+      )} de ${referidosActivos} referido(s) activo(s)?\n\nSe marcará como redimido a todos los referidos activos.`
+    );
+
+    if (!confirmacion) return;
+
+    this.isLoading = true;
+    try {
+      // Actualizar estado de todos los referidos activos a redimido
+      const fechaRedencion = new Date().toISOString();
+      await this.clienteService.redimirReferidosActivos(
+        this.selectedCliente.id,
+        fechaRedencion
+      );
+
+      // Reiniciar cashback del cliente
+      await this.clienteService.resetCashback(this.selectedCliente.id);
+
+      // Actualizar localmente
+      this.referidos.forEach((r) => {
+        if (r.estado === 'activo') {
+          r.estado = 'redimido';
+          r.fecha_redimido = fechaRedencion;
+        }
+      });
+
+      if (this.selectedCliente) {
+        this.selectedCliente.cashback_acumulado = 0;
+      }
+
+      // Actualizar en lista principal
+      const clienteEnLista = this.clientes.find(
+        (c) => c.id === this.selectedCliente?.id
+      );
+      if (clienteEnLista) {
+        clienteEnLista.cashback_acumulado = 0;
+      }
+
+      alert(
+        `✅ Cashback de $${cashbackDisponible.toLocaleString(
+          'es-CO'
+        )} redimido exitosamente.`
+      );
+    } catch (error) {
+      console.error('Error al redimir referidos:', error);
+      alert('❌ Error al redimir el cashback. Intenta de nuevo.');
+    } finally {
+      this.isLoading = false;
     }
   }
 
