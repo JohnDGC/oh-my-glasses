@@ -37,12 +37,9 @@ Gracias por confiar en nosotros.
 
 Tu beneficio por esta compra:
 - Cashback: {CASHBACK_COMPRA}
-  (Compra {RANGO_COMPRA})
 
 Total cashback acumulado: {CASHBACK_TOTAL}
-
 Este cashback lo puedes redimir en tu próxima compra.
-
 Sigue refiriendo amigos y acumula más beneficios!
 
 {NEGOCIO}`,
@@ -96,24 +93,30 @@ export class WhatsAppService {
 
   /**
    * Calcula el cashback según el rango de precio de la compra
+   * - $0 - $300.000: $10.000
+   * - $300.000 - $600.000: $15.000
+   * - $600.000 en adelante: $20.000
    */
   calcularCashback(rangoPrecio: string): CashbackInfo {
-    // Extraer el valor máximo del rango (ej: "300.000 - 400.000" -> 400000)
-    const valores = rangoPrecio.replace(/\./g, '').match(/\d+/g);
+    // Extraer el valor máximo del rango
+    const valores = rangoPrecio.replace(/[\$\.]/g, '').match(/\d+/g);
     const valorMaximo = valores ? parseInt(valores[valores.length - 1]) : 0;
+
+    // Si contiene "adelante" significa que es el rango más alto
+    const esRangoAlto = rangoPrecio.toLowerCase().includes('adelante');
 
     let monto: number;
     let rangoCompra: string;
 
-    if (valorMaximo <= 300000) {
+    if (valorMaximo <= 300000 && !esRangoAlto) {
       monto = 10000;
-      rangoCompra = 'menor a $300.000';
-    } else if (valorMaximo <= 600000) {
+      rangoCompra = '$0 - $300.000';
+    } else if (valorMaximo <= 600000 && !esRangoAlto) {
       monto = 15000;
-      rangoCompra = 'entre $300.000 y $600.000';
+      rangoCompra = '$300.000 - $600.000';
     } else {
       monto = 20000;
-      rangoCompra = 'mayor a $600.000';
+      rangoCompra = '$600.000 o más';
     }
 
     return {
@@ -123,9 +126,6 @@ export class WhatsAppService {
     };
   }
 
-  /**
-   * Genera el mensaje de bienvenida usando la plantilla configurada
-   */
   generarMensajeBienvenida(nombreCliente: string): string {
     const primerNombre = nombreCliente.split(' ')[0];
 
@@ -134,9 +134,6 @@ export class WhatsAppService {
       .replace(/{NOMBRE}/g, primerNombre);
   }
 
-  /**
-   * Genera el mensaje de referido usando la plantilla configurada
-   */
   generarMensajeReferido(
     nombreReferidor: string,
     nombreReferido: string,
@@ -161,20 +158,13 @@ export class WhatsAppService {
   }
 
   formatearTelefono(telefono: string): string {
-    // Eliminar espacios, guiones y caracteres especiales
     let telefonoLimpio = telefono.replace(/[\s\-\(\)\+]/g, '');
-
-    // Si ya tiene código de país colombiano, usarlo
-    if (telefonoLimpio.startsWith('57') && telefonoLimpio.length === 12) {
+    if (telefonoLimpio.startsWith('57') && telefonoLimpio.length === 12)
       return telefonoLimpio;
-    }
 
-    // Si es número colombiano de 10 dígitos, agregar código de país
-    if (telefonoLimpio.length === 10 && telefonoLimpio.startsWith('3')) {
+    if (telefonoLimpio.length === 10 && telefonoLimpio.startsWith('3'))
       return `${this.CODIGO_PAIS}${telefonoLimpio}`;
-    }
 
-    // Retornar como está si no coincide con patrones conocidos
     return telefonoLimpio;
   }
 
