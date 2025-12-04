@@ -1,0 +1,119 @@
+<div class="cliente-search-wrapper">
+  @if (label) {
+  <label class="form-label fw-semibold">
+    {{label}} @if (required) {<span class="text-danger">*</span>}
+  </label>
+  }
+
+  <div class="search-container position-relative">
+    <div class="input-group">
+      <span class="input-group-text bg-white border-end-0">
+        <i class="bi bi-search text-muted"></i>
+      </span>
+      <input
+        type="text"
+        class="form-control border-start-0 ps-0"
+        [placeholder]="placeholder"
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+        (keydown)="onKeyDown($event)"
+        [disabled]="disabled"
+        autocomplete="off"
+      >
+      @if (selectedCliente) {
+      <button
+        type="button"
+        class="btn btn-outline-secondary border-start-0"
+        (click)="clearSelection()"
+        [disabled]="disabled"
+        title="Limpiar selección"
+      >
+        <i class="bi bi-x-lg"></i>
+      </button>
+      }
+    </div>
+
+    <!-- Dropdown con resultados -->
+    @if (showDropdown && filteredClientes.length > 0) {
+    <div class="dropdown-results shadow-sm" (mousedown)="onDropdownMouseDown($event)">
+      <div class="results-header px-3 py-2 border-bottom bg-light">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          Mostrando {{filteredClientes.length}} resultado{{filteredClientes.length !== 1 ? 's' : ''}}
+          @if (filteredClientes.length === maxResults) {
+          (máximo)
+          }
+        </small>
+      </div>
+      <ul class="list-unstyled mb-0 results-list">
+        @for (cliente of filteredClientes; track cliente.id; let i = $index) {
+        <li
+          class="result-item px-3 py-2 cursor-pointer"
+          [class.highlighted]="i === highlightedIndex"
+          (click)="selectCliente(cliente)"
+          (mouseenter)="highlightedIndex = i"
+        >
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-person-circle text-primary fs-5"></i>
+            <div class="flex-grow-1">
+              <div class="fw-semibold text-dark" [innerHTML]="highlightText(cliente.nombres)"></div>
+              <small class="text-muted">
+                <i class="bi bi-credit-card-2-front me-1"></i><span [innerHTML]="highlightText(cliente.cedula)"></span>
+                @if (cliente.telefono) {
+                <span class="ms-2">
+                  <i class="bi bi-telephone me-1"></i>{{cliente.telefono}}
+                </span>
+                }
+              </small>
+            </div>
+            @if (cliente.es_referido) {
+            <span class="badge bg-info text-dark">
+              <i class="bi bi-person-check-fill"></i>
+            </span>
+            }
+          </div>
+        </li>
+        }
+      </ul>
+      <div class="dropdown-footer px-3 py-2 border-top bg-light">
+        <small class="text-muted">
+          <i class="bi bi-arrow-return-left me-1"></i>
+          Usa ↑↓ para navegar, Enter para seleccionar
+        </small>
+      </div>
+    </div>
+    }
+
+    <!-- Mensaje cuando no hay resultados -->
+    @if (showDropdown && searchTerm && filteredClientes.length === 0) {
+    <div class="dropdown-results shadow-sm" (mousedown)="onDropdownMouseDown($event)">
+      <div class="px-3 py-4 text-center">
+        <i class="bi bi-search text-muted fs-3"></i>
+        <p class="text-muted mb-0 mt-2">No se encontraron clientes</p>
+        <small class="text-muted">Intenta con otro nombre o cédula</small>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Cliente seleccionado -->
+  @if (selectedCliente) {
+  <div class="selected-cliente-card mt-2 p-2 bg-success bg-opacity-10 border border-success rounded-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-check-circle-fill text-success"></i>
+      <div class="flex-grow-1">
+        <small class="text-success fw-semibold d-block">Cliente seleccionado:</small>
+        <small class="text-dark">{{selectedCliente.nombres}} - {{selectedCliente.cedula}}</small>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- Helper text -->
+  <small class="text-muted mt-1 d-block">
+    <i class="bi bi-lightbulb me-1"></i>
+    Tip: Puedes buscar por palabras sueltas. Ej: "Maria Perez" encuentra "Maria Clara Diaz Perez"
+  </small>
+</div>

@@ -1,0 +1,268 @@
+@use '../../../assets/scss/variables' as *;
+
+.clientes-page {
+  background: linear-gradient(to bottom, $light 0%, #fff 100%);
+
+  .table {
+    thead th {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      color: $primary;
+      border-bottom: 2px solid $primary;
+    }
+
+    tbody tr:hover {
+      background-color: rgba($light, 0.5);
+      transform: scale(1.01);
+    }
+  }
+
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+
+    .btn-close {
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  .bg-gradient {
+    background: linear-gradient(135deg, $primary 0%, $secondary 100%) !important;
+    color: white !important;
+  }
+
+  .form-label {
+    color: $primary;
+  }
+
+  .form-control:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+  }
+
+  .input-group-text {
+    border-right: none;
+  }
+
+  .input-group .form-control {
+    border-left: none;
+  }
+
+  // Paginación
+  .pagination {
+    .page-link {
+      color: $primary;
+      border-color: #dee2e6;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background-color: rgba($primary, 0.1);
+        border-color: $primary;
+        color: $primary;
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+      }
+    }
+
+    .page-item.active .page-link {
+      background-color: $primary;
+      border-color: $primary;
+      color: white;
+    }
+
+    .page-item.disabled .page-link {
+      background-color: #e9ecef;
+      border-color: #dee2e6;
+      color: #6c757d;
+      cursor: not-allowed;
+    }
+  }
+
+  .card-footer {
+    .form-select-sm {
+      cursor: pointer;
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+      }
+    }
+  }
+}
+
+// ========== RESPONSIVE ==========
+
+@media (max-width: 991px) {
+  .clientes-page {
+    .table {
+      min-width: 900px;
+      font-size: 0.9rem;
+
+      thead th,
+      tbody td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      thead th {
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .clientes-page {
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .table {
+      font-size: 0.75rem;
+      min-width: 800px;
+
+      thead th,
+      tbody td {
+        padding: 0.5rem 0.35rem;
+        white-space: nowrap;
+      }
+
+      thead th {
+        font-size: 0.7rem;
+      }
+    }
+
+    .avatar-circle {
+      width: 28px;
+      height: 28px;
+      font-size: 0.8rem;
+    }
+
+    // Paginación responsive
+    .card-footer {
+      .row {
+        gap: 0.5rem;
+      }
+
+      small {
+        font-size: 0.75rem;
+      }
+    }
+
+    .pagination {
+      font-size: 0.85rem;
+
+      .page-link {
+        padding: 0.35rem 0.65rem;
+      }
+    }
+  }
+
+  // Modal fullscreen en mobile con scroll (solo mobile < 768px)
+  .modal {
+    padding: 0 !important;
+
+    .modal-dialog {
+      margin: 0 !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 100vh !important;
+      max-height: 100vh !important;
+    }
+
+    .modal-content {
+      height: 100% !important;
+      min-height: 100vh !important;
+      max-height: 100vh !important;
+      border-radius: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+
+    .modal-header {
+      flex-shrink: 0;
+      border-radius: 0 !important;
+    }
+
+    .modal-body {
+      flex: 1 1 auto !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+      max-height: calc(100vh - 130px) !important;
+    }
+
+    .modal-footer {
+      flex-shrink: 0;
+      background: white;
+      border-top: 1px solid #dee2e6;
+    }
+  }
+}
+
+// Desktop: asegurar que el modal-dialog-scrollable funcione correctamente
+@media (min-width: 768px) {
+  .modal {
+    .modal-dialog {
+      max-height: 90vh;
+    }
+
+    .modal-dialog-scrollable {
+      height: auto;
+      max-height: 90vh;
+
+      .modal-content {
+        max-height: 90vh;
+        overflow: hidden;
+      }
+
+      .modal-body {
+        overflow-y: auto;
+        max-height: calc(90vh - 140px);
+      }
+    }
+  }
+}
+
+@media (max-width: 575px) {
+  .clientes-page {
+    h1 {
+      font-size: 1.25rem;
+    }
+
+    .table {
+      min-width: 600px;
+
+      // Ocultar: Fecha Nacimiento (3), Correo (5), Fecha Registro (7)
+      // Mantener visible: Nombres, Cédula, Teléfono, Cashback, Acciones
+      thead th:nth-child(3),
+      thead th:nth-child(5),
+      thead th:nth-child(7),
+      tbody td:nth-child(3),
+      tbody td:nth-child(5),
+      tbody td:nth-child(7) {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+  .modal-content {
+    height: auto !important;
+    max-height: 100vh;
+  }
+}

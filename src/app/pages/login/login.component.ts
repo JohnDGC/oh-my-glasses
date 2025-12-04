@@ -1,6 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -8,7 +13,7 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-login',
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
@@ -23,14 +28,13 @@ export class LoginComponent implements OnInit {
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
 
   async ngOnInit() {
     const isAuth = await this.authService.isAuthenticated();
-    if (isAuth)
-      this.router.navigate(['/admin']);
+    if (isAuth) this.router.navigate(['/admin']);
   }
 
   togglePasswordVisibility() {
@@ -49,7 +53,7 @@ export class LoginComponent implements OnInit {
 
     try {
       await this.authService.signIn(email, password);
-      await this.router.navigate(['/admin']);
+      await this.router.navigate(['/clientes']);
     } catch (error: any) {
       this.errorMessage = this.getErrorMessage(error.message);
       this.isLoading = false;
