@@ -288,4 +288,23 @@ export class ClienteService {
 
     return data;
   }
+
+  async redimirReferidosActivos(
+    clienteId: string,
+    fechaRedencion: string
+  ): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('cliente_referidos')
+      .update({
+        estado: 'redimido',
+        fecha_redimido: fechaRedencion,
+      })
+      .eq('cliente_referidor_id', clienteId)
+      .eq('estado', 'activo');
+
+    if (error) {
+      console.error('Error al redimir referidos:', error);
+      throw error;
+    }
+  }
 }

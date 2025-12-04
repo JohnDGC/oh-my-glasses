@@ -44,7 +44,7 @@
                 </label>
                 <div class="input-group">
                   <input [type]="showPassword ? 'text' : 'password'" class="form-control form-control-lg" id="password"
-                    formControlName="password" placeholder="••••••••"
+                    formControlName="password" placeholder="Contraseña"
                     [class.is-invalid]="password?.invalid && password?.touched" autocomplete="current-password">
                   <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()"
                     [class.is-invalid]="password?.invalid && password?.touched">
@@ -93,12 +93,12 @@
           </div>
         </div>
 
-        <div class="text-center mt-3">
+        <!-- <div class="text-center mt-3">
           <small class="text-muted">
             <i class="bi bi-info-circle me-1"></i>
             Configurar usuario admin en Supabase Auth
           </small>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
