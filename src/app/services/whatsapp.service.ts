@@ -21,8 +21,7 @@ const DEFAULT_CONFIG: WhatsAppConfig = {
   nombreNegocio: 'OhMyGlasses',
   mensajeBienvenida: `Bienvenido/a a {NEGOCIO}, {NOMBRE}!
 
-Ya eres parte de nuestro programa de fidelización.
-
+Ya eres parte de nuestro Sistema de Fidelización OMG.
 Tus beneficios:
 - Promociones especiales por tu cumpleaños
 - Cashback por cada cliente referido
@@ -30,6 +29,7 @@ Tus beneficios:
 Refiere a un amigo y gana beneficios adicionales!
 
 Gracias por confiar en nosotros.
+
 {NEGOCIO}`,
   mensajeReferido: `Felicidades {NOMBRE_REFERIDOR}!
 
@@ -95,16 +95,14 @@ export class WhatsAppService {
    * Calcula el cashback según el rango de precio de la compra
    * - $0 - $300.000: $10.000
    * - $300.000 - $600.000: $15.000
-   * - $600.000 en adelante: $20.000
+   * - $600.000 - $1.000.000: $20.000
+   * - $1.000.000 - $1.500.000: $25.000
+   * - $1.500.000 en adelante: $30.000
    */
   calcularCashback(rangoPrecio: string): CashbackInfo {
-    // Extraer el valor máximo del rango
     const valores = rangoPrecio.replace(/[\$\.]/g, '').match(/\d+/g);
     const valorMaximo = valores ? parseInt(valores[valores.length - 1]) : 0;
-
-    // Si contiene "adelante" significa que es el rango más alto
     const esRangoAlto = rangoPrecio.toLowerCase().includes('adelante');
-
     let monto: number;
     let rangoCompra: string;
 
@@ -114,9 +112,15 @@ export class WhatsAppService {
     } else if (valorMaximo <= 600000 && !esRangoAlto) {
       monto = 15000;
       rangoCompra = '$300.000 - $600.000';
-    } else {
+    } else if (valorMaximo <= 1000000 && !esRangoAlto) {
       monto = 20000;
-      rangoCompra = '$600.000 o más';
+      rangoCompra = '$600.000 - $1.000.000';
+    } else if (valorMaximo <= 1500000 && !esRangoAlto) {
+      monto = 25000;
+      rangoCompra = '$1.000.000 - $1.500.000';
+    } else {
+      monto = 30000;
+      rangoCompra = '$1.500.000 o más';
     }
 
     return {
@@ -138,17 +142,32 @@ export class WhatsAppService {
     nombreReferidor: string,
     nombreReferido: string,
     rangoPrecioCompra: string,
-    cashbackAcumulado: number = 0
+    cashbackAcumulado: number = 0,
+    esNuevoRegistro: boolean = true
   ): string {
     const primerNombreReferidor = nombreReferidor.split(' ')[0];
-    const primerNombreReferido = nombreReferido.split(' ')[0];
+    const partesNombreReferido = nombreReferido.split(' ');
+    const primerNombreReferido = partesNombreReferido[0];
+    const apellidoReferido =
+      partesNombreReferido.length >= 3
+        ? partesNombreReferido[2]
+        : partesNombreReferido[1] || '';
+    const nombreCompletoReferido = apellidoReferido
+      ? `${primerNombreReferido} ${apellidoReferido}`
+      : primerNombreReferido;
+
     const cashbackCompra = this.calcularCashback(rangoPrecioCompra);
-    const totalCashback = cashbackAcumulado + cashbackCompra.monto;
+
+    // Si es nuevo registro, el cashback aún no está en el total, hay que sumar
+    // Si es cliente existente, el cashback ya está incluido en el total
+    const totalCashback = esNuevoRegistro
+      ? cashbackAcumulado + cashbackCompra.monto
+      : cashbackAcumulado;
 
     return this.config.mensajeReferido
       .replace(/{NEGOCIO}/g, this.config.nombreNegocio)
       .replace(/{NOMBRE_REFERIDOR}/g, primerNombreReferidor)
-      .replace(/{NOMBRE_REFERIDO}/g, primerNombreReferido)
+      .replace(/{NOMBRE_REFERIDO}/g, nombreCompletoReferido)
       .replace(/{CASHBACK_COMPRA}/g, cashbackCompra.montoFormateado)
       .replace(/{RANGO_COMPRA}/g, cashbackCompra.rangoCompra)
       .replace(
@@ -186,13 +205,15 @@ export class WhatsAppService {
     nombreReferidor: string,
     nombreReferido: string,
     rangoPrecioCompra: string,
-    cashbackAcumulado: number = 0
+    cashbackAcumulado: number = 0,
+    esNuevoRegistro: boolean = true
   ): void {
     const mensaje = this.generarMensajeReferido(
       nombreReferidor,
       nombreReferido,
       rangoPrecioCompra,
-      cashbackAcumulado
+      cashbackAcumulado,
+      esNuevoRegistro
     );
     const url = this.generarUrlWhatsApp(telefonoReferidor, mensaje);
     window.open(url, '_blank');
@@ -202,7 +223,8 @@ export class WhatsAppService {
     nuevoCliente: { nombres: string; telefono: string },
     referidor?: { nombres: string; telefono: string } | null,
     rangoPrecioCompra?: string,
-    cashbackAcumulado: number = 0
+    cashbackAcumulado: number = 0,
+    esNuevoRegistro: boolean = true
   ): {
     bienvenida: MensajeWhatsApp;
     referido?: MensajeWhatsApp;
@@ -224,7 +246,8 @@ export class WhatsAppService {
           referidor.nombres,
           nuevoCliente.nombres,
           rangoPrecioCompra,
-          cashbackAcumulado
+          cashbackAcumulado,
+          esNuevoRegistro
         ),
       };
     }
