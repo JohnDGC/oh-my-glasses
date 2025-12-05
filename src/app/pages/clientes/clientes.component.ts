@@ -71,8 +71,11 @@ export class ClientesComponent implements OnInit {
   whatsAppReferido: MensajeWhatsApp | null = null;
   clienteRegistrado: { nombres: string; telefono: string } | null = null;
   clienteReferidor: { nombres: string; telefono: string } | null = null;
+  clienteReferidorId: string | null = null;
   rangoPrecioCompra: string = '';
   cashbackAcumuladoReferidor: number = 0;
+  referidorYaRedimio: boolean = false;
+  esNuevoRegistroConCashback: boolean = false; // true = acabamos de sumar cashback, false = modal de cliente existente
   showConfigModal = false;
   whatsAppConfig: WhatsAppConfig = {
     nombreNegocio: '',
@@ -313,8 +316,14 @@ export class ClientesComponent implements OnInit {
             await this.clienteService.createCompra(primeraCompra);
 
             this.rangoPrecioCompra = formValue.primera_compra_rango_precio;
-          } catch (error) {
+          } catch (error: any) {
             console.error('Error al registrar primera compra:', error);
+            if (error.code === '23514') {
+              alert(
+                '⚠️ Error: El rango de precio no es válido. Por favor ejecuta el script SQL "update-rango-precio-constraint.sql" en Supabase.'
+              );
+            }
+            this.rangoPrecioCompra = formValue.primera_compra_rango_precio;
           }
         }
 
@@ -356,6 +365,7 @@ export class ClientesComponent implements OnInit {
                 nombres: referidor.nombres,
                 telefono: referidor.telefono,
               };
+              this.clienteReferidorId = referidor.id || null;
 
               // Agregar el nuevo cashback al referidor en la BD
               if (cashbackGenerado > 0) {
@@ -366,6 +376,11 @@ export class ClientesComponent implements OnInit {
                   formValue.cliente_referidor_id,
                   cashbackGenerado
                 );
+
+                // Marcar que es un nuevo registro con cashback sumado
+                // Esto permite enviar el mensaje aunque el referidor tenía cashback = 0 antes
+                this.esNuevoRegistroConCashback = true;
+                this.referidorYaRedimio = false;
               }
             }
           } catch (error) {
@@ -495,6 +510,18 @@ export class ClientesComponent implements OnInit {
     } finally {
       this.isLoadingCompras = false;
     }
+  }
+
+  getNombreReferidor(clienteReferidorId: string | null | undefined): string {
+    if (!clienteReferidorId) return '';
+    const referidor = this.clientes.find((c) => c.id === clienteReferidorId);
+    return referidor?.nombres || 'Cliente no encontrado';
+  }
+
+  getCedulaReferidor(clienteReferidorId: string | null | undefined): string {
+    if (!clienteReferidorId) return '';
+    const referidor = this.clientes.find((c) => c.id === clienteReferidorId);
+    return referidor?.cedula || 'N/A';
   }
 
   // ========== REFERIDOS ==========
@@ -701,23 +728,22 @@ export class ClientesComponent implements OnInit {
     this.rangoPrecioCompra = '';
   }
 
-  /**
-   * Abre el modal de WhatsApp para un cliente existente
-   * Permite reenviar mensajes de bienvenida o notificaciones
-   */
   async openWhatsAppModalForCliente(cliente: Cliente): Promise<void> {
     this.clienteRegistrado = {
       nombres: cliente.nombres,
       telefono: cliente.telefono,
     };
 
-    // Generar mensaje de bienvenida/notificación genérico
     this.whatsAppBienvenida = {
       telefono: cliente.telefono,
       mensaje: this.whatsAppService.generarMensajeBienvenida(cliente.nombres),
     };
 
-    // Si el cliente tiene referidor, preparar mensaje para el referidor
+    // Este es un cliente existente, NO es un nuevo registro
+    this.esNuevoRegistroConCashback = false;
+    this.referidorYaRedimio = false;
+    this.clienteReferidorId = null;
+
     if (cliente.es_referido && cliente.cliente_referidor_id) {
       const referidor = this.clientes.find(
         (c) => c.id === cliente.cliente_referidor_id
@@ -727,8 +753,10 @@ export class ClientesComponent implements OnInit {
           nombres: referidor.nombres,
           telefono: referidor.telefono,
         };
+        this.clienteReferidorId = referidor.id || null;
+        this.cashbackAcumuladoReferidor = referidor.cashback_acumulado || 0;
+        this.referidorYaRedimio = (referidor.cashback_acumulado || 0) === 0;
 
-        // Obtener la última compra del cliente para calcular cashback
         const ultimaCompra = await this.clienteService.getUltimaCompraCliente(
           cliente.id!
         );
@@ -740,7 +768,8 @@ export class ClientesComponent implements OnInit {
               referidor.nombres,
               cliente.nombres,
               ultimaCompra.rango_precio,
-              referidor.cashback_acumulado || 0
+              referidor.cashback_acumulado || 0,
+              false // Es cliente existente, el cashback ya está incluido en el total
             ),
           };
         }
@@ -753,9 +782,6 @@ export class ClientesComponent implements OnInit {
     this.showWhatsAppModal = true;
   }
 
-  /**
-   * Reinicia el cashback del cliente seleccionado
-   */
   async resetCashback(): Promise<void> {
     if (!this.selectedCliente?.id) return;
 
@@ -779,10 +805,8 @@ export class ClientesComponent implements OnInit {
     try {
       await this.clienteService.resetCashback(this.selectedCliente.id);
 
-      // Actualizar el cliente localmente
       this.selectedCliente.cashback_acumulado = 0;
 
-      // Actualizar en la lista de clientes
       const clienteEnLista = this.clientes.find(
         (c) => c.id === this.selectedCliente?.id
       );
