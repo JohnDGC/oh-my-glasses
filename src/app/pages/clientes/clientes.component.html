@@ -81,9 +81,9 @@
                 <td class="px-4 py-3">
                   <div class="d-flex align-items-center gap-2">
                     <span class="fw-medium">{{cliente.nombres}}</span>
-                    @if (cliente.es_referido) {
-                    <span class="badge bg-info text-dark" title="Cliente Referido">
-                      <i class="bi bi-person-check-fill"></i> Referido
+                    @if (cliente.es_referido && cliente.cliente_referidor_id) {
+                    <span class="badge bg-info text-dark" title="Ver detalles en modal de Referidos">
+                      <i class="bi bi-person-check-fill me-1"></i>Referido
                     </span>
                     }
                   </div>
@@ -97,9 +97,7 @@
                   </a>
                 </td>
                 <td class="py-3">
-                  <!-- <a [href]="'mailto:' + cliente.correo" class="text-decoration-none"> -->
                   {{cliente.correo}}
-                  <!-- </a> -->
                 </td>
                 <td class="py-3">
                   @if ((cliente.cashback_acumulado || 0) > 0) {
@@ -595,6 +593,21 @@
         <button type="button" class="btn-close" (click)="closeReferidosModal()"></button>
       </div>
       <div class="modal-body">
+        @if (selectedCliente.es_referido && selectedCliente.cliente_referidor_id) {
+        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+          <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+          <div>
+            <strong>Este cliente fue referido por:</strong>
+            <span class="ms-2">
+              {{getNombreReferidor(selectedCliente.cliente_referidor_id)}}
+              <span class="text-muted ms-2">
+                (Cédula: {{getCedulaReferidor(selectedCliente.cliente_referidor_id)}})
+              </span>
+            </span>
+          </div>
+        </div>
+        }
+
         <!-- Card de Cashback -->
         <div class="row g-3 mb-4">
           <!-- Cashback Disponible -->
@@ -790,6 +803,18 @@
 
           <!-- Botón Mensaje de Referido (solo si aplica) -->
           @if (whatsAppReferido && clienteReferidor) {
+          @if (!esNuevoRegistroConCashback && referidorYaRedimio) {
+          <!-- Cliente existente y referidor ya redimió - Botón deshabilitado -->
+          <div class="alert alert-warning d-flex align-items-center mb-0" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+            <div>
+              <div class="fw-semibold">Mensaje al referidor no disponible</div>
+              <small>{{clienteReferidor.nombres.split(' ')[0]}} ya redimió su cashback. Este mensaje ya no es
+                válido.</small>
+            </div>
+          </div>
+          } @else {
+          <!-- Nuevo registro con cashback O referidor tiene cashback pendiente -->
           <button type="button"
             class="btn btn-outline-success btn-lg d-flex align-items-center justify-content-between px-4"
             (click)="enviarWhatsAppReferido()">
@@ -797,11 +822,17 @@
               <i class="bi bi-gift me-3 fs-4"></i>
               <div class="text-start">
                 <div class="fw-semibold">Notificar al Referidor</div>
-                <small class="opacity-75">{{clienteReferidor.nombres.split(' ')[0]}} tiene un nuevo referido</small>
+                @if (esNuevoRegistroConCashback) {
+                <small class="opacity-75">{{clienteReferidor.nombres.split(' ')[0]}} acaba de ganar cashback</small>
+                } @else {
+                <small class="opacity-75">{{clienteReferidor.nombres.split(' ')[0]}} tiene
+                  ${{cashbackAcumuladoReferidor.toLocaleString('es-CO')}} acumulados</small>
+                }
               </div>
             </div>
             <i class="bi bi-arrow-right"></i>
           </button>
+          }
           }
         </div>
 
