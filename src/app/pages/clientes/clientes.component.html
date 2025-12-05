@@ -103,10 +103,10 @@
                   @if ((cliente.cashback_acumulado || 0) > 0) {
                   <span class="badge bg-success fs-6">
                     <i class="bi bi-cash-coin me-1"></i>
-                    ${{(cliente.cashback_acumulado || 0).toLocaleString('es-CO')}}
+                    {{cliente.cashback_acumulado || 0 | currency:'COP':'symbol-narrow':'1.0-0'}}
                   </span>
                   } @else {
-                  <span class="text-muted">$0</span>
+                  <span class="text-muted">{{0 | currency:'COP':'symbol-narrow':'1.0-0'}}</span>
                   }
                 </td>
                 <td class="py-3">{{formatDate(cliente.fecha_registro || cliente.created_at || '')}}</td>
@@ -322,7 +322,7 @@
             </div>
 
             <div class="col-12">
-              <div class="border-top pt-3 mt-2">
+              <div class="border-top pt-3">
                 <div class="form-check">
                   <label class="form-check-label fw-semibold" for="esReferido">
                     <i class="bi bi-people me-1"></i>¿Este cliente viene referido?
@@ -350,7 +350,7 @@
             <!-- Primera Compra (solo para nuevos clientes) -->
             @if (!isEditMode) {
             <div class="col-12">
-              <div class="border-top pt-3 mt-2">
+              <div class="border-top pt-3">
                 <h6 class="text-primary mb-3">
                   <i class="bi bi-cart-check me-2"></i>Primera Compra
                 </h6>
@@ -359,7 +359,7 @@
                     <label class="form-label fw-semibold">Tipo de Lente *</label>
                     <select class="form-select" formControlName="primera_compra_tipo_lente" placeholder="Tipo de Lente"
                       [class.is-invalid]="clienteForm.get('primera_compra_tipo_lente')?.invalid && clienteForm.get('primera_compra_tipo_lente')?.touched">
-                      <option value="">Seleccionar...</option>
+                      <option [ngValue]="null" disabled>Seleccionar...</option>
                       @for (tipo of tiposLente; track tipo) {
                       <option [value]="tipo">{{tipo}}</option>
                       }
@@ -375,7 +375,7 @@
                     <label class="form-label fw-semibold">Tipo de Montura *</label>
                     <select class="form-select" formControlName="primera_compra_tipo_montura"
                       [class.is-invalid]="clienteForm.get('primera_compra_tipo_montura')?.invalid && clienteForm.get('primera_compra_tipo_montura')?.touched">
-                      <option value="">Seleccionar...</option>
+                      <option [ngValue]="null" disabled>Seleccionar...</option>
                       @for (tipo of tiposMontura; track tipo) {
                       <option [value]="tipo">{{tipo}}</option>
                       }
@@ -391,7 +391,7 @@
                     <label class="form-label fw-semibold">Rango de Precio *</label>
                     <select class="form-select" formControlName="primera_compra_rango_precio"
                       [class.is-invalid]="clienteForm.get('primera_compra_rango_precio')?.invalid && clienteForm.get('primera_compra_rango_precio')?.touched">
-                      <option value="">Seleccionar...</option>
+                      <option [ngValue]="null" disabled>Seleccionar...</option>
                       @for (rango of rangosPrecio; track rango) {
                       <option [value]="rango">{{rango}}</option>
                       }
@@ -402,6 +402,26 @@
                       Selecciona el rango de precio
                     </div>
                     }
+                  </div>
+                </div>
+                <div class="row mt-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Precio Total (opcional)</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" formControlName="primera_compra_precio_total"
+                        placeholder="Ej: 350000" min="0">
+                    </div>
+                    <small class="text-muted">Ingresa el precio exacto de la compra</small>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold">Abono (opcional)</label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input type="number" class="form-control" formControlName="primera_compra_abono"
+                        placeholder="Ej: 100000" min="0">
+                    </div>
+                    <small class="text-muted">Si el cliente dejó un abono</small>
                   </div>
                 </div>
               </div>
@@ -492,7 +512,37 @@
                   </div>
                   }
                 </div>
-                <div class="col-12">
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Precio Total (opcional)</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" formControlName="precio_total" placeholder="Ej: 350000"
+                      min="0">
+                  </div>
+                  <small class="text-muted">Ingresa el precio exacto de la compra</small>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Abono (opcional)</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" class="form-control" formControlName="abono" placeholder="Ej: 100000" min="0">
+                  </div>
+                  <small class="text-muted">Si el cliente dejó un abono</small>
+                </div>
+                <div class="col-12 mt-3">
+                  @if (isEditCompraMode) {
+                  <button type="submit" class="btn btn-warning me-2" [disabled]="isLoadingCompras">
+                    <i class="bi bi-pencil me-2"></i>
+                    @if (isLoadingCompras) {
+                    <span>Actualizando...</span>
+                    } @else {
+                    <span>Actualizar Compra</span>
+                    }
+                  </button>
+                  <button type="button" class="btn btn-secondary" (click)="cancelEditCompra()">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                  </button>
+                  } @else {
                   <button type="submit" class="btn btn-primary" [disabled]="isLoadingCompras">
                     <i class="bi bi-check-circle me-2"></i>
                     @if (isLoadingCompras) {
@@ -501,6 +551,7 @@
                     <span>Registrar Compra</span>
                     }
                   </button>
+                  }
                 </div>
               </div>
             </form>
@@ -536,12 +587,14 @@
                     <th>Tipo de Lente</th>
                     <th>Tipo de Montura</th>
                     <th>Rango de Precio</th>
+                    <th>Precio Total</th>
+                    <th>Abono</th>
                     <th class="text-end">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   @for (compra of compras; track compra.id) {
-                  <tr>
+                  <tr [class.table-warning]="selectedCompraId === compra.id">
                     <td>
                       <i class="bi bi-calendar3 me-1 text-muted"></i>
                       {{formatDate(compra.fecha_compra || '')}}
@@ -555,11 +608,33 @@
                     <td>
                       <span class="badge bg-success">{{compra.rango_precio}}</span>
                     </td>
-                    <td class="text-end">
-                      <button class="btn btn-sm btn-outline-danger" (click)="deleteCompra(compra)"
-                        [disabled]="isLoadingCompras">
-                        <i class="bi bi-trash"></i>
-                      </button>
+                    <td>
+                      @if (compra.precio_total) {
+                      <span class="fw-semibold text-primary">{{compra.precio_total |
+                        currency:'COP':'symbol-narrow':'1.0-0'}}</span>
+                      } @else {
+                      <span class="text-muted">-</span>
+                      }
+                    </td>
+                    <td>
+                      @if (compra.abono) {
+                      <span class="fw-semibold text-warning">{{compra.abono |
+                        currency:'COP':'symbol-narrow':'1.0-0'}}</span>
+                      } @else {
+                      <span class="text-muted">-</span>
+                      }
+                    </td>
+                    <td>
+                      <div class="py-2 d-flex flex-md-row gap-2 justify-content-center">
+                        <button class="btn btn-sm btn-outline-warning me-1" (click)="editCompra(compra)"
+                          [disabled]="isLoadingCompras" title="Editar compra">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" (click)="deleteCompra(compra)"
+                          [disabled]="isLoadingCompras" title="Eliminar compra">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                   }
@@ -620,7 +695,7 @@
                       <i class="bi bi-cash-coin me-2"></i>Cashback Disponible
                     </h6>
                     <h3 class="mb-0 text-success fw-bold">
-                      ${{calcularCashbackDisponible().toLocaleString('es-CO')}}
+                      {{calcularCashbackDisponible() | currency:'COP':'symbol-narrow':'1.0-0'}}
                     </h3>
                     <small class="text-muted">
                       De {{calcularReferidosActivos()}} referido(s) activo(s)
@@ -650,7 +725,7 @@
                       <i class="bi bi-wallet2 me-2"></i>Cashback Redimido (Histórico)
                     </h6>
                     <h3 class="mb-0 text-secondary fw-bold">
-                      ${{calcularCashbackRedimido().toLocaleString('es-CO')}}
+                      {{calcularCashbackRedimido() | currency:'COP':'symbol-narrow':'1.0-0'}}
                     </h3>
                     <small class="text-muted">
                       De {{calcularReferidosRedimidos()}} referido(s) redimido(s)
@@ -725,7 +800,7 @@
                     </td>
                     <td>
                       <span class="badge bg-success">
-                        ${{(referido.cashback_generado || 0).toLocaleString('es-CO')}}
+                        {{referido.cashback_generado || 0 | currency:'COP':'symbol-narrow':'1.0-0'}}
                       </span>
                     </td>
                     <td>
@@ -826,7 +901,7 @@
                 <small class="opacity-75">{{clienteReferidor.nombres.split(' ')[0]}} acaba de ganar cashback</small>
                 } @else {
                 <small class="opacity-75">{{clienteReferidor.nombres.split(' ')[0]}} tiene
-                  ${{cashbackAcumuladoReferidor.toLocaleString('es-CO')}} acumulados</small>
+                  {{cashbackAcumuladoReferidor | currency:'COP':'symbol-narrow':'1.0-0'}} acumulados</small>
                 }
               </div>
             </div>

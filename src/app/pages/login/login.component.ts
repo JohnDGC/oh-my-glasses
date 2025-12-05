@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
 
   async ngOnInit() {
     const isAuth = await this.authService.isAuthenticated();
-    if (isAuth) this.router.navigate(['/admin']);
+    if (isAuth) this.router.navigate(['/clientes']);
   }
 
   togglePasswordVisibility() {

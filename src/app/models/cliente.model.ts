@@ -20,6 +20,8 @@ export interface ClienteCompra {
   tipo_lente: TipoLente;
   tipo_montura: TipoMontura;
   rango_precio: RangoPrecio;
+  precio_total?: number;
+  abono?: number;
   fecha_compra?: string;
   created_at?: string;
 }
