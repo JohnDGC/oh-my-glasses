@@ -58,6 +58,8 @@ export class ClientesComponent implements OnInit {
   showComprasModal = false;
   showReferidosModal = false;
   isEditMode = false;
+  isEditCompraMode = false;
+  selectedCompraId: string | null = null;
   selectedClienteId: string | null = null;
   selectedCliente: Cliente | null = null;
   esReferido = false;
@@ -75,7 +77,7 @@ export class ClientesComponent implements OnInit {
   rangoPrecioCompra: string = '';
   cashbackAcumuladoReferidor: number = 0;
   referidorYaRedimio: boolean = false;
-  esNuevoRegistroConCashback: boolean = false; // true = acabamos de sumar cashback, false = modal de cliente existente
+  esNuevoRegistroConCashback: boolean = false;
   showConfigModal = false;
   whatsAppConfig: WhatsAppConfig = {
     nombreNegocio: '',
@@ -118,9 +120,11 @@ export class ClientesComponent implements OnInit {
       correo: ['', [Validators.required, Validators.email]],
       es_referido: [false],
       cliente_referidor_id: [null],
-      primera_compra_tipo_lente: ['', Validators.required],
-      primera_compra_tipo_montura: ['', Validators.required],
-      primera_compra_rango_precio: ['', Validators.required],
+      primera_compra_tipo_lente: [null, Validators.required],
+      primera_compra_tipo_montura: [null, Validators.required],
+      primera_compra_rango_precio: [null, Validators.required],
+      primera_compra_precio_total: [null, [Validators.min(0)]],
+      primera_compra_abono: [null, [Validators.min(0)]],
     });
 
     this.clienteForm
@@ -160,6 +164,8 @@ export class ClientesComponent implements OnInit {
       tipo_lente: ['', Validators.required],
       tipo_montura: ['', Validators.required],
       rango_precio: ['', Validators.required],
+      precio_total: [null, [Validators.min(0)]],
+      abono: [null, [Validators.min(0)]],
     });
   }
 
@@ -312,6 +318,8 @@ export class ClientesComponent implements OnInit {
               tipo_lente: formValue.primera_compra_tipo_lente,
               tipo_montura: formValue.primera_compra_tipo_montura,
               rango_precio: formValue.primera_compra_rango_precio,
+              precio_total: formValue.primera_compra_precio_total || undefined,
+              abono: formValue.primera_compra_abono || undefined,
             };
             await this.clienteService.createCompra(primeraCompra);
 
@@ -449,6 +457,8 @@ export class ClientesComponent implements OnInit {
     this.selectedCliente = null;
     this.compras = [];
     this.compraForm.reset();
+    this.isEditCompraMode = false;
+    this.selectedCompraId = null;
   }
 
   async loadCompras() {
@@ -480,11 +490,22 @@ export class ClientesComponent implements OnInit {
         tipo_lente: this.compraForm.value.tipo_lente,
         tipo_montura: this.compraForm.value.tipo_montura,
         rango_precio: this.compraForm.value.rango_precio,
+        precio_total: this.compraForm.value.precio_total || undefined,
+        abono: this.compraForm.value.abono || undefined,
       };
 
-      await this.clienteService.createCompra(compraData);
-      alert('Compra registrada exitosamente');
-      this.compraForm.reset();
+      if (this.isEditCompraMode && this.selectedCompraId) {
+        await this.clienteService.updateCompra(
+          this.selectedCompraId,
+          compraData
+        );
+        alert('Compra actualizada exitosamente');
+      } else {
+        await this.clienteService.createCompra(compraData);
+        alert('Compra registrada exitosamente');
+      }
+
+      this.cancelEditCompra();
       await this.loadCompras();
     } catch (error: any) {
       console.error('Error registrando compra:', error);
@@ -492,6 +513,24 @@ export class ClientesComponent implements OnInit {
     } finally {
       this.isLoadingCompras = false;
     }
+  }
+
+  editCompra(compra: ClienteCompra) {
+    this.isEditCompraMode = true;
+    this.selectedCompraId = compra.id || null;
+    this.compraForm.patchValue({
+      tipo_lente: compra.tipo_lente,
+      tipo_montura: compra.tipo_montura,
+      rango_precio: compra.rango_precio,
+      precio_total: compra.precio_total || null,
+      abono: compra.abono || null,
+    });
+  }
+
+  cancelEditCompra() {
+    this.isEditCompraMode = false;
+    this.selectedCompraId = null;
+    this.compraForm.reset();
   }
 
   async deleteCompra(compra: ClienteCompra) {

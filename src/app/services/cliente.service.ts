@@ -147,6 +147,8 @@ export class ClienteService {
           tipo_lente: compra.tipo_lente,
           tipo_montura: compra.tipo_montura,
           rango_precio: compra.rango_precio,
+          precio_total: compra.precio_total || null,
+          abono: compra.abono || null,
           fecha_compra: new Date().toISOString(),
         },
       ])
@@ -155,6 +157,31 @@ export class ClienteService {
 
     if (error) {
       console.error('Error al registrar compra:', error);
+      throw error;
+    }
+
+    return data;
+  }
+
+  async updateCompra(
+    id: string,
+    compra: Partial<ClienteCompra>
+  ): Promise<ClienteCompra> {
+    const { data, error } = await this.supabase.client
+      .from('cliente_compras')
+      .update({
+        tipo_lente: compra.tipo_lente,
+        tipo_montura: compra.tipo_montura,
+        rango_precio: compra.rango_precio,
+        precio_total: compra.precio_total || null,
+        abono: compra.abono || null,
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error al actualizar compra:', error);
       throw error;
     }
 
