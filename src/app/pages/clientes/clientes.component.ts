@@ -117,7 +117,7 @@ export class ClientesComponent implements OnInit {
       cedula: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
       fecha_nacimiento: ['', Validators.required],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      correo: ['', [Validators.required, Validators.email]],
+      correo: ['', [Validators.email]],
       es_referido: [false],
       cliente_referidor_id: [null],
       primera_compra_tipo_lente: [null, Validators.required],

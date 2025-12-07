@@ -306,14 +306,11 @@
               }
             </div>
             <div class="col-12">
-              <label class="form-label fw-semibold">Correo Electrónico *</label>
+              <label class="form-label fw-semibold">Correo Electrónico (opcional)</label>
               <input type="email" class="form-control" formControlName="correo" placeholder="Correo"
                 [class.is-invalid]="correo?.invalid && correo?.touched">
               @if (correo?.invalid && correo?.touched) {
               <div class="invalid-feedback">
-                @if (correo?.errors?.['required']) {
-                <span>El correo es requerido</span>
-                }
                 @if (correo?.errors?.['email']) {
                 <span>Correo inválido</span>
                 }
