@@ -287,11 +287,38 @@ export class ClientesComponent implements OnInit {
           return;
         }
 
+        // Verificar si se está agregando un referidor a un cliente que no lo tenía
+        const clienteOriginal = this.clientes.find(
+          (c) => c.id === this.selectedClienteId
+        );
+        const esNuevoReferido =
+          !clienteOriginal?.es_referido &&
+          formValue.es_referido &&
+          formValue.cliente_referidor_id;
+
         await this.clienteService.updateCliente(
           this.selectedClienteId,
           clienteData
         );
-        alert('Cliente actualizado exitosamente');
+
+        let mensaje = 'Cliente actualizado exitosamente';
+
+        if (esNuevoReferido) {
+          try {
+            await this.clienteService.asignarReferidorRetroactivo(
+              this.selectedClienteId,
+              formValue.cliente_referidor_id
+            );
+            mensaje +=
+              '.\n\n✅ Se ha vinculado el referido y generado el cashback retroactivo correspondiente a su última compra.';
+          } catch (error) {
+            console.error('Error generando cashback retroactivo:', error);
+            mensaje +=
+              '.\n\n⚠️ No se pudo generar el cashback retroactivo (verifica si tiene compras registradas).';
+          }
+        }
+
+        alert(mensaje);
       } else {
         const cedulaExiste = await this.clienteService.verificarCedulaExistente(
           formValue.cedula
@@ -674,6 +701,126 @@ export class ClientesComponent implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  // ========== ABONOS ==========
+  showAbonosModal = false;
+  abonos: any[] = []; // Usar ClienteAbono cuando esté importado
+  abonoForm!: FormGroup;
+  selectedCompraForAbono: ClienteCompra | null = null;
+  isLoadingAbonos = false;
+
+  initAbonoForm() {
+    this.abonoForm = this.fb.group({
+      monto: [null, [Validators.required, Validators.min(1000)]],
+      fecha_abono: [
+        new Date().toISOString().split('T')[0],
+        Validators.required,
+      ],
+      nota: [''],
+    });
+  }
+
+  async openAbonosModal(compra: ClienteCompra) {
+    this.selectedCompraForAbono = compra;
+    this.showAbonosModal = true;
+    if (!this.abonoForm) this.initAbonoForm();
+    this.abonoForm.reset({
+      monto: null,
+      fecha_abono: new Date().toISOString().split('T')[0],
+      nota: '',
+    });
+    await this.loadAbonos();
+  }
+
+  closeAbonosModal() {
+    this.showAbonosModal = false;
+    this.selectedCompraForAbono = null;
+    this.abonos = [];
+  }
+
+  async loadAbonos() {
+    if (!this.selectedCompraForAbono?.id) return;
+
+    this.isLoadingAbonos = true;
+    try {
+      this.abonos = await this.clienteService.getAbonosByCompra(
+        this.selectedCompraForAbono.id
+      );
+    } catch (error) {
+      console.error('Error cargando abonos:', error);
+      alert('Error al cargar historial de abonos');
+    } finally {
+      this.isLoadingAbonos = false;
+    }
+  }
+
+  async registrarAbono() {
+    if (this.abonoForm.invalid || !this.selectedCompraForAbono?.id) {
+      this.abonoForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoadingAbonos = true;
+    try {
+      const abonoData = {
+        compra_id: this.selectedCompraForAbono.id,
+        monto: this.abonoForm.value.monto,
+        fecha_abono: new Date(this.abonoForm.value.fecha_abono).toISOString(),
+        nota: this.abonoForm.value.nota,
+      };
+
+      await this.clienteService.createAbono(abonoData);
+
+      // Actualizar localmente el total de la compra (opcional, para visualización inmediata)
+      // Aunque lo ideal es recargar las compras del cliente para ver el total actualizado en la tabla principal
+      await this.loadAbonos();
+      await this.loadCompras(); // Recargar compras para ver el abono total actualizado
+
+      this.abonoForm.reset({
+        monto: null,
+        fecha_abono: new Date().toISOString().split('T')[0],
+        nota: '',
+      });
+      alert('Abono registrado exitosamente');
+    } catch (error) {
+      console.error('Error registrando abono:', error);
+      alert('Error al registrar el abono');
+    } finally {
+      this.isLoadingAbonos = false;
+    }
+  }
+
+  async deleteAbono(abono: any) {
+    if (!confirm(`¿Eliminar abono de ${this.formatCurrency(abono.monto)}?`)) {
+      return;
+    }
+
+    this.isLoadingAbonos = true;
+    try {
+      await this.clienteService.deleteAbono(
+        abono.id,
+        this.selectedCompraForAbono!.id!
+      );
+      await this.loadAbonos();
+      await this.loadCompras(); // Actualizar total en tabla compras
+      alert('Abono eliminado');
+    } catch (error) {
+      console.error('Error eliminando abono:', error);
+      alert('Error al eliminar abono');
+    } finally {
+      this.isLoadingAbonos = false;
+    }
+  }
+
+  // Helper para formato moneda en confirm
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
   }
 
   // ========== GETTERS ==========

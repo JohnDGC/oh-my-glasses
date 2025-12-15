@@ -22,7 +22,17 @@ export interface ClienteCompra {
   rango_precio: RangoPrecio;
   precio_total?: number;
   abono?: number;
+  abonos?: ClienteAbono[];
   fecha_compra?: string;
+  created_at?: string;
+}
+
+export interface ClienteAbono {
+  id?: string;
+  compra_id: string;
+  monto: number;
+  fecha_abono: string;
+  nota?: string;
   created_at?: string;
 }
 

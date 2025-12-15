@@ -1,15 +1,12 @@
 import { Injectable } from '@angular/core';
+import { calcularCashback, CashbackInfo } from '../shared/utils/cashback.util';
 
 export interface MensajeWhatsApp {
   telefono: string;
   mensaje: string;
 }
 
-export interface CashbackInfo {
-  monto: number;
-  montoFormateado: string;
-  rangoCompra: string;
-}
+export type { CashbackInfo };
 
 export interface WhatsAppConfig {
   nombreNegocio: string;
@@ -99,35 +96,14 @@ export class WhatsAppService {
    * - $1.000.000 - $1.500.000: $25.000
    * - $1.500.000 en adelante: $30.000
    */
+  /**
+   * Calcula el cashback según el rango de precio de la compra
+   * DEPRECATED: Usar la utilidad compartida calculateCashback
+   * Se mantiene como wrapper por compatibilidad si es necesario, o se elimina.
+   * En este caso, redirigimos a la utilidad.
+   */
   calcularCashback(rangoPrecio: string): CashbackInfo {
-    const valores = rangoPrecio.replace(/[\$\.]/g, '').match(/\d+/g);
-    const valorMaximo = valores ? parseInt(valores[valores.length - 1]) : 0;
-    const esRangoAlto = rangoPrecio.toLowerCase().includes('adelante');
-    let monto: number;
-    let rangoCompra: string;
-
-    if (valorMaximo <= 300000 && !esRangoAlto) {
-      monto = 10000;
-      rangoCompra = '$0 - $300.000';
-    } else if (valorMaximo <= 600000 && !esRangoAlto) {
-      monto = 15000;
-      rangoCompra = '$300.000 - $600.000';
-    } else if (valorMaximo <= 1000000 && !esRangoAlto) {
-      monto = 20000;
-      rangoCompra = '$600.000 - $1.000.000';
-    } else if (valorMaximo <= 1500000 && !esRangoAlto) {
-      monto = 25000;
-      rangoCompra = '$1.000.000 - $1.500.000';
-    } else {
-      monto = 30000;
-      rangoCompra = '$1.500.000 o más';
-    }
-
-    return {
-      monto,
-      montoFormateado: `$${monto.toLocaleString('es-CO')}`,
-      rangoCompra,
-    };
+    return calcularCashback(rangoPrecio);
   }
 
   generarMensajeBienvenida(nombreCliente: string): string {
