@@ -42,6 +42,10 @@ export type TipoLente =
   | 'Mono FotoBlue'
   | 'Mono Transitions'
   | 'Mono Transitions Colores'
+  | 'Poli Blanco'
+  | 'Poli ArVerde'
+  | 'Poli ArBlue'
+  | 'Poli FotoBlue'
   | 'Progresivo Basico ArBlue'
   | 'Progresivo Basico FotoBlue'
   | 'Progresivo Basico Transitions'
@@ -58,7 +62,17 @@ export type TipoLente =
   | 'Bifocal Invisible FotoBlue'
   | 'Sin Lente';
 
-export type TipoMontura = 'Clásica' | 'Premium' | 'Sin Montura';
+export type TipoMontura =
+  | 'Clásica 1'
+  | 'Clásica 2'
+  | 'Clásica 3'
+  | 'Taizu'
+  | 'Fento'
+  | 'MH'
+  | 'Lacoste'
+  | 'CK'
+  | 'RayBan'
+  | 'Sin Montura';
 
 export type RangoPrecio =
   | '$0 - $300.000'
@@ -74,6 +88,10 @@ export const TIPOS_LENTE: TipoLente[] = [
   'Mono FotoBlue',
   'Mono Transitions',
   'Mono Transitions Colores',
+  'Poli Blanco',
+  'Poli ArVerde',
+  'Poli ArBlue',
+  'Poli FotoBlue',
   'Progresivo Basico ArBlue',
   'Progresivo Basico FotoBlue',
   'Progresivo Basico Transitions',
@@ -92,8 +110,15 @@ export const TIPOS_LENTE: TipoLente[] = [
 ];
 
 export const TIPOS_MONTURA: TipoMontura[] = [
-  'Clásica',
-  'Premium',
+  'Clásica 1',
+  'Clásica 2',
+  'Clásica 3',
+  'Taizu',
+  'Fento',
+  'MH',
+  'Lacoste',
+  'CK',
+  'RayBan',
   'Sin Montura',
 ];
 
