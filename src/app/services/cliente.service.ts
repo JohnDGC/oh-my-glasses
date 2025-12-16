@@ -4,6 +4,7 @@ import {
   Cliente,
   ClienteCompra,
   ClienteReferido,
+  ClienteAbono,
 } from '../models/cliente.model';
 
 @Injectable({
@@ -160,6 +161,16 @@ export class ClienteService {
       throw error;
     }
 
+    // Si hay un abono inicial, registrarlo en el historial
+    if (compra.abono && compra.abono > 0 && data?.id) {
+      await this.createAbono({
+        compra_id: data.id,
+        monto: compra.abono,
+        fecha_abono: new Date().toISOString().split('T')[0], // Fecha de hoy
+        nota: 'Abono inicial de compra',
+      });
+    }
+
     return data;
   }
 
@@ -197,6 +208,81 @@ export class ClienteService {
     if (error) {
       console.error('Error al eliminar compra:', error);
       throw error;
+    }
+  }
+
+  // ========== ABONOS ==========
+
+  async getAbonosByCompra(compraId: string): Promise<ClienteAbono[]> {
+    const { data, error } = await this.supabase.client
+      .from('cliente_abonos')
+      .select('*')
+      .eq('compra_id', compraId)
+      .order('fecha_abono', { ascending: true });
+
+    if (error) {
+      console.error('Error al obtener abonos:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  async createAbono(abono: ClienteAbono): Promise<ClienteAbono> {
+    // 1. Crear el abono
+    const { data, error } = await this.supabase.client
+      .from('cliente_abonos')
+      .insert([
+        {
+          compra_id: abono.compra_id,
+          monto: abono.monto,
+          fecha_abono: abono.fecha_abono,
+          nota: abono.nota || null,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error al registrar abono:', error);
+      throw error;
+    }
+
+    // 2. Actualizar el total de abono en la compra
+    await this.updateTotalAbonoCompra(abono.compra_id);
+
+    return data;
+  }
+
+  async deleteAbono(id: string, compraId: string): Promise<void> {
+    const { error } = await this.supabase.client
+      .from('cliente_abonos')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error al eliminar abono:', error);
+      throw error;
+    }
+
+    // Actualizar el total de abono en la compra
+    await this.updateTotalAbonoCompra(compraId);
+  }
+
+  private async updateTotalAbonoCompra(compraId: string): Promise<void> {
+    // Obtener todos los abonos para sumar
+    const abonos = await this.getAbonosByCompra(compraId);
+    const totalAbonado = abonos.reduce((sum, a) => sum + Number(a.monto), 0);
+
+    // Actualizar la compra
+    const { error } = await this.supabase.client
+      .from('cliente_compras')
+      .update({ abono: totalAbonado })
+      .eq('id', compraId);
+
+    if (error) {
+      console.error('Error al actualizar total abono en compra:', error);
+      // No lanzamos error para no romper el flujo principal si el abono ya se creó/borró
     }
   }
 
@@ -332,6 +418,59 @@ export class ClienteService {
     if (error) {
       console.error('Error al redimir referidos:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Asigna un referidor a un cliente existente y genera el cashback correspondiente
+   * basado en su última (o primera) compra.
+   */
+  async asignarReferidorRetroactivo(
+    clienteId: string,
+    clienteReferidorId: string
+  ): Promise<void> {
+    // 1. Verificar si ya tiene compras
+    const ultimaCompra = await this.getUltimaCompraCliente(clienteId);
+
+    // 2. Actualizar cliente (asignar referidor)
+    const { error: errorCliente } = await this.supabase.client
+      .from('clientes')
+      .update({
+        es_referido: true,
+        cliente_referidor_id: clienteReferidorId,
+      })
+      .eq('id', clienteId);
+
+    if (errorCliente) {
+      console.error('Error al asignar referidor:', errorCliente);
+      throw errorCliente;
+    }
+
+    // 3. Si tiene compra, generar registro de referido y cashback
+    if (ultimaCompra && ultimaCompra.rango_precio) {
+      // Necesitamos importar calcularCashback o moverlo aquí.
+      // Como movimos la lógica a un util compartido, lo importaremos al inicio del archivo.
+      // Por ahora, asumiremos que se importará.
+      // IMPORTANTE: Este archivo necesita importar calcularCashback
+      const { calcularCashback } = await import(
+        '../shared/utils/cashback.util'
+      );
+      const cashbackInfo = calcularCashback(ultimaCompra.rango_precio);
+
+      if (cashbackInfo.monto > 0) {
+        // Crear registro de referido
+        await this.createReferido({
+          cliente_referidor_id: clienteReferidorId,
+          cliente_referido_id: clienteId,
+          fecha_referido: new Date().toISOString(), // Usamos fecha actual como fecha de "referencia" efectiva
+          estado: 'activo',
+          cashback_generado: cashbackInfo.monto,
+          rango_precio_compra: ultimaCompra.rango_precio,
+        });
+
+        // Sumar cashback al referidor
+        await this.addCashback(clienteReferidorId, cashbackInfo.monto);
+      }
     }
   }
 }
