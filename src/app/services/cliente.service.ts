@@ -473,4 +473,75 @@ export class ClienteService {
       }
     }
   }
+
+  /**
+   * Cambia o remueve el referidor de un cliente, ajustando cashback y registros
+   * @param clienteId ID del cliente
+   * @param antiguoReferidorId ID del referidor anterior (null si no tenía)
+   * @param nuevoReferidorId ID del nuevo referidor (null si se está removiendo)
+   */
+  async cambiarReferidor(
+    clienteId: string,
+    antiguoReferidorId: string | null,
+    nuevoReferidorId: string | null
+  ): Promise<void> {
+    // 1. Si había un referidor anterior, revertir el cashback
+    if (antiguoReferidorId) {
+      // Buscar el registro de referido
+      const { data: referidoAntiguo, error: errorBuscar } =
+        await this.supabase.client
+          .from('cliente_referidos')
+          .select('*')
+          .eq('cliente_referido_id', clienteId)
+          .eq('cliente_referidor_id', antiguoReferidorId)
+          .single();
+
+      if (errorBuscar) {
+        console.error('Error buscando referido antiguo:', errorBuscar);
+        // Continuar de todos modos para intentar limpiar
+      }
+
+      // Eliminar el registro de referido
+      const { error: errorEliminar } = await this.supabase.client
+        .from('cliente_referidos')
+        .delete()
+        .eq('cliente_referido_id', clienteId)
+        .eq('cliente_referidor_id', antiguoReferidorId);
+
+      if (errorEliminar) {
+        console.error('Error eliminando referido antiguo:', errorEliminar);
+        throw new Error('No se pudo eliminar el registro de referido anterior');
+      }
+
+      // Revertir el cashback del referidor anterior
+      if (referidoAntiguo?.cashback_generado) {
+        const { data: referidorAntiguo } = await this.supabase.client
+          .from('clientes')
+          .select('cashback_acumulado')
+          .eq('id', antiguoReferidorId)
+          .single();
+
+        const nuevoCashback =
+          (referidorAntiguo?.cashback_acumulado || 0) -
+          referidoAntiguo.cashback_generado;
+
+        const { error: errorCashback } = await this.supabase.client
+          .from('clientes')
+          .update({ cashback_acumulado: Math.max(0, nuevoCashback) })
+          .eq('id', antiguoReferidorId);
+
+        if (errorCashback) {
+          console.error(
+            'Error revirtiendo cashback del referidor anterior:',
+            errorCashback
+          );
+        }
+      }
+    }
+
+    // 2. Si hay un nuevo referidor, asignarlo retroactivamente
+    if (nuevoReferidorId) {
+      await this.asignarReferidorRetroactivo(clienteId, nuevoReferidorId);
+    }
+  }
 }

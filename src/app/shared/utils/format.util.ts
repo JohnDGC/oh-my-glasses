@@ -4,10 +4,17 @@
 export class FormatUtils {
   /**
    * Formatea una fecha a formato local
+   * Maneja correctamente las fechas sin conversión de zona horaria
    */
   static formatDate(dateString: string, locale: string = 'es-CO'): string {
     if (!dateString) return '-';
-    const date = new Date(dateString);
+
+    // Extraer solo la parte de la fecha (YYYY-MM-DD) para evitar problemas de zona horaria
+    const datePart = dateString.split('T')[0];
+    const [year, month, day] = datePart.split('-').map(Number);
+
+    // Crear fecha local sin conversión de zona horaria
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString(locale);
   }
 
