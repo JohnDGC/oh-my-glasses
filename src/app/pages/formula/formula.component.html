@@ -1,10 +1,13 @@
 <div class="formula-page min-vh-100 py-4">
   <div class="container-fluid px-4">
     <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mb-md-4 gap-3">
+    <div
+      class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mb-md-4 gap-3"
+    >
       <div class="text-center text-md-start">
         <h1 class="fw-bold mb-2">
-          <i class="bi bi-file-text me-2 text-primary"></i>Gestión de Fórmulas Médicas
+          <i class="bi bi-file-text me-2 text-primary"></i>Gestión de Fórmulas
+          Médicas
         </h1>
         <p class="text-muted mb-0">Sistema de Optometría y Prescripciones</p>
       </div>
@@ -20,9 +23,13 @@
           <span class="input-group-text bg-white">
             <i class="bi bi-search"></i>
           </span>
-          <input type="text" class="form-control border-start-0"
-            placeholder="Buscar por nombre, cédula o número de fórmula..." [(ngModel)]="search.searchTerm"
-            (input)="searchFormulas()">
+          <input
+            type="text"
+            class="form-control border-start-0"
+            placeholder="Buscar por nombre, cédula o número de fórmula..."
+            [(ngModel)]="search.searchTerm"
+            (input)="searchFormulas()"
+          />
         </div>
       </div>
     </div>
@@ -59,41 +66,57 @@
                 <td colspan="6" class="text-center py-5">
                   <i class="bi bi-inbox display-4 text-muted"></i>
                   <p class="text-muted mt-3 mb-0">
-                    @if (search.searchTerm) {
-                    No se encontraron fórmulas con ese criterio de búsqueda
-                    } @else {
-                    No hay fórmulas registradas. ¡Crea la primera!
-                    }
+                    @if (search.searchTerm) { No se encontraron fórmulas con ese
+                    criterio de búsqueda } @else { No hay fórmulas registradas.
+                    ¡Crea la primera! }
                   </p>
                 </td>
               </tr>
-              }
-              @for (formula of pagination.paginatedItems; track formula.id) {
+              } @for (formula of pagination.paginatedItems; track formula.id) {
               <tr>
                 <td class="px-4 py-3">
-                  <span class="badge bg-primary">{{formula.numero_formula}}</span>
+                  <span class="badge bg-primary">{{
+                    formula.numero_formula
+                  }}</span>
                 </td>
-                <td class="py-3">{{formatDate(formula.created_at || '')}}</td>
+                <td class="py-3">{{ formatDate(formula.created_at || "") }}</td>
                 <td class="py-3">
-                  <strong>{{formula.nombres}}</strong>
+                  <strong>{{ formula.nombres }}</strong>
                 </td>
-                <td class="py-3">{{formula.identificacion}}</td>
+                <td class="py-3">{{ formula.identificacion }}</td>
                 <td class="py-3">
-                  <span class="badge bg-info text-dark">{{formula.tipo_lentes || 'N/A'}}</span>
+                  <span class="badge bg-info text-dark">{{
+                    formula.tipo_lentes || "N/A"
+                  }}</span>
                 </td>
                 <td class="py-3">
                   <div class="d-flex gap-2 justify-content-center flex-wrap">
-                    <button class="btn btn-sm btn-outline-primary" (click)="openVerModal(formula)" title="Ver fórmula">
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="openVerModal(formula)"
+                      title="Ver fórmula"
+                    >
                       <i class="bi bi-eye"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-success" (click)="generarPDF(formula)" title="Descargar PDF">
+                    <button
+                      class="btn btn-sm btn-outline-success"
+                      (click)="generarPDF(formula)"
+                      title="Descargar PDF"
+                    >
                       <i class="bi bi-file-pdf"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-info" (click)="openHistorialModal(formula)"
-                      title="Ver historial">
+                    <button
+                      class="btn btn-sm btn-outline-info"
+                      (click)="openHistorialModal(formula)"
+                      title="Ver historial"
+                    >
                       <i class="bi bi-clock-history"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" (click)="deleteFormula(formula)" title="Eliminar">
+                    <button
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="deleteFormula(formula)"
+                      title="Eliminar"
+                    >
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
@@ -110,19 +133,24 @@
           <div class="d-flex flex-column flex-sm-row align-items-center gap-2">
             <small class="text-muted">
               <i class="bi bi-info-circle me-1"></i>
-              Mostrando <strong>{{pagination.startIndex + 1}}</strong> a
-              <strong>{{pagination.endIndex}}</strong>
-              de <strong>{{pagination.totalItems}}</strong> fórmulas
-              @if (search.searchTerm) {
-              (filtradas de {{formulas.length}} totales)
+              Mostrando <strong>{{ pagination.startIndex + 1 }}</strong> a
+              <strong>{{ pagination.endIndex }}</strong>
+              de <strong>{{ pagination.totalItems }}</strong> fórmulas @if
+              (search.searchTerm) { (filtradas de {{ formulas.length }} totales)
               }
             </small>
             <div class="d-flex align-items-center gap-2">
               <label class="form-label mb-0 small text-muted">Mostrar:</label>
-              <select class="form-select form-select-sm" [value]="pagination.itemsPerPage"
-                (change)="pagination.setItemsPerPage(+$any($event.target).value)" style="width: auto;">
+              <select
+                class="form-select form-select-sm"
+                [value]="pagination.itemsPerPage"
+                (change)="
+                  pagination.setItemsPerPage(+$any($event.target).value)
+                "
+                style="width: auto"
+              >
                 @for (option of pagination.itemsPerPageOptions; track option) {
-                <option [value]="option">{{option}}</option>
+                <option [value]="option">{{ option }}</option>
                 }
               </select>
             </div>
@@ -131,10 +159,19 @@
           <!-- Paginador -->
           @if (pagination.totalPages > 1) {
           <nav aria-label="Paginación de fórmulas">
-            <ul class="pagination pagination-sm justify-content-center justify-content-md-end mb-0">
+            <ul
+              class="pagination pagination-sm justify-content-center justify-content-md-end mb-0"
+            >
               <!-- Botón Anterior -->
-              <li class="page-item" [class.disabled]="pagination.currentPage === 1">
-                <button class="page-link" (click)="pagination.previousPage()" [disabled]="pagination.currentPage === 1">
+              <li
+                class="page-item"
+                [class.disabled]="pagination.currentPage === 1"
+              >
+                <button
+                  class="page-link"
+                  (click)="pagination.previousPage()"
+                  [disabled]="pagination.currentPage === 1"
+                >
                   <i class="bi bi-chevron-left"></i>
                 </button>
               </li>
@@ -142,41 +179,62 @@
               <!-- Primera página -->
               @if (pagination.getPageNumbers()[0] > 1) {
               <li class="page-item">
-                <button class="page-link" (click)="pagination.goToPage(1)">1</button>
+                <button class="page-link" (click)="pagination.goToPage(1)">
+                  1
+                </button>
               </li>
               @if (pagination.shouldShowStartEllipsis()) {
               <li class="page-item disabled">
                 <span class="page-link">...</span>
               </li>
-              }
-              }
+              } }
 
               <!-- Números de página -->
               @for (page of pagination.getPageNumbers(); track page) {
-              <li class="page-item" [class.active]="pagination.currentPage === page">
-                <button class="page-link" (click)="pagination.goToPage(page)">{{page}}</button>
+              <li
+                class="page-item"
+                [class.active]="pagination.currentPage === page"
+              >
+                <button class="page-link" (click)="pagination.goToPage(page)">
+                  {{ page }}
+                </button>
               </li>
               }
 
               <!-- Última página -->
-              @if (pagination.getPageNumbers()[pagination.getPageNumbers().length - 1] < pagination.totalPages) { @if
-                (pagination.shouldShowEndEllipsis()) { <li class="page-item disabled">
+              @if
+              (pagination.getPageNumbers()[pagination.getPageNumbers().length -
+              1] < pagination.totalPages) { @if
+              (pagination.shouldShowEndEllipsis()) {
+              <li class="page-item disabled">
                 <span class="page-link">...</span>
-                </li>
-                }
-                <li class="page-item">
-                  <button class="page-link"
-                    (click)="pagination.goToPage(pagination.totalPages)">{{pagination.totalPages}}</button>
-                </li>
-                }
+              </li>
+              }
+              <li class="page-item">
+                <button
+                  class="page-link"
+                  (click)="pagination.goToPage(pagination.totalPages)"
+                >
+                  {{ pagination.totalPages }}
+                </button>
+              </li>
+              }
 
-                <!-- Botón Siguiente -->
-                <li class="page-item" [class.disabled]="pagination.currentPage === pagination.totalPages">
-                  <button class="page-link" (click)="pagination.nextPage()"
-                    [disabled]="pagination.currentPage === pagination.totalPages">
-                    <i class="bi bi-chevron-right"></i>
-                  </button>
-                </li>
+              <!-- Botón Siguiente -->
+              <li
+                class="page-item"
+                [class.disabled]="
+                  pagination.currentPage === pagination.totalPages
+                "
+              >
+                <button
+                  class="page-link"
+                  (click)="pagination.nextPage()"
+                  [disabled]="pagination.currentPage === pagination.totalPages"
+                >
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </li>
             </ul>
           </nav>
           }
@@ -189,8 +247,14 @@
 
 <!-- Modal Nueva Fórmula -->
 @if (showModal) {
-<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+<div
+  class="modal show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5)"
+>
+  <div
+    class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"
+  >
     <div class="modal-content">
       <div class="modal-header bg-gradient">
         <h5 class="modal-title">
@@ -203,29 +267,47 @@
         <!-- Paso 1: Búsqueda de Cliente -->
         <div class="card mb-4">
           <div class="card-header bg-light">
-            <h6 class="mb-0"><i class="bi bi-search me-2"></i>Paso 1: Buscar Paciente</h6>
+            <h6 class="mb-0">
+              <i class="bi bi-search me-2"></i>Paso 1: Buscar Paciente
+            </h6>
           </div>
           <div class="card-body">
-            <form [formGroup]="busquedaClienteForm" (ngSubmit)="buscarCliente()">
+            <form
+              [formGroup]="busquedaClienteForm"
+              (ngSubmit)="buscarCliente()"
+            >
               <div class="row g-3">
                 <div class="col-md-8">
-                  <label class="form-label fw-semibold">Cédula / Identificación *</label>
-                  <input type="text" class="form-control" formControlName="identificacion"
+                  <label class="form-label fw-semibold"
+                    >Cédula / Identificación *</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="identificacion"
                     placeholder="Ingrese número de identificación"
-                    [class.is-invalid]="identificacionBusqueda?.invalid && identificacionBusqueda?.touched">
-                  @if (identificacionBusqueda?.invalid && identificacionBusqueda?.touched) {
+                    [class.is-invalid]="
+                      identificacionBusqueda?.invalid &&
+                      identificacionBusqueda?.touched
+                    "
+                  />
+                  @if (identificacionBusqueda?.invalid &&
+                  identificacionBusqueda?.touched) {
                   <div class="invalid-feedback">
                     @if (identificacionBusqueda?.errors?.['required']) {
                     <span>La identificación es requerida</span>
-                    }
-                    @if (identificacionBusqueda?.errors?.['pattern']) {
+                    } @if (identificacionBusqueda?.errors?.['pattern']) {
                     <span>Solo números</span>
                     }
                   </div>
                   }
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
-                  <button type="submit" class="btn btn-primary w-100" [disabled]="isLoading">
+                  <button
+                    type="submit"
+                    class="btn btn-primary w-100"
+                    [disabled]="isLoading"
+                  >
                     <i class="bi bi-search me-2"></i>Buscar
                   </button>
                 </div>
@@ -234,8 +316,12 @@
 
             <!-- Resultado de búsqueda -->
             @if (busquedaRealizada) {
-            <div class="mt-3 p-3 rounded-3" [class.bg-success]="clienteEncontrado" [class.bg-light]="!clienteEncontrado"
-              [class.bg-opacity-10]="true">
+            <div
+              class="mt-3 p-3 rounded-3"
+              [class.bg-success]="clienteEncontrado"
+              [class.bg-light]="!clienteEncontrado"
+              [class.bg-opacity-10]="true"
+            >
               @if (clienteEncontrado) {
               <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-check-circle-fill text-success fs-4"></i>
@@ -248,7 +334,9 @@
                 <i class="bi bi-info-circle-fill text-muted fs-4"></i>
                 <div>
                   <strong>Paciente nuevo</strong>
-                  <p class="mb-0 small text-muted">Complete los datos del paciente en el formulario</p>
+                  <p class="mb-0 small text-muted">
+                    Complete los datos del paciente en el formulario
+                  </p>
                 </div>
               </div>
               }
@@ -262,29 +350,54 @@
           <!-- Datos del Paciente -->
           <div class="card mb-4">
             <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-person me-2"></i>Datos del Paciente</h6>
+              <h6 class="mb-0">
+                <i class="bi bi-person me-2"></i>Datos del Paciente
+              </h6>
             </div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Identificación *</label>
-                  <input type="text" class="form-control" formControlName="identificacion" readonly>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="identificacion"
+                    readonly
+                  />
                 </div>
                 <div class="col-md-8">
-                  <label class="form-label fw-semibold">Nombres Completos *</label>
-                  <input type="text" class="form-control" formControlName="nombres">
+                  <label class="form-label fw-semibold"
+                    >Nombres Completos *</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="nombres"
+                  />
                 </div>
                 <div class="col-md-2">
                   <label class="form-label fw-semibold">Edad</label>
-                  <input type="number" class="form-control" formControlName="edad">
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="edad"
+                  />
                 </div>
                 <div class="col-md-3">
                   <label class="form-label fw-semibold">Teléfono</label>
-                  <input type="tel" class="form-control" formControlName="telefono">
+                  <input
+                    type="tel"
+                    class="form-control"
+                    formControlName="telefono"
+                  />
                 </div>
                 <div class="col-md-7">
                   <label class="form-label fw-semibold">Dirección</label>
-                  <input type="text" class="form-control" formControlName="direccion">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="direccion"
+                  />
                 </div>
                 <div class="col-md-6">
                   <label class="form-label fw-semibold">Régimen</label>
@@ -297,8 +410,12 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label fw-semibold">Afiliación (EPS)</label>
-                  <input type="text" class="form-control" formControlName="afiliacion"
-                    placeholder="Ej: Sura, Salud Total, etc.">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="afiliacion"
+                    placeholder="Ej: Sura, Salud Total, etc."
+                  />
                 </div>
               </div>
             </div>
@@ -307,14 +424,16 @@
           <!-- Datos Optométricos -->
           <div class="card mb-4">
             <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Datos Optométricos</h6>
+              <h6 class="mb-0">
+                <i class="bi bi-eye me-2"></i>Datos Optométricos
+              </h6>
             </div>
             <div class="card-body">
               <div class="table-responsive">
                 <table class="table table-bordered table-sm">
                   <thead class="table-light">
                     <tr>
-                      <th style="width: 80px;"></th>
+                      <th style="width: 80px"></th>
                       <th>Esfera</th>
                       <th>Cilindro</th>
                       <th>Eje</th>
@@ -328,37 +447,131 @@
                   <tbody>
                     <tr>
                       <td class="fw-bold bg-light text-center">OD</td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_esfera"
-                          placeholder="+/-"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_cilindro"
-                          placeholder="+/-"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_eje"
-                          placeholder="0-180"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_adicion"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_prisma_base">
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_esfera"
+                          placeholder="+/-"
+                        />
                       </td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_grados"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_av_lejos"
-                          placeholder="20/20"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="od_av_cerca"
-                          placeholder="20/20"></td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_cilindro"
+                          placeholder="+/-"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_eje"
+                          placeholder="0-180"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_adicion"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_prisma_base"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_grados"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_av_lejos"
+                          placeholder="20/20"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="od_av_cerca"
+                          placeholder="20/20"
+                        />
+                      </td>
                     </tr>
                     <tr>
                       <td class="fw-bold bg-light text-center">OI</td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_esfera"
-                          placeholder="+/-"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_cilindro"
-                          placeholder="+/-"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_eje"
-                          placeholder="0-180"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_adicion"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_prisma_base">
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_esfera"
+                          placeholder="+/-"
+                        />
                       </td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_grados"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_av_lejos"
-                          placeholder="20/20"></td>
-                      <td><input type="text" class="form-control form-control-sm" formControlName="oi_av_cerca"
-                          placeholder="20/20"></td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_cilindro"
+                          placeholder="+/-"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_eje"
+                          placeholder="0-180"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_adicion"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_prisma_base"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_grados"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_av_lejos"
+                          placeholder="20/20"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          formControlName="oi_av_cerca"
+                          placeholder="20/20"
+                        />
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -369,26 +582,47 @@
           <!-- Diagnóstico -->
           <div class="card mb-4">
             <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-clipboard-pulse me-2"></i>Diagnóstico</h6>
+              <h6 class="mb-0">
+                <i class="bi bi-clipboard-pulse me-2"></i>Diagnóstico
+              </h6>
             </div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label fw-semibold">Diagnóstico</label>
-                  <textarea class="form-control" formControlName="diagnostico" rows="2"
-                    placeholder="Diagnóstico médico..."></textarea>
+                  <textarea
+                    class="form-control"
+                    formControlName="diagnostico"
+                    rows="2"
+                    placeholder="Diagnóstico médico..."
+                  ></textarea>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Relación 1</label>
-                  <input type="text" class="form-control" formControlName="diagnostico_relacion_1" placeholder="FC21">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="diagnostico_relacion_1"
+                    placeholder="FC21"
+                  />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Relación 2</label>
-                  <input type="text" class="form-control" formControlName="diagnostico_relacion_2" placeholder="FC22">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="diagnostico_relacion_2"
+                    placeholder="FC22"
+                  />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Relación 3</label>
-                  <input type="text" class="form-control" formControlName="diagnostico_relacion_3" placeholder="FC23">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="diagnostico_relacion_3"
+                    placeholder="FC23"
+                  />
                 </div>
               </div>
             </div>
@@ -397,7 +631,9 @@
           <!-- Tipo de Lentes y Detalles -->
           <div class="card mb-4">
             <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-eyeglasses me-2"></i>Tipo de Lentes</h6>
+              <h6 class="mb-0">
+                <i class="bi bi-eyeglasses me-2"></i>Tipo de Lentes
+              </h6>
             </div>
             <div class="card-body">
               <div class="row g-3">
@@ -406,31 +642,58 @@
                   <select class="form-select" formControlName="tipo_lentes">
                     <option value="">Seleccionar...</option>
                     @for (tipo of tiposLentes; track tipo) {
-                    <option [value]="tipo">{{tipo}}</option>
+                    <option [value]="tipo">{{ tipo }}</option>
                     }
                   </select>
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Detalle</label>
-                  <input type="text" class="form-control" formControlName="tipo_lentes_detalle"
-                    placeholder="Especificar detalle">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="tipo_lentes_detalle"
+                    placeholder="Especificar detalle"
+                  />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Altura</label>
-                  <input type="text" class="form-control" formControlName="altura" placeholder="Altura de montaje">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="altura"
+                    placeholder="Altura de montaje"
+                  />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Color</label>
-                  <input type="text" class="form-control" formControlName="color" placeholder="Color de lentes">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="color"
+                    placeholder="Color de lentes"
+                  />
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold">Tratamientos (Ttos)</label>
-                  <input type="text" class="form-control" formControlName="tratamientos"
-                    placeholder="Anti-reflejo, fotocromático, etc.">
+                  <label class="form-label fw-semibold"
+                    >Tratamientos (Ttos)</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="tratamientos"
+                    placeholder="Anti-reflejo, fotocromático, etc."
+                  />
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold">DP (Distancia Pupilar)</label>
-                  <input type="text" class="form-control" formControlName="dp" placeholder="Ej: 63">
+                  <label class="form-label fw-semibold"
+                    >DP (Distancia Pupilar)</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="dp"
+                    placeholder="Ej: 63"
+                  />
                 </div>
               </div>
             </div>
@@ -439,22 +702,38 @@
           <!-- Uso y Control -->
           <div class="card mb-4">
             <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-calendar-check me-2"></i>Uso y Control</h6>
+              <h6 class="mb-0">
+                <i class="bi bi-calendar-check me-2"></i>Uso y Control
+              </h6>
             </div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Uso Dispositivo</label>
-                  <input type="text" class="form-control" formControlName="uso_dispositivo"
-                    placeholder="PC, tablet, celular, etc.">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="uso_dispositivo"
+                    placeholder="PC, tablet, celular, etc."
+                  />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Control</label>
-                  <input type="text" class="form-control" formControlName="control" placeholder="Fecha próximo control">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="control"
+                    placeholder="Fecha próximo control"
+                  />
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Duración Tto</label>
-                  <input type="text" class="form-control" formControlName="duracion_tratamiento" placeholder="1 año">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="duracion_tratamiento"
+                    placeholder="1 año"
+                  />
                 </div>
               </div>
             </div>
@@ -463,24 +742,38 @@
           <!-- Observaciones -->
           <div class="card mb-4">
             <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="bi bi-file-text me-2"></i>Observaciones</h6>
+              <h6 class="mb-0">
+                <i class="bi bi-file-text me-2"></i>Observaciones
+              </h6>
             </div>
             <div class="card-body">
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label fw-semibold">Observaciones</label>
-                  <textarea class="form-control" formControlName="observaciones" rows="3"
-                    placeholder="Observaciones adicionales..."></textarea>
+                  <textarea
+                    class="form-control"
+                    formControlName="observaciones"
+                    rows="3"
+                    placeholder="Observaciones adicionales..."
+                  ></textarea>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="closeModal()"
+            >
               Cancelar
             </button>
-            <button type="submit" class="btn btn-primary" [disabled]="isLoading || formulaForm.invalid">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="isLoading || formulaForm.invalid"
+            >
               @if (isLoading) {
               <span class="spinner-border spinner-border-sm me-2"></span>
               }
@@ -497,15 +790,23 @@
 
 <!-- Modal Ver Fórmula -->
 @if (showVerModal && selectedFormula) {
-<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5); z-index: 1060;">
+<div
+  class="modal show d-block"
+  tabindex="-1"
+  style="background-color: rgba(0, 0, 0, 0.5); z-index: 1060"
+>
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-gradient">
         <h5 class="modal-title">
           <i class="bi bi-eye me-2"></i>
-          Fórmula {{selectedFormula.numero_formula}}
+          Fórmula {{ selectedFormula.numero_formula }}
         </h5>
-        <button type="button" class="btn-close" (click)="closeVerModal()"></button>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeVerModal()"
+        ></button>
       </div>
       <div class="modal-body">
         <!-- Contenido de la fórmula -->
@@ -514,13 +815,19 @@
             <h6 class="fw-bold border-bottom pb-2">Datos del Paciente</h6>
             <div class="row">
               <div class="col-md-4">
-                <p><strong>Nombre:</strong> {{selectedFormula.nombres}}</p>
+                <p><strong>Nombre:</strong> {{ selectedFormula.nombres }}</p>
               </div>
               <div class="col-md-4">
-                <p><strong>Identificación:</strong> {{selectedFormula.identificacion}}</p>
+                <p>
+                  <strong>Identificación:</strong>
+                  {{ selectedFormula.identificacion }}
+                </p>
               </div>
               <div class="col-md-4">
-                <p><strong>Fecha:</strong> {{formatDate(selectedFormula.created_at || '')}}</p>
+                <p>
+                  <strong>Fecha:</strong>
+                  {{ formatDate(selectedFormula.created_at || "") }}
+                </p>
               </div>
             </div>
           </div>
@@ -544,25 +851,25 @@
                 <tbody>
                   <tr>
                     <td class="fw-bold">OD</td>
-                    <td>{{selectedFormula.od_esfera || '-'}}</td>
-                    <td>{{selectedFormula.od_cilindro || '-'}}</td>
-                    <td>{{selectedFormula.od_eje || '-'}}</td>
-                    <td>{{selectedFormula.od_adicion || '-'}}</td>
-                    <td>{{selectedFormula.od_prisma_base || '-'}}</td>
-                    <td>{{selectedFormula.od_grados || '-'}}</td>
-                    <td>{{selectedFormula.od_av_lejos || '-'}}</td>
-                    <td>{{selectedFormula.od_av_cerca || '-'}}</td>
+                    <td>{{ selectedFormula.od_esfera || "-" }}</td>
+                    <td>{{ selectedFormula.od_cilindro || "-" }}</td>
+                    <td>{{ selectedFormula.od_eje || "-" }}</td>
+                    <td>{{ selectedFormula.od_adicion || "-" }}</td>
+                    <td>{{ selectedFormula.od_prisma_base || "-" }}</td>
+                    <td>{{ selectedFormula.od_grados || "-" }}</td>
+                    <td>{{ selectedFormula.od_av_lejos || "-" }}</td>
+                    <td>{{ selectedFormula.od_av_cerca || "-" }}</td>
                   </tr>
                   <tr>
                     <td class="fw-bold">OI</td>
-                    <td>{{selectedFormula.oi_esfera || '-'}}</td>
-                    <td>{{selectedFormula.oi_cilindro || '-'}}</td>
-                    <td>{{selectedFormula.oi_eje || '-'}}</td>
-                    <td>{{selectedFormula.oi_adicion || '-'}}</td>
-                    <td>{{selectedFormula.oi_prisma_base || '-'}}</td>
-                    <td>{{selectedFormula.oi_grados || '-'}}</td>
-                    <td>{{selectedFormula.oi_av_lejos || '-'}}</td>
-                    <td>{{selectedFormula.oi_av_cerca || '-'}}</td>
+                    <td>{{ selectedFormula.oi_esfera || "-" }}</td>
+                    <td>{{ selectedFormula.oi_cilindro || "-" }}</td>
+                    <td>{{ selectedFormula.oi_eje || "-" }}</td>
+                    <td>{{ selectedFormula.oi_adicion || "-" }}</td>
+                    <td>{{ selectedFormula.oi_prisma_base || "-" }}</td>
+                    <td>{{ selectedFormula.oi_grados || "-" }}</td>
+                    <td>{{ selectedFormula.oi_av_lejos || "-" }}</td>
+                    <td>{{ selectedFormula.oi_av_cerca || "-" }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -570,58 +877,82 @@
 
             <div class="row mt-3">
               <div class="col-md-6">
-                <p><strong>DP:</strong> {{selectedFormula.dp || 'N/A'}}</p>
-                <p><strong>Tipo Lentes:</strong> <span class="ms-1 badge bg-info">{{selectedFormula.tipo_lentes}}</span>
+                <p><strong>DP:</strong> {{ selectedFormula.dp || "N/A" }}</p>
+                <p>
+                  <strong>Tipo Lentes:</strong>
+                  <span class="ms-1 badge bg-info">{{
+                    selectedFormula.tipo_lentes
+                  }}</span>
                 </p>
                 @if (selectedFormula.tipo_lentes_detalle) {
-                <p><strong>Detalle:</strong> {{selectedFormula.tipo_lentes_detalle}}</p>
-                }
-                @if (selectedFormula.altura) {
-                <p><strong>Altura:</strong> {{selectedFormula.altura}}</p>
+                <p>
+                  <strong>Detalle:</strong>
+                  {{ selectedFormula.tipo_lentes_detalle }}
+                </p>
+                } @if (selectedFormula.altura) {
+                <p><strong>Altura:</strong> {{ selectedFormula.altura }}</p>
                 }
               </div>
               <div class="col-md-6">
                 @if (selectedFormula.color) {
-                <p><strong>Color:</strong> {{selectedFormula.color}}</p>
-                }
-                @if (selectedFormula.tratamientos) {
-                <p><strong>Tratamientos:</strong> {{selectedFormula.tratamientos}}</p>
-                }
-                @if (selectedFormula.uso_dispositivo) {
-                <p><strong>Uso Dispositivo:</strong> {{selectedFormula.uso_dispositivo}}</p>
-                }
-                @if (selectedFormula.control) {
-                <p><strong>Control:</strong> {{selectedFormula.control}}</p>
+                <p><strong>Color:</strong> {{ selectedFormula.color }}</p>
+                } @if (selectedFormula.tratamientos) {
+                <p>
+                  <strong>Tratamientos:</strong>
+                  {{ selectedFormula.tratamientos }}
+                </p>
+                } @if (selectedFormula.uso_dispositivo) {
+                <p>
+                  <strong>Uso Dispositivo:</strong>
+                  {{ selectedFormula.uso_dispositivo }}
+                </p>
+                } @if (selectedFormula.control) {
+                <p><strong>Control:</strong> {{ selectedFormula.control }}</p>
                 }
               </div>
             </div>
           </div>
 
-          @if (selectedFormula.diagnostico || selectedFormula.diagnostico_relacion_1 ||
+          @if (selectedFormula.diagnostico ||
+          selectedFormula.diagnostico_relacion_1 ||
           selectedFormula.diagnostico_relacion_2 ||
-          selectedFormula.diagnostico_relacion_3 || selectedFormula.observaciones) {
+          selectedFormula.diagnostico_relacion_3 ||
+          selectedFormula.observaciones) {
           <div class="col-12">
-            <h6 class="fw-bold border-bottom pb-2">Diagnóstico y Observaciones</h6>
+            <h6 class="fw-bold border-bottom pb-2">
+              Diagnóstico y Observaciones
+            </h6>
             <div class="row">
-              @if (selectedFormula.diagnostico || selectedFormula.diagnostico_relacion_1 || selectedFormula.diagnostico_relacion_2 ||
+              @if (selectedFormula.diagnostico ||
+              selectedFormula.diagnostico_relacion_1 ||
+              selectedFormula.diagnostico_relacion_2 ||
               selectedFormula.diagnostico_relacion_3) {
               <div class="col-md-6">
-                <p class="mb-2"><strong>Diagnóstico:</strong> {{selectedFormula.diagnostico}}</p>
+                <p class="mb-2">
+                  <strong>Diagnóstico:</strong>
+                  {{ selectedFormula.diagnostico }}
+                </p>
                 @if (selectedFormula.diagnostico_relacion_1) {
-                <p class="mb-1"><strong>Relación 1:</strong> {{selectedFormula.diagnostico_relacion_1}}</p>
-                }
-                @if (selectedFormula.diagnostico_relacion_2) {
-                <p class="mb-1"><strong>Relación 2:</strong> {{selectedFormula.diagnostico_relacion_2}}</p>
-                }
-                @if (selectedFormula.diagnostico_relacion_3) {
-                <p class="mb-1"><strong>Relación 3:</strong> {{selectedFormula.diagnostico_relacion_3}}</p>
+                <p class="mb-1">
+                  <strong>Relación 1:</strong>
+                  {{ selectedFormula.diagnostico_relacion_1 }}
+                </p>
+                } @if (selectedFormula.diagnostico_relacion_2) {
+                <p class="mb-1">
+                  <strong>Relación 2:</strong>
+                  {{ selectedFormula.diagnostico_relacion_2 }}
+                </p>
+                } @if (selectedFormula.diagnostico_relacion_3) {
+                <p class="mb-1">
+                  <strong>Relación 3:</strong>
+                  {{ selectedFormula.diagnostico_relacion_3 }}
+                </p>
                 }
               </div>
-              }
-              @if (selectedFormula.observaciones) {
+              } @if (selectedFormula.observaciones) {
               <div class="col-md-6">
                 <p class="fw-semibold mb-2">Observaciones:</p>
-                <p>{{selectedFormula.observaciones}}</p>
+                <p>{{ selectedFormula.observaciones }}</p>
               </div>
               }
             </div>
@@ -630,7 +961,13 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeVerModal()">Cerrar</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeVerModal()"
+        >
+          Cerrar
+        </button>
       </div>
     </div>
   </div>
@@ -639,16 +976,27 @@
 
 <!-- Modal Historial -->
 @if (showHistorialModal) {
-<div class="modal show d-block" tabindex="-1"
-  [style]="showVerModal ? 'background-color: rgba(0,0,0,0.2); z-index: 1050;' : 'background-color: rgba(0,0,0,0.5); z-index: 1055;'">
+<div
+  class="modal show d-block"
+  tabindex="-1"
+  [style]="
+    showVerModal
+      ? 'background-color: rgba(0,0,0,0.2); z-index: 1050;'
+      : 'background-color: rgba(0,0,0,0.5); z-index: 1055;'
+  "
+>
   <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
       <div class="modal-header bg-gradient">
         <h5 class="modal-title">
           <i class="bi bi-clock-history me-2"></i>
-          Historial de {{selectedPaciente}}
+          Historial de {{ selectedPaciente }}
         </h5>
-        <button type="button" class="btn-close" (click)="closeHistorialModal()"></button>
+        <button
+          type="button"
+          class="btn-close"
+          (click)="closeHistorialModal()"
+        ></button>
       </div>
       <div class="modal-body">
         @if (isLoadingHistorial) {
@@ -679,16 +1027,38 @@
             <tbody>
               @for (formula of historialFormulas; track formula.id) {
               <tr>
-                <td><span class="badge bg-primary">{{formula.numero_formula}}</span></td>
-                <td>{{formatDate(formula.created_at || '')}}</td>
-                <td><span class="badge bg-info text-dark">{{formula.tipo_lentes}}</span></td>
-                <td>{{formula.od_esfera}}/{{formula.od_cilindro}}/{{formula.od_eje}}</td>
-                <td>{{formula.oi_esfera}}/{{formula.oi_cilindro}}/{{formula.oi_eje}}</td>
                 <td>
-                  <button class="btn btn-sm btn-outline-primary me-1" (click)="openVerModal(formula)">
+                  <span class="badge bg-primary">{{
+                    formula.numero_formula
+                  }}</span>
+                </td>
+                <td>{{ formatDate(formula.created_at || "") }}</td>
+                <td>
+                  <span class="badge bg-info text-dark">{{
+                    formula.tipo_lentes
+                  }}</span>
+                </td>
+                <td>
+                  {{ formula.od_esfera }}/{{ formula.od_cilindro }}/{{
+                    formula.od_eje
+                  }}
+                </td>
+                <td>
+                  {{ formula.oi_esfera }}/{{ formula.oi_cilindro }}/{{
+                    formula.oi_eje
+                  }}
+                </td>
+                <td>
+                  <button
+                    class="btn btn-sm btn-outline-primary me-1"
+                    (click)="openVerModal(formula)"
+                  >
                     <i class="bi bi-eye"></i>
                   </button>
-                  <button class="btn btn-sm btn-outline-success" (click)="generarPDF(formula)">
+                  <button
+                    class="btn btn-sm btn-outline-success"
+                    (click)="generarPDF(formula)"
+                  >
                     <i class="bi bi-file-pdf"></i>
                   </button>
                 </td>
@@ -700,7 +1070,13 @@
         }
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeHistorialModal()">Cerrar</button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeHistorialModal()"
+        >
+          Cerrar
+        </button>
       </div>
     </div>
   </div>

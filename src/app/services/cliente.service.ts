@@ -150,6 +150,7 @@ export class ClienteService {
           rango_precio: compra.rango_precio,
           precio_total: compra.precio_total || null,
           abono: compra.abono || null,
+          seccion: compra.seccion || null,
           fecha_compra: new Date().toISOString(),
         },
       ])
@@ -186,6 +187,7 @@ export class ClienteService {
         rango_precio: compra.rango_precio,
         precio_total: compra.precio_total || null,
         abono: compra.abono || null,
+        seccion: compra.seccion || null,
       })
       .eq('id', id)
       .select()

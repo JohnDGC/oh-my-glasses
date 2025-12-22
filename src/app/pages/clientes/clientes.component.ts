@@ -20,6 +20,7 @@ import {
   TIPOS_LENTE,
   TIPOS_MONTURA,
   RANGOS_PRECIO,
+  SECCIONES,
 } from '../../models/cliente.model';
 import { PaginationHelper } from '../../shared/utils/pagination.util';
 import { SearchHelper } from '../../shared/utils/search.util';
@@ -66,6 +67,7 @@ export class ClientesComponent implements OnInit {
   tiposLente = TIPOS_LENTE;
   tiposMontura = TIPOS_MONTURA;
   rangosPrecio = RANGOS_PRECIO;
+  secciones = SECCIONES;
   Math = Math;
   formatDate = FormatUtils.formatDate;
   showWhatsAppModal = false;
@@ -125,6 +127,7 @@ export class ClientesComponent implements OnInit {
       primera_compra_rango_precio: [null, Validators.required],
       primera_compra_precio_total: [null, [Validators.min(0)]],
       primera_compra_abono: [null, [Validators.min(0)]],
+      primera_compra_seccion: [null],
     });
 
     this.clienteForm
@@ -166,6 +169,7 @@ export class ClientesComponent implements OnInit {
       rango_precio: ['', Validators.required],
       precio_total: [null, [Validators.min(0)]],
       abono: [null, [Validators.min(0)]],
+      seccion: [null],
     });
   }
 
@@ -362,6 +366,7 @@ export class ClientesComponent implements OnInit {
               rango_precio: formValue.primera_compra_rango_precio,
               precio_total: formValue.primera_compra_precio_total || undefined,
               abono: formValue.primera_compra_abono || undefined,
+              seccion: formValue.primera_compra_seccion || undefined,
             };
             await this.clienteService.createCompra(primeraCompra);
 
@@ -534,6 +539,7 @@ export class ClientesComponent implements OnInit {
         rango_precio: this.compraForm.value.rango_precio,
         precio_total: this.compraForm.value.precio_total || undefined,
         abono: this.compraForm.value.abono || undefined,
+        seccion: this.compraForm.value.seccion || undefined,
       };
 
       if (this.isEditCompraMode && this.selectedCompraId) {
@@ -566,6 +572,7 @@ export class ClientesComponent implements OnInit {
       rango_precio: compra.rango_precio,
       precio_total: compra.precio_total || null,
       abono: compra.abono || null,
+      seccion: compra.seccion || null,
     });
   }
 

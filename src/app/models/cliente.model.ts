@@ -23,6 +23,7 @@ export interface ClienteCompra {
   precio_total?: number;
   abono?: number;
   abonos?: ClienteAbono[];
+  seccion?: Seccion;
   fecha_compra?: string;
   created_at?: string;
 }
@@ -82,6 +83,14 @@ export type RangoPrecio =
   | '$1.500.000 - $2.000.000'
   | '$2.000.000 en adelante';
 
+export type Seccion =
+  | 'Labradorita'
+  | 'Piedras Preciosas'
+  | 'Cianita'
+  | 'Obsidiana'
+  | 'Cuarzo'
+  | 'Citrino';
+
 export const TIPOS_LENTE: TipoLente[] = [
   'Mono ArBlue',
   'Mono ArVerde',
@@ -129,6 +138,15 @@ export const RANGOS_PRECIO: RangoPrecio[] = [
   '$1.000.000 - $1.500.000',
   '$1.500.000 - $2.000.000',
   '$2.000.000 en adelante',
+];
+
+export const SECCIONES: Seccion[] = [
+  'Labradorita',
+  'Piedras Preciosas',
+  'Cianita',
+  'Obsidiana',
+  'Cuarzo',
+  'Citrino',
 ];
 
 export interface ClienteReferido {
