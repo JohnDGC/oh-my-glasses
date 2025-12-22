@@ -20,6 +20,7 @@ import {
   TIPOS_LENTE,
   TIPOS_MONTURA,
   RANGOS_PRECIO,
+  SECCIONES,
 } from '../../models/cliente.model';
 import { PaginationHelper } from '../../shared/utils/pagination.util';
 import { SearchHelper } from '../../shared/utils/search.util';
@@ -66,6 +67,7 @@ export class ClientesComponent implements OnInit {
   tiposLente = TIPOS_LENTE;
   tiposMontura = TIPOS_MONTURA;
   rangosPrecio = RANGOS_PRECIO;
+  secciones = SECCIONES;
   Math = Math;
   formatDate = FormatUtils.formatDate;
   showWhatsAppModal = false;
@@ -125,6 +127,7 @@ export class ClientesComponent implements OnInit {
       primera_compra_rango_precio: [null, Validators.required],
       primera_compra_precio_total: [null, [Validators.min(0)]],
       primera_compra_abono: [null, [Validators.min(0)]],
+      primera_compra_seccion: [null],
     });
 
     this.clienteForm
@@ -166,6 +169,7 @@ export class ClientesComponent implements OnInit {
       rango_precio: ['', Validators.required],
       precio_total: [null, [Validators.min(0)]],
       abono: [null, [Validators.min(0)]],
+      seccion: [null],
     });
   }
 
@@ -287,14 +291,18 @@ export class ClientesComponent implements OnInit {
           return;
         }
 
-        // Verificar si se está agregando un referidor a un cliente que no lo tenía
+        // Detectar cambios en el referidor
         const clienteOriginal = this.clientes.find(
           (c) => c.id === this.selectedClienteId
         );
-        const esNuevoReferido =
-          !clienteOriginal?.es_referido &&
-          formValue.es_referido &&
-          formValue.cliente_referidor_id;
+
+        const referidorAnterior = clienteOriginal?.cliente_referidor_id || null;
+        const referidorNuevo =
+          formValue.es_referido && formValue.cliente_referidor_id
+            ? formValue.cliente_referidor_id
+            : null;
+
+        const referidorCambio = referidorAnterior !== referidorNuevo;
 
         await this.clienteService.updateCliente(
           this.selectedClienteId,
@@ -303,18 +311,29 @@ export class ClientesComponent implements OnInit {
 
         let mensaje = 'Cliente actualizado exitosamente';
 
-        if (esNuevoReferido) {
+        // Si hubo cambio en el referidor, ajustar registros y cashback
+        if (referidorCambio) {
           try {
-            await this.clienteService.asignarReferidorRetroactivo(
+            await this.clienteService.cambiarReferidor(
               this.selectedClienteId,
-              formValue.cliente_referidor_id
+              referidorAnterior,
+              referidorNuevo
             );
-            mensaje +=
-              '.\n\n✅ Se ha vinculado el referido y generado el cashback retroactivo correspondiente a su última compra.';
+
+            if (referidorNuevo && !referidorAnterior) {
+              mensaje +=
+                '.\n\n✅ Se ha vinculado el referido y generado el cashback retroactivo.';
+            } else if (!referidorNuevo && referidorAnterior) {
+              mensaje +=
+                '.\n\n✅ Se ha removido el referido y revertido el cashback.';
+            } else if (referidorNuevo && referidorAnterior) {
+              mensaje +=
+                '.\n\n✅ Se ha cambiado el referidor y ajustado el cashback correspondiente.';
+            }
           } catch (error) {
-            console.error('Error generando cashback retroactivo:', error);
+            console.error('Error gestionando cambio de referidor:', error);
             mensaje +=
-              '.\n\n⚠️ No se pudo generar el cashback retroactivo (verifica si tiene compras registradas).';
+              '.\n\n⚠️ No se pudo completar el ajuste del referido (verifica si tiene compras registradas).';
           }
         }
 
@@ -347,6 +366,7 @@ export class ClientesComponent implements OnInit {
               rango_precio: formValue.primera_compra_rango_precio,
               precio_total: formValue.primera_compra_precio_total || undefined,
               abono: formValue.primera_compra_abono || undefined,
+              seccion: formValue.primera_compra_seccion || undefined,
             };
             await this.clienteService.createCompra(primeraCompra);
 
@@ -519,6 +539,7 @@ export class ClientesComponent implements OnInit {
         rango_precio: this.compraForm.value.rango_precio,
         precio_total: this.compraForm.value.precio_total || undefined,
         abono: this.compraForm.value.abono || undefined,
+        seccion: this.compraForm.value.seccion || undefined,
       };
 
       if (this.isEditCompraMode && this.selectedCompraId) {
@@ -551,6 +572,7 @@ export class ClientesComponent implements OnInit {
       rango_precio: compra.rango_precio,
       precio_total: compra.precio_total || null,
       abono: compra.abono || null,
+      seccion: compra.seccion || null,
     });
   }
 
@@ -763,10 +785,15 @@ export class ClientesComponent implements OnInit {
 
     this.isLoadingAbonos = true;
     try {
+      // Crear fecha en zona horaria de Colombia (UTC-5)
+      const fechaAbonoStr = this.abonoForm.value.fecha_abono; // "YYYY-MM-DD"
+      const [year, month, day] = fechaAbonoStr.split('-').map(Number);
+      const fechaLocal = new Date(year, month - 1, day, 12, 0, 0); // Mediodía local para evitar cambios de día
+
       const abonoData = {
         compra_id: this.selectedCompraForAbono.id,
         monto: this.abonoForm.value.monto,
-        fecha_abono: new Date(this.abonoForm.value.fecha_abono).toISOString(),
+        fecha_abono: fechaLocal.toISOString(),
         nota: this.abonoForm.value.nota,
       };
 

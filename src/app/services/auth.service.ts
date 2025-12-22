@@ -20,7 +20,7 @@ export class AuthService {
   public currentUser: Observable<User | null>;
   private initializationPromise: Promise<void>;
   private _isInitialized = false;
-  private readonly INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000;
+  private readonly INACTIVITY_TIMEOUT_MS = 60 * 60 * 2000;
   private readonly STORAGE_KEY_LAST_ACTIVITY = 'ohmyglasses-last-activity';
   private inactivityTimer: Subscription | null = null;
   private activitySubscription: Subscription | null = null;
@@ -140,7 +140,7 @@ export class AuthService {
 
   private async handleInactivityTimeout(): Promise<void> {
     console.log('Sesión cerrada por inactividad');
-    alert('Tu sesión ha sido cerrada por inactividad (1 hora sin actividad).');
+    alert('Tu sesión ha sido cerrada por inactividad (2 hora sin actividad).');
     await this.signOut();
   }
 

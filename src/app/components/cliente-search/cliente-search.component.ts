@@ -120,18 +120,26 @@ export class ClienteSearchComponent implements ControlValueAccessor, OnDestroy {
 
   // Método para resaltar palabras coincidentes en el resultado
   highlightText(text: string): string {
-    if (!this.searchWords.length) return text;
+    if (!this.searchWords.length || !text) return text;
 
-    let highlightedText = text;
-    this.searchWords.forEach((word) => {
-      const regex = new RegExp(`(${word})`, 'gi');
-      highlightedText = highlightedText.replace(
-        regex,
-        '<mark class="bg-warning bg-opacity-50">$1</mark>'
-      );
-    });
+    // Ordenar palabras por longitud descendente para emparejar primero las más largas
+    // Esto evita que "r" coincida dentro de "prueba" si ambas están en la búsqueda
+    const sortedWords = [...this.searchWords].sort(
+      (a, b) => b.length - a.length
+    );
 
-    return highlightedText;
+    // Escapar caracteres especiales en las palabras de búsqueda para evitar errores de Regex
+    const escapedWords = sortedWords.map((word) =>
+      word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    );
+
+    const pattern = `(${escapedWords.join('|')})`;
+    const regex = new RegExp(pattern, 'gi');
+
+    return text.replace(
+      regex,
+      '<mark class="bg-warning bg-opacity-50">$1</mark>'
+    );
   }
 
   // Cerrar dropdown al hacer clic fuera
