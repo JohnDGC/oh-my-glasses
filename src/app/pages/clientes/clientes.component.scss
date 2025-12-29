@@ -51,6 +51,37 @@
     box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
   }
 
+  // Estilos para compras m\u00faltiples
+  .border-success {
+    border-width: 2px !important;
+  }
+
+  .card-header.bg-success {
+    background: linear-gradient(135deg, #198754 0%, #146c43 100%) !important;
+  }
+
+  .table-warning {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+    animation: highlightRow 0.5s ease;
+  }
+
+  @keyframes highlightRow {
+    0% {
+      background-color: rgba(255, 193, 7, 0.5);
+    }
+    100% {
+      background-color: rgba(255, 193, 7, 0.2);
+    }
+  }
+
+  .btn-outline-warning:hover {
+    color: #fff;
+  }
+
+  .btn-outline-danger:hover {
+    color: #fff;
+  }
+
   .input-group-text {
     border-right: none;
   }
