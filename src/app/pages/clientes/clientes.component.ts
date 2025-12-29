@@ -122,9 +122,9 @@ export class ClientesComponent implements OnInit {
       correo: ['', [Validators.email]],
       es_referido: [false],
       cliente_referidor_id: [null],
-      primera_compra_tipo_lente: [null, Validators.required],
-      primera_compra_tipo_montura: [null, Validators.required],
-      primera_compra_rango_precio: [null, Validators.required],
+      primera_compra_tipo_lente: [null],
+      primera_compra_tipo_montura: [null],
+      primera_compra_rango_precio: [null],
       primera_compra_precio_total: [null, [Validators.min(0)]],
       primera_compra_abono: [null, [Validators.min(0)]],
       primera_compra_seccion: [null],
@@ -202,15 +202,12 @@ export class ClientesComponent implements OnInit {
       cliente_referidor_id: null,
     });
     this.esReferido = false;
-    this.clienteForm
-      .get('primera_compra_tipo_lente')
-      ?.setValidators(Validators.required);
-    this.clienteForm
-      .get('primera_compra_tipo_montura')
-      ?.setValidators(Validators.required);
-    this.clienteForm
-      .get('primera_compra_rango_precio')
-      ?.setValidators(Validators.required);
+
+    // Los campos de primera compra ya no son requeridos en el form
+    // ahora usamos el array primerasComprasTemporales
+    this.clienteForm.get('primera_compra_tipo_lente')?.clearValidators();
+    this.clienteForm.get('primera_compra_tipo_montura')?.clearValidators();
+    this.clienteForm.get('primera_compra_rango_precio')?.clearValidators();
     this.clienteForm.get('primera_compra_tipo_lente')?.updateValueAndValidity();
     this.clienteForm
       .get('primera_compra_tipo_montura')
@@ -218,6 +215,10 @@ export class ClientesComponent implements OnInit {
     this.clienteForm
       .get('primera_compra_rango_precio')
       ?.updateValueAndValidity();
+
+    this.primerasComprasTemporales = [];
+    this.isEditingPrimeraCompra = false;
+    this.selectedPrimeraCompraIndex = null;
 
     this.showModal = true;
   }
@@ -254,6 +255,9 @@ export class ClientesComponent implements OnInit {
     this.clienteForm.reset();
     this.isEditMode = false;
     this.selectedClienteId = null;
+    this.primerasComprasTemporales = [];
+    this.isEditingPrimeraCompra = false;
+    this.selectedPrimeraCompraIndex = null;
   }
 
   async onSubmit() {
@@ -356,29 +360,29 @@ export class ClientesComponent implements OnInit {
         );
         nuevoClienteId = nuevoCliente.id;
 
-        // Registrar la primera compra
-        if (nuevoClienteId) {
+        // Registrar las primeras compras
+        if (nuevoClienteId && this.primerasComprasTemporales.length > 0) {
           try {
-            const primeraCompra: ClienteCompra = {
-              cliente_id: nuevoClienteId,
-              tipo_lente: formValue.primera_compra_tipo_lente,
-              tipo_montura: formValue.primera_compra_tipo_montura,
-              rango_precio: formValue.primera_compra_rango_precio,
-              precio_total: formValue.primera_compra_precio_total || undefined,
-              abono: formValue.primera_compra_abono || undefined,
-              seccion: formValue.primera_compra_seccion || undefined,
-            };
-            await this.clienteService.createCompra(primeraCompra);
+            for (const compra of this.primerasComprasTemporales) {
+              const primeraCompra: ClienteCompra = {
+                cliente_id: nuevoClienteId,
+                ...compra,
+              };
+              await this.clienteService.createCompra(primeraCompra);
+            }
 
-            this.rangoPrecioCompra = formValue.primera_compra_rango_precio;
+            // Guardar el rango de precio de la primera compra para referencia
+            this.rangoPrecioCompra =
+              this.primerasComprasTemporales[0].rango_precio;
           } catch (error: any) {
-            console.error('Error al registrar primera compra:', error);
+            console.error('Error al registrar primeras compras:', error);
             if (error.code === '23514') {
               alert(
                 '⚠️ Error: El rango de precio no es válido. Por favor ejecuta el script SQL "update-rango-precio-constraint.sql" en Supabase.'
               );
             }
-            this.rangoPrecioCompra = formValue.primera_compra_rango_precio;
+            this.rangoPrecioCompra =
+              this.primerasComprasTemporales[0]?.rango_precio || '';
           }
         }
 
@@ -395,11 +399,15 @@ export class ClientesComponent implements OnInit {
         ) {
           try {
             let cashbackGenerado = 0;
-            if (this.rangoPrecioCompra) {
-              const cashbackInfo = this.whatsAppService.calcularCashback(
-                this.rangoPrecioCompra
-              );
-              cashbackGenerado = cashbackInfo.monto;
+
+            // Calcular cashback por TODAS las compras del referido
+            if (this.primerasComprasTemporales.length > 0) {
+              for (const compra of this.primerasComprasTemporales) {
+                const cashbackInfo = this.whatsAppService.calcularCashback(
+                  compra.rango_precio
+                );
+                cashbackGenerado += cashbackInfo.monto;
+              }
             }
 
             await this.clienteService.createReferido({
@@ -506,6 +514,9 @@ export class ClientesComponent implements OnInit {
     this.compraForm.reset();
     this.isEditCompraMode = false;
     this.selectedCompraId = null;
+    this.comprasTemporales = [];
+    this.isEditingTempCompra = false;
+    this.selectedTempCompraIndex = null;
   }
 
   async loadCompras() {
@@ -524,6 +535,195 @@ export class ClientesComponent implements OnInit {
     }
   }
 
+  // Agregar compra al arreglo temporal
+  agregarCompraALista() {
+    if (this.compraForm.invalid || !this.selectedCliente?.id) {
+      this.compraForm.markAllAsTouched();
+      return;
+    }
+
+    const compraData: ClienteCompra = {
+      cliente_id: this.selectedCliente.id,
+      tipo_lente: this.compraForm.value.tipo_lente,
+      tipo_montura: this.compraForm.value.tipo_montura,
+      rango_precio: this.compraForm.value.rango_precio,
+      precio_total: this.compraForm.value.precio_total || undefined,
+      abono: this.compraForm.value.abono || undefined,
+      seccion: this.compraForm.value.seccion || undefined,
+    };
+
+    if (this.isEditingTempCompra && this.selectedTempCompraIndex !== null) {
+      // Actualizar compra temporal existente
+      this.comprasTemporales[this.selectedTempCompraIndex] = compraData;
+      this.isEditingTempCompra = false;
+      this.selectedTempCompraIndex = null;
+    } else {
+      // Agregar nueva compra temporal
+      this.comprasTemporales.push(compraData);
+    }
+
+    this.compraForm.reset();
+  }
+
+  // Editar una compra temporal
+  editarCompraTemporal(index: number) {
+    const compra = this.comprasTemporales[index];
+    this.isEditingTempCompra = true;
+    this.selectedTempCompraIndex = index;
+    this.compraForm.patchValue({
+      tipo_lente: compra.tipo_lente,
+      tipo_montura: compra.tipo_montura,
+      rango_precio: compra.rango_precio,
+      precio_total: compra.precio_total || null,
+      abono: compra.abono || null,
+      seccion: compra.seccion || null,
+    });
+  }
+
+  // Eliminar una compra temporal
+  eliminarCompraTemporal(index: number) {
+    this.comprasTemporales.splice(index, 1);
+    if (this.selectedTempCompraIndex === index) {
+      this.cancelarEdicionTemporal();
+    }
+  }
+
+  // Cancelar edición de compra temporal
+  cancelarEdicionTemporal() {
+    this.isEditingTempCompra = false;
+    this.selectedTempCompraIndex = null;
+    this.compraForm.reset();
+  }
+
+  // ========== MÉTODOS PARA PRIMERAS COMPRAS (Nuevo Cliente) ==========
+
+  // Agregar primera compra al arreglo temporal
+  agregarPrimeraCompraALista() {
+    const formValue = this.clienteForm.value;
+
+    if (
+      !formValue.primera_compra_tipo_lente ||
+      !formValue.primera_compra_tipo_montura ||
+      !formValue.primera_compra_rango_precio
+    ) {
+      // Marcar campos como touched para mostrar errores
+      this.clienteForm.get('primera_compra_tipo_lente')?.markAsTouched();
+      this.clienteForm.get('primera_compra_tipo_montura')?.markAsTouched();
+      this.clienteForm.get('primera_compra_rango_precio')?.markAsTouched();
+      return;
+    }
+
+    const compraData: Omit<ClienteCompra, 'cliente_id'> = {
+      tipo_lente: formValue.primera_compra_tipo_lente,
+      tipo_montura: formValue.primera_compra_tipo_montura,
+      rango_precio: formValue.primera_compra_rango_precio,
+      precio_total: formValue.primera_compra_precio_total || undefined,
+      abono: formValue.primera_compra_abono || undefined,
+      seccion: formValue.primera_compra_seccion || undefined,
+    };
+
+    if (
+      this.isEditingPrimeraCompra &&
+      this.selectedPrimeraCompraIndex !== null
+    ) {
+      // Actualizar compra temporal existente
+      this.primerasComprasTemporales[this.selectedPrimeraCompraIndex] =
+        compraData;
+      this.isEditingPrimeraCompra = false;
+      this.selectedPrimeraCompraIndex = null;
+    } else {
+      // Agregar nueva compra temporal
+      this.primerasComprasTemporales.push(compraData);
+    }
+
+    // Limpiar solo los campos de compra
+    this.clienteForm.patchValue({
+      primera_compra_tipo_lente: null,
+      primera_compra_tipo_montura: null,
+      primera_compra_rango_precio: null,
+      primera_compra_precio_total: null,
+      primera_compra_abono: null,
+      primera_compra_seccion: null,
+    });
+  }
+
+  // Editar una primera compra temporal
+  editarPrimeraCompraTemporal(index: number) {
+    const compra = this.primerasComprasTemporales[index];
+    this.isEditingPrimeraCompra = true;
+    this.selectedPrimeraCompraIndex = index;
+    this.clienteForm.patchValue({
+      primera_compra_tipo_lente: compra.tipo_lente,
+      primera_compra_tipo_montura: compra.tipo_montura,
+      primera_compra_rango_precio: compra.rango_precio,
+      primera_compra_precio_total: compra.precio_total || null,
+      primera_compra_abono: compra.abono || null,
+      primera_compra_seccion: compra.seccion || null,
+    });
+  }
+
+  // Eliminar una primera compra temporal
+  eliminarPrimeraCompraTemporal(index: number) {
+    this.primerasComprasTemporales.splice(index, 1);
+    if (this.selectedPrimeraCompraIndex === index) {
+      this.cancelarEdicionPrimeraCompra();
+    }
+  }
+
+  // Cancelar edición de primera compra
+  cancelarEdicionPrimeraCompra() {
+    this.isEditingPrimeraCompra = false;
+    this.selectedPrimeraCompraIndex = null;
+    this.clienteForm.patchValue({
+      primera_compra_tipo_lente: null,
+      primera_compra_tipo_montura: null,
+      primera_compra_rango_precio: null,
+      primera_compra_precio_total: null,
+      primera_compra_abono: null,
+      primera_compra_seccion: null,
+    });
+  }
+
+  // Guardar todas las compras temporales
+  async guardarTodasLasCompras() {
+    if (this.comprasTemporales.length === 0) {
+      alert('No hay compras para guardar');
+      return;
+    }
+
+    if (!this.selectedCliente?.id) {
+      alert('Error: No hay cliente seleccionado');
+      return;
+    }
+
+    const confirmacion = confirm(
+      `¿Confirmas guardar ${this.comprasTemporales.length} compra(s)?`
+    );
+
+    if (!confirmacion) return;
+
+    this.isLoadingCompras = true;
+    try {
+      // Guardar todas las compras
+      for (const compra of this.comprasTemporales) {
+        await this.clienteService.createCompra(compra);
+      }
+
+      alert(
+        `✅ ${this.comprasTemporales.length} compra(s) registrada(s) exitosamente`
+      );
+      this.comprasTemporales = [];
+      this.compraForm.reset();
+      await this.loadCompras();
+    } catch (error: any) {
+      console.error('Error registrando compras:', error);
+      alert(error.message || 'Error al registrar las compras');
+    } finally {
+      this.isLoadingCompras = false;
+    }
+  }
+
+  // Método original para compras existentes (edición individual)
   async registrarCompra() {
     if (this.compraForm.invalid || !this.selectedCliente?.id) {
       this.compraForm.markAllAsTouched();
@@ -727,10 +927,16 @@ export class ClientesComponent implements OnInit {
 
   // ========== ABONOS ==========
   showAbonosModal = false;
-  abonos: any[] = []; // Usar ClienteAbono cuando esté importado
+  abonos: any[] = [];
   abonoForm!: FormGroup;
   selectedCompraForAbono: ClienteCompra | null = null;
   isLoadingAbonos = false;
+  comprasTemporales: ClienteCompra[] = [];
+  isEditingTempCompra = false;
+  selectedTempCompraIndex: number | null = null;
+  primerasComprasTemporales: Omit<ClienteCompra, 'cliente_id'>[] = [];
+  isEditingPrimeraCompra = false;
+  selectedPrimeraCompraIndex: number | null = null;
 
   initAbonoForm() {
     this.abonoForm = this.fb.group({
