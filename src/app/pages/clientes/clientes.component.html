@@ -1,9 +1,7 @@
 <div class="clientes-page min-vh-100 py-4">
   <div class="container-fluid px-4">
     <!-- Header -->
-    <div
-      class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mb-md-4 gap-3"
-    >
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 mb-md-4 gap-3">
       <div class="text-center text-md-start">
         <h1 class="fw-bold mb-2">
           <i class="bi bi-people me-2 text-primary"></i> Sistema de Referidos
@@ -11,11 +9,8 @@
         <p class="text-muted mb-0">Gestión de Clientes</p>
       </div>
       <div class="d-flex gap-2">
-        <button
-          class="btn btn-outline-secondary btn-lg"
-          (click)="openConfigModal()"
-          title="Configurar mensajes WhatsApp"
-        >
+        <button class="btn btn-outline-secondary btn-lg" (click)="openConfigModal()"
+          title="Configurar mensajes WhatsApp">
           <i class="bi bi-gear me-2"></i>Configuración
         </button>
         <button class="btn btn-primary btn-lg" (click)="openModal()">
@@ -31,13 +26,9 @@
           <span class="input-group-text bg-white">
             <i class="bi bi-search"></i>
           </span>
-          <input
-            type="text"
-            class="form-control border-start-0"
-            placeholder="Buscar por nombre, cédula, teléfono o correo..."
-            [(ngModel)]="search.searchTerm"
-            (input)="searchClientes()"
-          />
+          <input type="text" class="form-control border-start-0"
+            placeholder="Buscar por nombre, cédula, teléfono o correo..." [(ngModel)]="search.searchTerm"
+            (input)="searchClientes()" />
         </div>
       </div>
     </div>
@@ -88,10 +79,7 @@
                   <div class="d-flex align-items-center gap-2">
                     <span class="fw-medium">{{ cliente.nombres }}</span>
                     @if (cliente.es_referido && cliente.cliente_referidor_id) {
-                    <span
-                      class="badge bg-info text-dark"
-                      title="Ver detalles en modal de Referidos"
-                    >
+                    <span class="badge bg-info text-dark" title="Ver detalles en modal de Referidos">
                       <i class="bi bi-person-check-fill me-1"></i>Referido
                     </span>
                     }
@@ -113,61 +101,44 @@
                   <span class="badge bg-success fs-6">
                     <i class="bi bi-cash-coin me-1"></i>
                     {{
-                      cliente.cashback_acumulado || 0
-                        | currency : "COP" : "symbol-narrow" : "1.0-0"
+                    cliente.cashback_acumulado || 0
+                    | currency : "COP" : "symbol-narrow" : "1.0-0"
                     }}
                   </span>
                   } @else {
                   <span class="text-muted">{{
                     0 | currency : "COP" : "symbol-narrow" : "1.0-0"
-                  }}</span>
+                    }}</span>
                   }
                 </td>
                 <td class="py-3">
                   {{
-                    formatDate(
-                      cliente.fecha_registro || cliente.created_at || ""
-                    )
+                  formatDate(
+                  cliente.fecha_registro || cliente.created_at || ""
+                  )
                   }}
                 </td>
                 <td class="py-3">
                   <div class="d-flex flex-md-row gap-2 justify-content-center">
-                    <button
-                      class="btn btn-sm btn-outline-success"
-                      (click)="openWhatsAppModalForCliente(cliente)"
-                      title="Enviar WhatsApp"
-                    >
+                    <button class="btn btn-sm btn-outline-success" (click)="openWhatsAppModalForCliente(cliente)"
+                      title="Enviar WhatsApp">
                       <i class="bi bi-whatsapp"></i>
                     </button>
-                    <button
-                      class="btn btn-sm btn-outline-primary"
-                      (click)="openComprasModal(cliente)"
-                      title="Registrar compra"
-                    >
+                    <button class="btn btn-sm btn-outline-primary" (click)="openComprasModal(cliente)"
+                      title="Registrar compra">
                       <i class="bi bi-cart-plus"></i>
                       <span class="d-none d-xl-inline"></span>
                     </button>
-                    <button
-                      class="btn btn-sm btn-outline-info"
-                      (click)="openReferidosModal(cliente)"
-                      title="Ver referidos"
-                    >
+                    <button class="btn btn-sm btn-outline-info" (click)="openReferidosModal(cliente)"
+                      title="Ver referidos">
                       <i class="bi bi-people"></i>
                       <span class="d-none d-xl-inline"></span>
                     </button>
-                    <button
-                      class="btn btn-sm btn-outline-secondary"
-                      (click)="openEditModal(cliente)"
-                      title="Editar"
-                    >
+                    <button class="btn btn-sm btn-outline-secondary" (click)="openEditModal(cliente)" title="Editar">
                       <i class="bi bi-pencil"></i>
                       <span class="d-none d-xl-inline"></span>
                     </button>
-                    <button
-                      class="btn btn-sm btn-outline-danger"
-                      (click)="deleteCliente(cliente)"
-                      title="Eliminar"
-                    >
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteCliente(cliente)" title="Eliminar">
                       <i class="bi bi-trash"></i>
                       <span class="d-none d-xl-inline"></span>
                     </button>
@@ -193,14 +164,9 @@
             </small>
             <div class="d-flex align-items-center gap-2">
               <label class="form-label mb-0 small text-muted">Mostrar:</label>
-              <select
-                class="form-select form-select-sm"
-                [value]="pagination.itemsPerPage"
-                (change)="
+              <select class="form-select form-select-sm" [value]="pagination.itemsPerPage" (change)="
                   pagination.setItemsPerPage(+$any($event.target).value)
-                "
-                style="width: auto"
-              >
+                " style="width: auto">
                 @for (option of pagination.itemsPerPageOptions; track option) {
                 <option [value]="option">{{ option }}</option>
                 }
@@ -211,19 +177,10 @@
           <!-- Paginador -->
           @if (pagination.totalPages > 1) {
           <nav aria-label="Paginación de clientes">
-            <ul
-              class="pagination pagination-sm justify-content-center justify-content-md-end mb-0"
-            >
+            <ul class="pagination pagination-sm justify-content-center justify-content-md-end mb-0">
               <!-- Botón Anterior -->
-              <li
-                class="page-item"
-                [class.disabled]="pagination.currentPage === 1"
-              >
-                <button
-                  class="page-link"
-                  (click)="pagination.previousPage()"
-                  [disabled]="pagination.currentPage === 1"
-                >
+              <li class="page-item" [class.disabled]="pagination.currentPage === 1">
+                <button class="page-link" (click)="pagination.previousPage()" [disabled]="pagination.currentPage === 1">
                   <i class="bi bi-chevron-left"></i>
                 </button>
               </li>
@@ -243,10 +200,7 @@
 
               <!-- Números de página -->
               @for (page of pagination.getPageNumbers(); track page) {
-              <li
-                class="page-item"
-                [class.active]="pagination.currentPage === page"
-              >
+              <li class="page-item" [class.active]="pagination.currentPage === page">
                 <button class="page-link" (click)="pagination.goToPage(page)">
                   {{ page }}
                 </button>
@@ -256,37 +210,26 @@
               <!-- Última página -->
               @if
               (pagination.getPageNumbers()[pagination.getPageNumbers().length -
-              1] < pagination.totalPages) { @if
-              (pagination.shouldShowEndEllipsis()) {
-              <li class="page-item disabled">
+              1] < pagination.totalPages) { @if (pagination.shouldShowEndEllipsis()) { <li class="page-item disabled">
                 <span class="page-link">...</span>
-              </li>
-              }
-              <li class="page-item">
-                <button
-                  class="page-link"
-                  (click)="pagination.goToPage(pagination.totalPages)"
-                >
-                  {{ pagination.totalPages }}
-                </button>
-              </li>
-              }
+                </li>
+                }
+                <li class="page-item">
+                  <button class="page-link" (click)="pagination.goToPage(pagination.totalPages)">
+                    {{ pagination.totalPages }}
+                  </button>
+                </li>
+                }
 
-              <!-- Botón Siguiente -->
-              <li
-                class="page-item"
-                [class.disabled]="
+                <!-- Botón Siguiente -->
+                <li class="page-item" [class.disabled]="
                   pagination.currentPage === pagination.totalPages
-                "
-              >
-                <button
-                  class="page-link"
-                  (click)="pagination.nextPage()"
-                  [disabled]="pagination.currentPage === pagination.totalPages"
-                >
-                  <i class="bi bi-chevron-right"></i>
-                </button>
-              </li>
+                ">
+                  <button class="page-link" (click)="pagination.nextPage()"
+                    [disabled]="pagination.currentPage === pagination.totalPages">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </li>
             </ul>
           </nav>
           }
@@ -299,14 +242,8 @@
 
 <!-- Modal Nuevo/Editar Cliente -->
 @if (showModal) {
-<div
-  class="modal show d-block"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5)"
->
-  <div
-    class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
-  >
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
@@ -315,23 +252,14 @@
         </h5>
         <button type="button" class="btn-close" (click)="closeModal()"></button>
       </div>
-      <form
-        [formGroup]="clienteForm"
-        (ngSubmit)="onSubmit()"
-        class="d-flex flex-column overflow-hidden"
-        style="flex: 1 1 auto; min-height: 0"
-      >
+      <form [formGroup]="clienteForm" (ngSubmit)="onSubmit()" class="d-flex flex-column overflow-hidden"
+        style="flex: 1 1 auto; min-height: 0">
         <div class="modal-body" style="overflow-y: auto; flex: 1 1 auto">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label fw-semibold">Nombres Completos *</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="nombres"
-                placeholder="Nombres Completos"
-                [class.is-invalid]="nombres?.invalid && nombres?.touched"
-              />
+              <input type="text" class="form-control" formControlName="nombres" placeholder="Nombres Completos"
+                [class.is-invalid]="nombres?.invalid && nombres?.touched" />
               @if (nombres?.invalid && nombres?.touched) {
               <div class="invalid-feedback">
                 @if (nombres?.errors?.['required']) {
@@ -344,14 +272,9 @@
             </div>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Cédula *</label>
-              <input
-                type="text"
-                class="form-control"
-                formControlName="cedula"
-                placeholder="Cédula"
+              <input type="text" class="form-control" formControlName="cedula" placeholder="Cédula"
                 [class.is-invalid]="cedula?.invalid && cedula?.touched"
-                [class.is-valid]="cedula?.valid && cedula?.touched && !cedula?.errors?.['cedulaDuplicada']"
-              />
+                [class.is-valid]="cedula?.valid && cedula?.touched && !cedula?.errors?.['cedulaDuplicada']" />
               @if (cedula?.invalid && cedula?.touched) {
               <div class="invalid-feedback">
                 @if (cedula?.errors?.['required']) {
@@ -359,10 +282,8 @@
                 } @if (cedula?.errors?.['pattern']) {
                 <span>Solo números</span>
                 } @if (cedula?.errors?.['cedulaDuplicada']) {
-                <span
-                  ><i class="bi bi-exclamation-triangle me-1"></i>Esta cédula ya
-                  está registrada en el sistema</span
-                >
+                <span><i class="bi bi-exclamation-triangle me-1"></i>Esta cédula ya
+                  está registrada en el sistema</span>
                 }
               </div>
               } @if (cedula?.valid && cedula?.touched &&
@@ -373,17 +294,10 @@
               }
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold"
-                >Fecha de Nacimiento *</label
-              >
-              <input
-                type="date"
-                class="form-control"
-                formControlName="fecha_nacimiento"
-                [class.is-invalid]="
+              <label class="form-label fw-semibold">Fecha de Nacimiento *</label>
+              <input type="date" class="form-control" formControlName="fecha_nacimiento" [class.is-invalid]="
                   fecha_nacimiento?.invalid && fecha_nacimiento?.touched
-                "
-              />
+                " />
               @if (fecha_nacimiento?.invalid && fecha_nacimiento?.touched) {
               <div class="invalid-feedback">
                 La fecha de nacimiento es requerida
@@ -392,13 +306,8 @@
             </div>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Teléfono *</label>
-              <input
-                type="tel"
-                class="form-control"
-                formControlName="telefono"
-                placeholder="Teléfono"
-                [class.is-invalid]="telefono?.invalid && telefono?.touched"
-              />
+              <input type="tel" class="form-control" formControlName="telefono" placeholder="Teléfono"
+                [class.is-invalid]="telefono?.invalid && telefono?.touched" />
               @if (telefono?.invalid && telefono?.touched) {
               <div class="invalid-feedback">
                 @if (telefono?.errors?.['required']) {
@@ -429,28 +338,16 @@
                     <i class="bi bi-people me-1"></i>¿Este cliente viene
                     referido?
                   </label>
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    id="esReferido"
-                    formControlName="es_referido"
-                  />
+                  <input class="form-check-input" type="checkbox" id="esReferido" formControlName="es_referido" />
                 </div>
               </div>
             </div>
 
             @if (esReferido) {
             <div class="col-12">
-              <app-cliente-search
-                [clientes]="clientesParaReferir"
-                [label]="'Cliente que lo refiere'"
-                [placeholder]="
+              <app-cliente-search [clientes]="clientesParaReferir" [label]="'Cliente que lo refiere'" [placeholder]="
                   'Escribe nombre, apellido o cédula (ej: Maria Perez o 12345678)'
-                "
-                [required]="true"
-                [maxResults]="10"
-                formControlName="cliente_referidor_id"
-              ></app-cliente-search>
+                " [required]="true" [maxResults]="10" formControlName="cliente_referidor_id"></app-cliente-search>
 
               @if (cliente_referidor_id?.invalid &&
               cliente_referidor_id?.touched) {
@@ -490,18 +387,12 @@
                 <div class="row g-3">
                   @if (tipoCompraPrimeraCompra === 'Gafas formuladas') {
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold"
-                      >Tipo de Lente *</label
-                    >
-                    <select
-                      class="form-select"
-                      formControlName="primera_compra_tipo_lente"
-                      placeholder="Tipo de Lente"
+                    <label class="form-label fw-semibold">Tipo de Lente *</label>
+                    <select class="form-select" formControlName="primera_compra_tipo_lente" placeholder="Tipo de Lente"
                       [class.is-invalid]="
                         clienteForm.get('primera_compra_tipo_lente')?.invalid &&
                         clienteForm.get('primera_compra_tipo_lente')?.touched
-                      "
-                    >
+                      ">
                       <option [ngValue]="null" disabled>Seleccionar...</option>
                       @for (tipo of tiposLente; track tipo) {
                       <option [value]="tipo">{{ tipo }}</option>
@@ -516,18 +407,12 @@
                   </div>
                   } @if (tipoCompraPrimeraCompra !== 'Consulta optometria') {
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold"
-                      >Tipo de Montura *</label
-                    >
-                    <select
-                      class="form-select"
-                      formControlName="primera_compra_tipo_montura"
-                      [class.is-invalid]="
+                    <label class="form-label fw-semibold">Tipo de Montura *</label>
+                    <select class="form-select" formControlName="primera_compra_tipo_montura" [class.is-invalid]="
                         clienteForm.get('primera_compra_tipo_montura')
                           ?.invalid &&
                         clienteForm.get('primera_compra_tipo_montura')?.touched
-                      "
-                    >
+                      ">
                       <option [ngValue]="null" disabled>Seleccionar...</option>
                       @for (tipo of monturasPrimeraCompra; track tipo) {
                       <option [value]="tipo">{{ tipo }}</option>
@@ -543,18 +428,12 @@
                   </div>
                   } @if (tipoCompraPrimeraCompra === 'Gafas formuladas') {
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold"
-                      >Rango de Precio *</label
-                    >
-                    <select
-                      class="form-select"
-                      formControlName="primera_compra_rango_precio"
-                      [class.is-invalid]="
+                    <label class="form-label fw-semibold">Rango de Precio *</label>
+                    <select class="form-select" formControlName="primera_compra_rango_precio" [class.is-invalid]="
                         clienteForm.get('primera_compra_rango_precio')
                           ?.invalid &&
                         clienteForm.get('primera_compra_rango_precio')?.touched
-                      "
-                    >
+                      ">
                       <option [ngValue]="null" disabled>Seleccionar...</option>
                       @for (rango of rangosPrecio; track rango) {
                       <option [value]="rango">{{ rango }}</option>
@@ -879,25 +758,15 @@
 
 <!-- Modal Compras -->
 @if (showComprasModal && selectedCliente) {
-<div
-  class="modal show d-block"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5)"
->
-  <div
-    class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"
-  >
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-gradient">
         <h5 class="modal-title">
           <i class="bi bi-cart-plus me-2"></i>
           Compras de {{ selectedCliente.nombres }}
         </h5>
-        <button
-          type="button"
-          class="btn-close"
-          (click)="closeComprasModal()"
-        ></button>
+        <button type="button" class="btn-close" (click)="closeComprasModal()"></button>
       </div>
       <div class="modal-body">
         <!-- Formulario de Nueva Compra -->
@@ -934,13 +803,9 @@
                 @if (mostrarCamposGafasFormuladas) {
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Tipo de Lente *</label>
-                  <select
-                    class="form-select"
-                    formControlName="tipo_lente"
-                    [class.is-invalid]="
+                  <select class="form-select" formControlName="tipo_lente" [class.is-invalid]="
                       tipo_lente?.invalid && tipo_lente?.touched
-                    "
-                  >
+                    ">
                     <option value="">Seleccionar...</option>
                     @for (tipo of tiposLente; track tipo) {
                     <option [value]="tipo">{{ tipo }}</option>
@@ -954,16 +819,10 @@
                 </div>
                 } @if (mostrarCamposOptometria) {
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold"
-                    >Tipo de Montura *</label
-                  >
-                  <select
-                    class="form-select"
-                    formControlName="tipo_montura"
-                    [class.is-invalid]="
+                  <label class="form-label fw-semibold">Tipo de Montura *</label>
+                  <select class="form-select" formControlName="tipo_montura" [class.is-invalid]="
                       tipo_montura?.invalid && tipo_montura?.touched
-                    "
-                  >
+                    ">
                     <option value="">Seleccionar...</option>
                     @for (tipo of monturasCompraExistente; track tipo) {
                     <option [value]="tipo">{{ tipo }}</option>
@@ -977,16 +836,10 @@
                 </div>
                 } @if (mostrarCamposGafasFormuladas) {
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold"
-                    >Rango de Precio *</label
-                  >
-                  <select
-                    class="form-select"
-                    formControlName="rango_precio"
-                    [class.is-invalid]="
+                  <label class="form-label fw-semibold">Rango de Precio *</label>
+                  <select class="form-select" formControlName="rango_precio" [class.is-invalid]="
                       rango_precio?.invalid && rango_precio?.touched
-                    "
-                  >
+                    ">
                     <option value="">Seleccionar...</option>
                     @for (rango of rangosPrecio; track rango) {
                     <option [value]="rango">{{ rango }}</option>
@@ -1133,11 +986,7 @@
                   >
                     <i class="bi bi-save me-2"></i>Actualizar Compra
                   </button>
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    (click)="cancelEditCompra()"
-                  >
+                  <button type="button" class="btn btn-secondary" (click)="cancelarEdicionTemporal()">
                     <i class="bi bi-x-circle me-2"></i>Cancelar
                   </button>
                   } @else if (isEditingTempCompra) {
@@ -1287,9 +1136,7 @@
 
         <!-- Historial de Compras -->
         <div class="card">
-          <div
-            class="card-header bg-light d-flex justify-content-between align-items-center"
-          >
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h6 class="mb-0">
               <i class="bi bi-clock-history me-2"></i>Historial de Compras
             </h6>
@@ -1307,10 +1154,8 @@
             <div class="text-center py-4">
               <i class="bi bi-inbox display-1 text-muted mb-3"></i>
               <p class="text-muted mb-0">No hay compras registradas aún</p>
-              <small class="text-muted"
-                >Usa el formulario de arriba para registrar la primera
-                compra</small
-              >
+              <small class="text-muted">Usa el formulario de arriba para registrar la primera
+                compra</small>
             </div>
             } @else {
             <div class="table-responsive">
@@ -1362,7 +1207,7 @@
                       @if (compra.seccion) {
                       <span class="badge bg-light text-dark">{{
                         compra.seccion
-                      }}</span>
+                        }}</span>
                       } @else {
                       <span class="text-muted">-</span>
                       }
@@ -1388,8 +1233,8 @@
                       @if (compra.precio_total) {
                       <span class="fw-semibold text-primary">{{
                         compra.precio_total
-                          | currency : "COP" : "symbol-narrow" : "1.0-0"
-                      }}</span>
+                        | currency : "COP" : "symbol-narrow" : "1.0-0"
+                        }}</span>
                       } @else {
                       <span class="text-muted">-</span>
                       }
@@ -1398,8 +1243,8 @@
                       @if (compra.abono) {
                       <span class="fw-semibold text-warning">{{
                         compra.abono
-                          | currency : "COP" : "symbol-narrow" : "1.0-0"
-                      }}</span>
+                        | currency : "COP" : "symbol-narrow" : "1.0-0"
+                        }}</span>
                       } @else {
                       <span class="text-muted">-</span>
                       }
@@ -1423,12 +1268,8 @@
                         >
                           <i class="bi bi-pencil"></i>
                         </button>
-                        <button
-                          class="btn btn-sm btn-outline-danger"
-                          (click)="deleteCompra(compra)"
-                          [disabled]="isLoadingCompras"
-                          title="Eliminar compra"
-                        >
+                        <button class="btn btn-sm btn-outline-danger" (click)="deleteCompra(compra)"
+                          [disabled]="isLoadingCompras" title="Eliminar compra">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -1443,11 +1284,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="closeComprasModal()"
-        >
+        <button type="button" class="btn btn-secondary" (click)="closeComprasModal()">
           Cerrar
         </button>
       </div>
@@ -1458,22 +1295,14 @@
 
 <!-- Modal Historial de Abonos -->
 @if (showAbonosModal && selectedCompraForAbono) {
-<div
-  class="modal show d-block"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5); z-index: 1060"
->
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5); z-index: 1060">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header bg-light">
         <h5 class="modal-title">
           <i class="bi bi-cash-stack me-2"></i>Historial de Abonos
         </h5>
-        <button
-          type="button"
-          class="btn-close"
-          (click)="closeAbonosModal()"
-        ></button>
+        <button type="button" class="btn-close" (click)="closeAbonosModal()"></button>
       </div>
       <div class="modal-body">
         <!-- Formulario Nuevo Abono -->
@@ -1486,38 +1315,22 @@
               <div class="row g-2">
                 <div class="col-6">
                   <label class="form-label small mb-1">Fecha</label>
-                  <input
-                    type="date"
-                    class="form-control form-control-sm"
-                    formControlName="fecha_abono"
-                  />
+                  <input type="date" class="form-control form-control-sm" formControlName="fecha_abono" />
                 </div>
                 <div class="col-6">
                   <label class="form-label small mb-1">Monto</label>
                   <div class="input-group input-group-sm">
                     <span class="input-group-text">$</span>
-                    <input
-                      type="number"
-                      class="form-control"
-                      formControlName="monto"
-                      placeholder="0"
-                    />
+                    <input type="number" class="form-control" formControlName="monto" placeholder="0" />
                   </div>
                 </div>
                 <div class="col-12">
-                  <input
-                    type="text"
-                    class="form-control form-control-sm"
-                    formControlName="nota"
-                    placeholder="Nota (opcional)"
-                  />
+                  <input type="text" class="form-control form-control-sm" formControlName="nota"
+                    placeholder="Nota (opcional)" />
                 </div>
                 <div class="col-12 text-end mt-2">
-                  <button
-                    type="submit"
-                    class="btn btn-primary btn-sm"
-                    [disabled]="isLoadingAbonos || abonoForm.invalid"
-                  >
+                  <button type="submit" class="btn btn-primary btn-sm"
+                    [disabled]="isLoadingAbonos || abonoForm.invalid">
                     @if(isLoadingAbonos) {
                     <span class="spinner-border spinner-border-sm me-1"></span>
                     } <i class="bi bi-plus-circle me-1"></i>Agregar
@@ -1535,16 +1348,13 @@
             No hay abonos detallados registrados.
           </div>
           } @else { @for (abono of abonos; track abono.id) {
-          <div
-            class="list-group-item d-flex justify-content-between align-items-center"
-          >
+          <div class="list-group-item d-flex justify-content-between align-items-center">
             <div>
               <div class="fw-bold text-success">
                 {{ abono.monto | currency : "COP" : "symbol-narrow" : "1.0-0" }}
               </div>
               <small class="text-muted">
-                <i class="bi bi-calendar me-1"></i
-                >{{ formatDate(abono.fecha_abono) }}
+                <i class="bi bi-calendar me-1"></i>{{ formatDate(abono.fecha_abono) }}
               </small>
               @if(abono.nota) {
               <div class="small text-secondary fst-italic">
@@ -1552,11 +1362,7 @@
               </div>
               }
             </div>
-            <button
-              class="btn btn-outline-danger btn-sm border-0"
-              (click)="deleteAbono(abono)"
-              title="Eliminar abono"
-            >
+            <button class="btn btn-outline-danger btn-sm border-0" (click)="deleteAbono(abono)" title="Eliminar abono">
               <i class="bi bi-trash"></i>
             </button>
           </div>
@@ -1564,14 +1370,12 @@
         </div>
 
         <!-- Total -->
-        <div
-          class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top"
-        >
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
           <span class="fw-bold">Total Abonado:</span>
           <span class="fw-bold fs-5 text-success">
             {{
-              selectedCompraForAbono.abono || 0
-                | currency : "COP" : "symbol-narrow" : "1.0-0"
+            selectedCompraForAbono.abono || 0
+            | currency : "COP" : "symbol-narrow" : "1.0-0"
             }}
           </span>
         </div>
@@ -1583,33 +1387,20 @@
 
 <!-- Modal Referidos -->
 @if (showReferidosModal && selectedCliente) {
-<div
-  class="modal show d-block"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.5)"
->
-  <div
-    class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable"
-  >
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-gradient">
         <h5 class="modal-title">
           <i class="bi bi-people me-2"></i>
           Clientes Referidos por {{ selectedCliente.nombres }}
         </h5>
-        <button
-          type="button"
-          class="btn-close"
-          (click)="closeReferidosModal()"
-        ></button>
+        <button type="button" class="btn-close" (click)="closeReferidosModal()"></button>
       </div>
       <div class="modal-body">
         @if (selectedCliente.es_referido &&
         selectedCliente.cliente_referidor_id) {
-        <div
-          class="alert alert-info d-flex align-items-center mb-4"
-          role="alert"
-        >
+        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
           <i class="bi bi-info-circle-fill me-3 fs-4"></i>
           <div>
             <strong>Este cliente fue referido por:</strong>
@@ -1637,8 +1428,8 @@
                     </h6>
                     <h3 class="mb-0 text-success fw-bold">
                       {{
-                        calcularCashbackDisponible()
-                          | currency : "COP" : "symbol-narrow" : "1.0-0"
+                      calcularCashbackDisponible()
+                      | currency : "COP" : "symbol-narrow" : "1.0-0"
                       }}
                     </h3>
                     <small class="text-muted">
@@ -1646,12 +1437,8 @@
                     </small>
                   </div>
                   @if (calcularCashbackDisponible() > 0) {
-                  <button
-                    class="btn btn-warning btn-sm"
-                    (click)="redimirTodosReferidos()"
-                    [disabled]="isLoading"
-                    title="Redimir cashback disponible"
-                  >
+                  <button class="btn btn-warning btn-sm" (click)="redimirTodosReferidos()" [disabled]="isLoading"
+                    title="Redimir cashback disponible">
                     @if (isLoading) {
                     <span class="spinner-border spinner-border-sm"></span>
                     } @else {
@@ -1674,8 +1461,8 @@
                     </h6>
                     <h3 class="mb-0 text-secondary fw-bold">
                       {{
-                        calcularCashbackRedimido()
-                          | currency : "COP" : "symbol-narrow" : "1.0-0"
+                      calcularCashbackRedimido()
+                      | currency : "COP" : "symbol-narrow" : "1.0-0"
                       }}
                     </h3>
                     <small class="text-muted">
@@ -1683,11 +1470,8 @@
                       redimido(s)
                     </small>
                   </div>
-                  <button
-                    class="btn btn-success btn-sm"
-                    (click)="openWhatsAppModalForCliente(selectedCliente)"
-                    title="Notificar al cliente"
-                  >
+                  <button class="btn btn-success btn-sm" (click)="openWhatsAppModalForCliente(selectedCliente)"
+                    title="Notificar al cliente">
                     <i class="bi bi-whatsapp me-1"></i>Notificar
                   </button>
                 </div>
@@ -1697,9 +1481,7 @@
         </div>
 
         <div class="card">
-          <div
-            class="card-header bg-light d-flex justify-content-between align-items-center"
-          >
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
             <h6 class="mb-0">
               <i class="bi bi-list-ul me-2"></i>Lista de Referidos
             </h6>
@@ -1719,10 +1501,8 @@
               <p class="text-muted mb-0">
                 Este cliente aún no ha referido a nadie
               </p>
-              <small class="text-muted"
-                >Los clientes que sean registrados como referidos aparecerán
-                aquí</small
-              >
+              <small class="text-muted">Los clientes que sean registrados como referidos aparecerán
+                aquí</small>
             </div>
             } @else {
             <div class="table-responsive">
@@ -1747,20 +1527,15 @@
                     <td>
                       <strong>{{
                         referido.cliente_referido?.nombres || "N/A"
-                      }}</strong>
+                        }}</strong>
                     </td>
                     <td>
                       @if (referido.cliente_referido?.telefono) {
-                      <a
-                        [href]="
+                      <a [href]="
                           'https://wa.me/57' +
                           referido.cliente_referido.telefono
-                        "
-                        target="_blank"
-                        class="text-decoration-none text-success"
-                      >
-                        <i class="bi bi-whatsapp me-1"></i
-                        >{{ referido.cliente_referido.telefono }}
+                        " target="_blank" class="text-decoration-none text-success">
+                        <i class="bi bi-whatsapp me-1"></i>{{ referido.cliente_referido.telefono }}
                       </a>
                       } @else {
                       <span class="text-muted">N/A</span>
@@ -1774,8 +1549,8 @@
                     <td>
                       <span class="badge bg-success">
                         {{
-                          referido.cashback_generado || 0
-                            | currency : "COP" : "symbol-narrow" : "1.0-0"
+                        referido.cashback_generado || 0
+                        | currency : "COP" : "symbol-narrow" : "1.0-0"
                         }}
                       </span>
                     </td>
@@ -1785,12 +1560,9 @@
                         <i class="bi bi-check-circle me-1"></i>Activo
                       </span>
                       } @else {
-                      <span
-                        class="badge bg-secondary"
-                        [title]="
+                      <span class="badge bg-secondary" [title]="
                           'Redimido el ' + formatDate(referido.fecha_redimido)
-                        "
-                      >
+                        ">
                         <i class="bi bi-wallet-fill me-1"></i>Redimido
                       </span>
                       }
@@ -1805,11 +1577,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="closeReferidosModal()"
-        >
+        <button type="button" class="btn btn-secondary" (click)="closeReferidosModal()">
           Cerrar
         </button>
       </div>
@@ -1820,11 +1588,7 @@
 
 <!-- Modal WhatsApp - Enviar mensajes después de registro -->
 @if (showWhatsAppModal && clienteRegistrado) {
-<div
-  class="modal show d-block"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.6); z-index: 1070"
->
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.6); z-index: 1070">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header bg-success text-white border-0">
@@ -1832,22 +1596,14 @@
           <i class="bi bi-whatsapp me-2"></i>
           ¡Cliente Registrado Exitosamente!
         </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          (click)="closeWhatsAppModal()"
-        ></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeWhatsAppModal()"></button>
       </div>
       <div class="modal-body py-4">
         <div class="text-center mb-4">
           <div
             class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-            style="width: 80px; height: 80px"
-          >
-            <i
-              class="bi bi-check-circle-fill text-success"
-              style="font-size: 3rem"
-            ></i>
+            style="width: 80px; height: 80px">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem"></i>
           </div>
           <h5 class="fw-bold text-dark mb-1">
             {{ clienteRegistrado.nombres }}
@@ -1863,18 +1619,13 @@
 
         <!-- Botón Mensaje de Bienvenida -->
         <div class="d-grid gap-3">
-          <button
-            type="button"
-            class="btn btn-success btn-lg d-flex align-items-center justify-content-between px-4"
-            (click)="enviarWhatsAppBienvenida()"
-          >
+          <button type="button" class="btn btn-success btn-lg d-flex align-items-center justify-content-between px-4"
+            (click)="enviarWhatsAppBienvenida()">
             <div class="d-flex align-items-center">
               <i class="bi bi-whatsapp me-3 fs-4"></i>
               <div class="text-start">
                 <div class="fw-semibold">Mensaje de Bienvenida</div>
-                <small class="opacity-75"
-                  >Para {{ clienteRegistrado.nombres.split(" ")[0] }}</small
-                >
+                <small class="opacity-75">Para {{ clienteRegistrado.nombres.split(" ")[0] }}</small>
               </div>
             </div>
             <i class="bi bi-arrow-right"></i>
@@ -1884,44 +1635,33 @@
           @if (whatsAppReferido && clienteReferidor) { @if
           (!esNuevoRegistroConCashback && referidorYaRedimio) {
           <!-- Cliente existente y referidor ya redimió - Botón deshabilitado -->
-          <div
-            class="alert alert-warning d-flex align-items-center mb-0"
-            role="alert"
-          >
+          <div class="alert alert-warning d-flex align-items-center mb-0" role="alert">
             <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
             <div>
               <div class="fw-semibold">Mensaje al referidor no disponible</div>
-              <small
-                >{{ clienteReferidor.nombres.split(" ")[0] }} ya redimió su
-                cashback. Este mensaje ya no es válido.</small
-              >
+              <small>{{ clienteReferidor.nombres.split(" ")[0] }} ya redimió su
+                cashback. Este mensaje ya no es válido.</small>
             </div>
           </div>
           } @else {
           <!-- Nuevo registro con cashback O referidor tiene cashback pendiente -->
-          <button
-            type="button"
+          <button type="button"
             class="btn btn-outline-success btn-lg d-flex align-items-center justify-content-between px-4"
-            (click)="enviarWhatsAppReferido()"
-          >
+            (click)="enviarWhatsAppReferido()">
             <div class="d-flex align-items-center">
               <i class="bi bi-gift me-3 fs-4"></i>
               <div class="text-start">
                 <div class="fw-semibold">Notificar al Referidor</div>
                 @if (esNuevoRegistroConCashback) {
-                <small class="opacity-75"
-                  >{{ clienteReferidor.nombres.split(" ")[0] }} acaba de ganar
-                  cashback</small
-                >
+                <small class="opacity-75">{{ clienteReferidor.nombres.split(" ")[0] }} acaba de ganar
+                  cashback</small>
                 } @else {
-                <small class="opacity-75"
-                  >{{ clienteReferidor.nombres.split(" ")[0] }} tiene
+                <small class="opacity-75">{{ clienteReferidor.nombres.split(" ")[0] }} tiene
                   {{
-                    cashbackAcumuladoReferidor
-                      | currency : "COP" : "symbol-narrow" : "1.0-0"
+                  cashbackAcumuladoReferidor
+                  | currency : "COP" : "symbol-narrow" : "1.0-0"
                   }}
-                  acumulados</small
-                >
+                  acumulados</small>
                 }
               </div>
             </div>
@@ -1932,22 +1672,15 @@
 
         <!-- Previsualización del mensaje -->
         <div class="mt-4">
-          <button
-            class="btn btn-link text-muted w-100 text-start p-0"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#previewMensaje"
-          >
+          <button class="btn btn-link text-muted w-100 text-start p-0" type="button" data-bs-toggle="collapse"
+            data-bs-target="#previewMensaje">
             <i class="bi bi-eye me-1"></i> Ver vista previa del mensaje
           </button>
           <div class="collapse mt-2" id="previewMensaje">
             <div class="card bg-light border-0">
               <div class="card-body py-2 px-3">
-                <small
-                  class="text-muted"
-                  style="white-space: pre-wrap; font-family: monospace"
-                  >{{ whatsAppBienvenida?.mensaje }}</small
-                >
+                <small class="text-muted" style="white-space: pre-wrap; font-family: monospace">{{
+                  whatsAppBienvenida?.mensaje }}</small>
               </div>
             </div>
           </div>
@@ -1958,11 +1691,7 @@
           <i class="bi bi-info-circle me-1"></i>
           Los mensajes se abren en WhatsApp Web
         </small>
-        <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="closeWhatsAppModal()"
-        >
+        <button type="button" class="btn btn-secondary" (click)="closeWhatsAppModal()">
           Cerrar
         </button>
       </div>
@@ -1973,25 +1702,15 @@
 
 <!-- Modal Configuración WhatsApp -->
 @if (showConfigModal) {
-<div
-  class="modal show d-block"
-  tabindex="-1"
-  style="background-color: rgba(0, 0, 0, 0.6); z-index: 1070"
->
-  <div
-    class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable"
-  >
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.6); z-index: 1070">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-secondary text-white">
         <h5 class="modal-title">
           <i class="bi bi-gear me-2"></i>
           Configuración de Mensajes WhatsApp
         </h5>
-        <button
-          type="button"
-          class="btn-close btn-close-white"
-          (click)="closeConfigModal()"
-        ></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeConfigModal()"></button>
       </div>
       <div class="modal-body">
         <!-- Nombre del Negocio -->
@@ -1999,15 +1718,9 @@
           <label class="form-label fw-semibold">
             <i class="bi bi-shop me-1"></i>Nombre del Negocio
           </label>
-          <input
-            type="text"
-            class="form-control"
-            [(ngModel)]="whatsAppConfig.nombreNegocio"
-            placeholder="Ej: OhMyGlasses"
-          />
-          <small class="text-muted"
-            >Este nombre aparecerá en todos los mensajes</small
-          >
+          <input type="text" class="form-control" [(ngModel)]="whatsAppConfig.nombreNegocio"
+            placeholder="Ej: OhMyGlasses" />
+          <small class="text-muted">Este nombre aparecerá en todos los mensajes</small>
         </div>
 
         <!-- Mensaje de Bienvenida -->
@@ -2023,12 +1736,8 @@
               <code>{{ "{" }}NEGOCIO{{ "}" }}</code> = Nombre del negocio
             </small>
           </div>
-          <textarea
-            class="form-control"
-            [(ngModel)]="whatsAppConfig.mensajeBienvenida"
-            rows="10"
-            style="font-family: monospace; font-size: 0.9rem"
-          ></textarea>
+          <textarea class="form-control" [(ngModel)]="whatsAppConfig.mensajeBienvenida" rows="10"
+            style="font-family: monospace; font-size: 0.9rem"></textarea>
         </div>
 
         <!-- Mensaje de Referido -->
@@ -2049,12 +1758,8 @@
               acumulado
             </small>
           </div>
-          <textarea
-            class="form-control"
-            [(ngModel)]="whatsAppConfig.mensajeReferido"
-            rows="12"
-            style="font-family: monospace; font-size: 0.9rem"
-          ></textarea>
+          <textarea class="form-control" [(ngModel)]="whatsAppConfig.mensajeReferido" rows="12"
+            style="font-family: monospace; font-size: 0.9rem"></textarea>
         </div>
 
         <!-- Nota importante -->
@@ -2065,26 +1770,14 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-outline-danger me-auto"
-          (click)="resetWhatsAppConfig()"
-        >
+        <button type="button" class="btn btn-outline-danger me-auto" (click)="resetWhatsAppConfig()">
           <i class="bi bi-arrow-counterclockwise me-1"></i>
           Restaurar por defecto
         </button>
-        <button
-          type="button"
-          class="btn btn-secondary"
-          (click)="closeConfigModal()"
-        >
+        <button type="button" class="btn btn-secondary" (click)="closeConfigModal()">
           Cancelar
         </button>
-        <button
-          type="button"
-          class="btn btn-primary"
-          (click)="saveWhatsAppConfig()"
-        >
+        <button type="button" class="btn btn-primary" (click)="saveWhatsAppConfig()">
           <i class="bi bi-check-lg me-1"></i>
           Guardar Cambios
         </button>
