@@ -137,6 +137,7 @@ export class ClientesComponent implements OnInit {
       primera_compra_abono: [null, [Validators.required, Validators.min(0)]],
       primera_compra_seccion: [null, Validators.required],
       primera_compra_metodo_pago: [null, Validators.required],
+      primera_compra_nota_pago: [''],
     });
 
     // Auto-selección de sección y validación dinámica para Primera Compra
@@ -148,6 +149,14 @@ export class ClientesComponent implements OnInit {
       ?.valueChanges.subscribe((tipo) => {
         this.verificarAutoSeleccionSeccion(true);
         this.actualizarValidadores(true, tipo);
+      });
+    this.clienteForm
+      .get('primera_compra_metodo_pago')
+      ?.valueChanges.subscribe((metodo) => {
+        this.actualizarValidadores(
+          true,
+          this.clienteForm.get('primera_compra_tipo_compra')?.value
+        );
       });
 
     this.clienteForm
@@ -192,6 +201,7 @@ export class ClientesComponent implements OnInit {
       abono: [null, [Validators.required, Validators.min(0)]],
       seccion: [null, Validators.required],
       metodo_pago: [null, Validators.required],
+      nota_pago: [''],
     });
 
     // Auto-selección de sección y validación dinámica para Compras regulares
@@ -201,6 +211,12 @@ export class ClientesComponent implements OnInit {
     this.compraForm.get('tipo_compra')?.valueChanges.subscribe((tipo) => {
       this.verificarAutoSeleccionSeccion(false);
       this.actualizarValidadores(false, tipo);
+    });
+    this.compraForm.get('metodo_pago')?.valueChanges.subscribe((metodo) => {
+      this.actualizarValidadores(
+        false,
+        this.compraForm.get('tipo_compra')?.value
+      );
     });
   }
 
@@ -292,9 +308,39 @@ export class ClientesComponent implements OnInit {
   }
 
   async onSubmit() {
-    if (this.clienteForm.invalid) {
-      this.clienteForm.markAllAsTouched();
-      return;
+    const hasTempPurchases = this.primerasComprasTemporales.length > 0;
+    const clientControls = [
+      'nombres',
+      'cedula',
+      'fecha_nacimiento',
+      'telefono',
+      'correo',
+    ];
+
+    let isClientValid = true;
+
+    // Check validity of client fields
+    clientControls.forEach((controlName) => {
+      const control = this.clienteForm.get(controlName);
+      if (control?.invalid) {
+        isClientValid = false;
+      }
+    });
+
+    if (hasTempPurchases) {
+      // If we have purchases in the list, only client fields need to be valid
+      if (!isClientValid) {
+        clientControls.forEach((controlName) => {
+          this.clienteForm.get(controlName)?.markAsTouched();
+        });
+        return;
+      }
+    } else {
+      // If no purchases in list, standard validation applies (though this might still be problematic if users expect auto-add)
+      if (this.clienteForm.invalid) {
+        this.clienteForm.markAllAsTouched();
+        return;
+      }
     }
 
     const formValue = this.clienteForm.value;
@@ -589,7 +635,8 @@ export class ClientesComponent implements OnInit {
         formValue.tipo_lente &&
         formValue.tipo_montura &&
         formValue.rango_precio &&
-        formValue.seccion
+        formValue.seccion &&
+        (formValue.metodo_pago !== 'Acuerdo interno' || formValue.nota_pago)
       ) {
         isValid = true;
       } else {
@@ -597,16 +644,32 @@ export class ClientesComponent implements OnInit {
         this.compraForm.get('tipo_montura')?.markAsTouched();
         this.compraForm.get('rango_precio')?.markAsTouched();
         this.compraForm.get('seccion')?.markAsTouched();
+        if (formValue.metodo_pago === 'Acuerdo interno') {
+          this.compraForm.get('nota_pago')?.markAsTouched();
+        }
       }
     } else if (tipoCompra === 'Gafas de sol') {
-      if (formValue.tipo_montura && formValue.seccion) {
+      if (
+        formValue.tipo_montura &&
+        formValue.seccion &&
+        (formValue.metodo_pago !== 'Acuerdo interno' || formValue.nota_pago)
+      ) {
         isValid = true;
       } else {
         this.compraForm.get('tipo_montura')?.markAsTouched();
         this.compraForm.get('seccion')?.markAsTouched();
+        if (formValue.metodo_pago === 'Acuerdo interno') {
+          this.compraForm.get('nota_pago')?.markAsTouched();
+        }
       }
     } else if (tipoCompra === 'Consulta optometria') {
-      isValid = true;
+      if (formValue.metodo_pago !== 'Acuerdo interno' || formValue.nota_pago) {
+        isValid = true;
+      } else {
+        if (formValue.metodo_pago === 'Acuerdo interno') {
+          this.compraForm.get('nota_pago')?.markAsTouched();
+        }
+      }
     }
 
     if (!isValid) return;
@@ -622,6 +685,7 @@ export class ClientesComponent implements OnInit {
       precio_total: formValue.precio_total || null,
       abono: formValue.abono || null,
       seccion: esOptometria ? null : formValue.seccion || null,
+      nota_pago: formValue.nota_pago || null,
     };
 
     if (this.isEditingTempCompra && this.selectedTempCompraIndex !== null) {
@@ -636,7 +700,31 @@ export class ClientesComponent implements OnInit {
 
     this.compraForm.reset({
       tipo_compra: 'Gafas formuladas',
+      nota_pago: '',
     });
+    // Ensure form is pristine and untouched to avoid red fields
+    this.compraForm.markAsPristine();
+    this.compraForm.markAsUntouched();
+
+    // Clear validators for conditional fields that might have been set
+    const prefix = '';
+    const controlsToClear = [
+      'tipo_lente',
+      'tipo_montura',
+      'rango_precio',
+      'seccion',
+      'nota_pago',
+    ];
+    controlsToClear.forEach((name) => {
+      const control = this.compraForm.get(name);
+      if (control) {
+        control.clearValidators();
+        control.updateValueAndValidity();
+      }
+    });
+
+    // Re-apply default validators for 'Gafas formuladas' (default type)
+    this.actualizarValidadores(false, 'Gafas formuladas');
   }
 
   // Editar una compra temporal
@@ -653,6 +741,7 @@ export class ClientesComponent implements OnInit {
       abono: compra.abono || null,
       seccion: compra.seccion || null,
       metodo_pago: compra.metodo_pago || null,
+      nota_pago: compra.nota_pago || '',
     });
   }
 
@@ -668,7 +757,9 @@ export class ClientesComponent implements OnInit {
   cancelarEdicionTemporal() {
     this.isEditingTempCompra = false;
     this.selectedTempCompraIndex = null;
-    this.compraForm.reset();
+    this.compraForm.reset({
+      nota_pago: '',
+    });
   }
 
   // ========== MÉTODOS PARA PRIMERAS COMPRAS (Nuevo Cliente) ==========
@@ -685,7 +776,9 @@ export class ClientesComponent implements OnInit {
         formValue.primera_compra_tipo_lente &&
         formValue.primera_compra_tipo_montura &&
         formValue.primera_compra_rango_precio &&
-        formValue.primera_compra_seccion
+        formValue.primera_compra_seccion &&
+        (formValue.primera_compra_metodo_pago !== 'Acuerdo interno' ||
+          formValue.primera_compra_nota_pago)
       ) {
         isValid = true;
       } else {
@@ -693,19 +786,36 @@ export class ClientesComponent implements OnInit {
         this.clienteForm.get('primera_compra_tipo_montura')?.markAsTouched();
         this.clienteForm.get('primera_compra_rango_precio')?.markAsTouched();
         this.clienteForm.get('primera_compra_seccion')?.markAsTouched();
+        if (formValue.primera_compra_metodo_pago === 'Acuerdo interno') {
+          this.clienteForm.get('primera_compra_nota_pago')?.markAsTouched();
+        }
       }
     } else if (tipoCompra === 'Gafas de sol') {
       if (
         formValue.primera_compra_tipo_montura &&
-        formValue.primera_compra_seccion
+        formValue.primera_compra_seccion &&
+        (formValue.primera_compra_metodo_pago !== 'Acuerdo interno' ||
+          formValue.primera_compra_nota_pago)
       ) {
         isValid = true;
       } else {
         this.clienteForm.get('primera_compra_tipo_montura')?.markAsTouched();
         this.clienteForm.get('primera_compra_seccion')?.markAsTouched();
+        if (formValue.primera_compra_metodo_pago === 'Acuerdo interno') {
+          this.clienteForm.get('primera_compra_nota_pago')?.markAsTouched();
+        }
       }
     } else if (tipoCompra === 'Consulta optometria') {
-      isValid = true;
+      if (
+        formValue.primera_compra_metodo_pago !== 'Acuerdo interno' ||
+        formValue.primera_compra_nota_pago
+      ) {
+        isValid = true;
+      } else {
+        if (formValue.primera_compra_metodo_pago === 'Acuerdo interno') {
+          this.clienteForm.get('primera_compra_nota_pago')?.markAsTouched();
+        }
+      }
     }
 
     if (!isValid) return;
@@ -726,6 +836,7 @@ export class ClientesComponent implements OnInit {
       precio_total: formValue.primera_compra_precio_total || null,
       abono: formValue.primera_compra_abono || null,
       seccion: esOptometria ? null : formValue.primera_compra_seccion || null,
+      nota_pago: formValue.primera_compra_nota_pago || null,
     };
 
     if (
@@ -752,7 +863,44 @@ export class ClientesComponent implements OnInit {
       primera_compra_abono: null,
       primera_compra_seccion: null,
       primera_compra_metodo_pago: null,
+      primera_compra_nota_pago: '',
     });
+
+    // Ensure form is pristine and untouched
+    this.clienteForm.markAsPristine();
+    this.clienteForm.markAsUntouched();
+
+    // Clear validators for conditional first purchase fields
+    const prefix = 'primera_compra_';
+    const firstPurchaseControls = [
+      'tipo_lente',
+      'tipo_montura',
+      'rango_precio',
+      'seccion',
+      'nota_pago',
+      'metodo_pago',
+      'precio_total',
+      'abono',
+    ];
+    firstPurchaseControls.forEach((name) => {
+      const control = this.clienteForm.get(prefix + name);
+      if (control) {
+        // We only clear validators for the purchase fields, NOT the client fields
+        if (
+          name !== 'metodo_pago' &&
+          name !== 'precio_total' &&
+          name !== 'abono'
+        ) {
+          control.clearValidators();
+        }
+        control.markAsPristine();
+        control.markAsUntouched();
+        control.updateValueAndValidity();
+      }
+    });
+
+    // Re-apply default validators
+    this.actualizarValidadores(true, 'Gafas formuladas');
   }
 
   // Editar una primera compra temporal
@@ -769,6 +917,7 @@ export class ClientesComponent implements OnInit {
       primera_compra_abono: compra.abono || null,
       primera_compra_seccion: compra.seccion || null,
       primera_compra_metodo_pago: compra.metodo_pago || null,
+      primera_compra_nota_pago: compra.nota_pago || '',
     });
   }
 
@@ -791,6 +940,7 @@ export class ClientesComponent implements OnInit {
       primera_compra_precio_total: null,
       primera_compra_abono: null,
       primera_compra_seccion: null,
+      primera_compra_nota_pago: '',
     });
   }
 
@@ -860,6 +1010,7 @@ export class ClientesComponent implements OnInit {
         precio_total: this.compraForm.value.precio_total || null,
         abono: this.compraForm.value.abono || null,
         seccion: esOptometria ? null : this.compraForm.value.seccion || null,
+        nota_pago: this.compraForm.value.nota_pago || null,
       };
 
       if (this.isEditCompraMode && this.selectedCompraId) {
@@ -897,6 +1048,7 @@ export class ClientesComponent implements OnInit {
       abono: compra.abono || null,
       seccion: compra.seccion || null,
       metodo_pago: compra.metodo_pago || null,
+      nota_pago: compra.nota_pago || '',
     });
   }
 
@@ -1247,7 +1399,10 @@ export class ClientesComponent implements OnInit {
       montura: form.get(`${prefix}tipo_montura`),
       rango: form.get(`${prefix}rango_precio`),
       seccion: form.get(`${prefix}seccion`),
+      nota: form.get(`${prefix}nota_pago`),
     };
+
+    const metodoPago = form.get(`${prefix}metodo_pago`)?.value;
 
     // Lipiar todos primero
     Object.values(controls).forEach((c) => c?.clearValidators());
@@ -1261,7 +1416,10 @@ export class ClientesComponent implements OnInit {
       controls.seccion?.setValidators(Validators.required);
       // Montura y Rango son opcionales para sol
     }
-    // Para Consulta Optometría todos quedan sin el validador required
+
+    if (metodoPago === 'Acuerdo interno') {
+      controls.nota?.setValidators(Validators.required);
+    }
 
     // Actualizar validez de cada uno
     Object.values(controls).forEach((c) => c?.updateValueAndValidity());
@@ -1284,7 +1442,8 @@ export class ClientesComponent implements OnInit {
       fc.get('primera_compra_tipo_lente')?.invalid ||
       fc.get('primera_compra_tipo_montura')?.invalid ||
       fc.get('primera_compra_rango_precio')?.invalid ||
-      fc.get('primera_compra_seccion')?.invalid
+      fc.get('primera_compra_seccion')?.invalid ||
+      fc.get('primera_compra_nota_pago')?.invalid
     ) {
       return false;
     }

@@ -28,6 +28,7 @@ export interface ClienteCompra {
   fecha_compra?: string;
   metodo_pago?: MetodoPago;
   tipo_compra?: TipoCompra;
+  nota_pago?: string;
   created_at?: string;
 }
 
@@ -77,8 +78,7 @@ export type TipoMontura =
   | 'Lacoste'
   | 'CK'
   | 'RayBan'
-  | 'Sin Montura'
-  | 'Gafas de sol';
+  | 'Sin Montura';
 
 export type RangoPrecio =
   | '$0 - $300.000'
@@ -149,7 +149,6 @@ export const TIPOS_MONTURA: TipoMontura[] = [
   'CK',
   'RayBan',
   'Sin Montura',
-  'Gafas de sol',
 ];
 
 export const RANGOS_PRECIO: RangoPrecio[] = [
