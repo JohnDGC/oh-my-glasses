@@ -497,3 +497,10 @@ img {
   max-width: 100%;
   height: auto;
 }
+
+// Sobrescribir el ancho de las modales XL
+@media (min-width: 1200px) {
+  .modal-xl {
+    --bs-modal-width: 1345px !important;
+  }
+}

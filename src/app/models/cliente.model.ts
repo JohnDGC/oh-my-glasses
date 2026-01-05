@@ -23,8 +23,12 @@ export interface ClienteCompra {
   precio_total?: number;
   abono?: number;
   abonos?: ClienteAbono[];
+  cliente_abonos?: ClienteAbono[];
   seccion?: Seccion;
   fecha_compra?: string;
+  metodo_pago?: MetodoPago;
+  tipo_compra?: TipoCompra;
+  nota_pago?: string;
   created_at?: string;
 }
 
@@ -67,6 +71,7 @@ export type TipoMontura =
   | 'Clásica 1'
   | 'Clásica 2'
   | 'Clásica 3'
+  | 'Clásica 4'
   | 'Taizu'
   | 'Fento'
   | 'MH'
@@ -90,6 +95,20 @@ export type Seccion =
   | 'Obsidiana'
   | 'Cuarzo'
   | 'Citrino';
+
+export type MetodoPago =
+  | 'Bancolombia'
+  | 'Addi'
+  | 'Bold'
+  | 'Efectivo'
+  | 'Nequi'
+  | 'Daviplata'
+  | 'Acuerdo interno';
+
+export type TipoCompra =
+  | 'Gafas formuladas'
+  | 'Gafas de sol'
+  | 'Consulta optometria';
 
 export const TIPOS_LENTE: TipoLente[] = [
   'Mono ArBlue',
@@ -122,6 +141,7 @@ export const TIPOS_MONTURA: TipoMontura[] = [
   'Clásica 1',
   'Clásica 2',
   'Clásica 3',
+  'Clásica 4',
   'Taizu',
   'Fento',
   'MH',
@@ -147,6 +167,22 @@ export const SECCIONES: Seccion[] = [
   'Obsidiana',
   'Cuarzo',
   'Citrino',
+];
+
+export const METODOS_PAGO: MetodoPago[] = [
+  'Bancolombia',
+  'Addi',
+  'Bold',
+  'Efectivo',
+  'Nequi',
+  'Daviplata',
+  'Acuerdo interno',
+];
+
+export const TIPOS_COMPRA: TipoCompra[] = [
+  'Gafas formuladas',
+  'Gafas de sol',
+  'Consulta optometria',
 ];
 
 export interface ClienteReferido {
