@@ -363,10 +363,29 @@
             @if (!isEditMode) {
             <div class="col-12">
               <div class="border-top pt-3">
-                <h6 class="text-primary mb-3">
-                  <i class="bi bi-cart-check me-2"></i>Primera Compra
-                </h6>
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <h6 class="text-primary mb-0">
+                    <i class="bi bi-cart-check me-2"></i>Primera Compra
+                  </h6>
+                  <div class="d-flex align-items-center">
+                    <label class="form-label mb-0 me-2 fw-semibold"
+                      >Tipo:</label
+                    >
+                    <select
+                      class="form-select form-select-sm"
+                      style="width: auto"
+                      formControlName="primera_compra_tipo_compra"
+                    >
+                      @for (tipo of tiposCompra; track tipo) {
+                      <option [value]="tipo">{{ tipo }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
                 <div class="row g-3">
+                  @if (tipoCompraPrimeraCompra === 'Gafas formuladas') {
                   <div class="col-md-4">
                     <label class="form-label fw-semibold">Tipo de Lente *</label>
                     <select class="form-select" formControlName="primera_compra_tipo_lente" placeholder="Tipo de Lente"
@@ -386,6 +405,7 @@
                     </div>
                     }
                   </div>
+                  } @if (tipoCompraPrimeraCompra !== 'Consulta optometria') {
                   <div class="col-md-4">
                     <label class="form-label fw-semibold">Tipo de Montura *</label>
                     <select class="form-select" formControlName="primera_compra_tipo_montura" [class.is-invalid]="
@@ -394,7 +414,7 @@
                         clienteForm.get('primera_compra_tipo_montura')?.touched
                       ">
                       <option [ngValue]="null" disabled>Seleccionar...</option>
-                      @for (tipo of tiposMontura; track tipo) {
+                      @for (tipo of monturasPrimeraCompra; track tipo) {
                       <option [value]="tipo">{{ tipo }}</option>
                       }
                     </select>
@@ -406,6 +426,7 @@
                     </div>
                     }
                   </div>
+                  } @if (tipoCompraPrimeraCompra === 'Gafas formuladas') {
                   <div class="col-md-4">
                     <label class="form-label fw-semibold">Rango de Precio *</label>
                     <select class="form-select" formControlName="primera_compra_rango_precio" [class.is-invalid]="
@@ -426,52 +447,136 @@
                     </div>
                     }
                   </div>
+                  }
                 </div>
                 <div class="row mt-3">
+                  @if (tipoCompraPrimeraCompra !== 'Consulta optometria') {
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold">Sección (opcional)</label>
-                    <select class="form-select" formControlName="primera_compra_seccion">
-                      <option [ngValue]="null">Seleccionar...</option>
+                    <label class="form-label fw-semibold">Sección *</label>
+                    <select
+                      class="form-select"
+                      formControlName="primera_compra_seccion"
+                      [class.is-invalid]="
+                        clienteForm.get('primera_compra_seccion')?.invalid &&
+                        clienteForm.get('primera_compra_seccion')?.touched
+                      "
+                    >
+                      <option [ngValue]="null" disabled>Seleccionar...</option>
                       @for (seccion of secciones; track seccion) {
                       <option [value]="seccion">{{ seccion }}</option>
                       }
                     </select>
-                    <small class="text-muted">Sección del producto</small>
+                    @if (clienteForm.get('primera_compra_seccion')?.invalid &&
+                    clienteForm.get('primera_compra_seccion')?.touched) {
+                    <div class="invalid-feedback">La sección es requerida</div>
+                    }
+                  </div>
+                  }
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold"
+                      >Método de Pago *</label
+                    >
+                    <select
+                      class="form-select"
+                      formControlName="primera_compra_metodo_pago"
+                      [class.is-invalid]="
+                        clienteForm.get('primera_compra_metodo_pago')
+                          ?.invalid &&
+                        clienteForm.get('primera_compra_metodo_pago')?.touched
+                      "
+                    >
+                      <option [ngValue]="null" disabled>Seleccionar...</option>
+                      @for (metodo of metodosPago; track metodo) {
+                      <option [value]="metodo">{{ metodo }}</option>
+                      }
+                    </select>
+                    @if (clienteForm.get('primera_compra_metodo_pago')?.invalid
+                    && clienteForm.get('primera_compra_metodo_pago')?.touched) {
+                    <div class="invalid-feedback">
+                      El método de pago es requerido
+                    </div>
+                    }
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold">Precio Total (opcional)</label>
+                    <label class="form-label fw-semibold">Precio Total *</label>
                     <div class="input-group">
                       <span class="input-group-text">$</span>
-                      <input type="number" class="form-control" formControlName="primera_compra_precio_total"
-                        placeholder="Ej: 350000" min="0" />
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="primera_compra_precio_total"
+                        placeholder="Ej: 350000"
+                        min="0"
+                        [class.is-invalid]="
+                          clienteForm.get('primera_compra_precio_total')
+                            ?.invalid &&
+                          clienteForm.get('primera_compra_precio_total')
+                            ?.touched
+                        "
+                      />
                     </div>
-                    <small class="text-muted">Ingresa el precio exacto</small>
+                    @if (clienteForm.get('primera_compra_precio_total')?.invalid
+                    && clienteForm.get('primera_compra_precio_total')?.touched)
+                    {
+                    <div class="invalid-feedback d-block">
+                      El precio total es requerido
+                    </div>
+                    }
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label fw-semibold">Abono (opcional)</label>
+                    <label class="form-label fw-semibold">Abono *</label>
                     <div class="input-group">
                       <span class="input-group-text">$</span>
-                      <input type="number" class="form-control" formControlName="primera_compra_abono"
-                        placeholder="Ej: 100000" min="0" />
+                      <input
+                        type="number"
+                        class="form-control"
+                        formControlName="primera_compra_abono"
+                        placeholder="Ej: 100000"
+                        min="0"
+                        [class.is-invalid]="
+                          clienteForm.get('primera_compra_abono')?.invalid &&
+                          clienteForm.get('primera_compra_abono')?.touched
+                        "
+                      />
                     </div>
-                    <small class="text-muted">Si dejó abono</small>
+                    @if (clienteForm.get('primera_compra_abono')?.invalid &&
+                    clienteForm.get('primera_compra_abono')?.touched) {
+                    <div class="invalid-feedback d-block">
+                      El abono es requerido
+                    </div>
+                    }
                   </div>
                 </div>
                 <div class="row mt-3">
                   <div class="col-12">
                     @if (isEditingPrimeraCompra) {
-                    <button type="button" class="btn btn-warning me-2" (click)="agregarPrimeraCompraALista()">
+                    <button
+                      type="button"
+                      class="btn btn-warning me-2"
+                      (click)="agregarPrimeraCompraALista()"
+                      [disabled]="!isPrimeraCompraValid"
+                    >
                       <i class="bi bi-pencil me-2"></i>Actualizar en Lista
                     </button>
-                    <button type="button" class="btn btn-secondary" (click)="cancelarEdicionPrimeraCompra()">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      (click)="cancelarEdicionPrimeraCompra()"
+                    >
                       <i class="bi bi-x-circle me-2"></i>Cancelar
                     </button>
                     } @else {
                     <div class="d-flex">
-                      <button type="button" class="btn btn-success" (click)="agregarPrimeraCompraALista()">
+                      <button
+                        type="button"
+                        class="btn btn-success"
+                        (click)="agregarPrimeraCompraALista()"
+                        [disabled]="!isPrimeraCompraValid"
+                      >
                         <i class="bi bi-plus-circle me-2"></i>Agregar a Lista
                       </button>
-                      @if (!isEditMode && primerasComprasTemporales.length === 0) {
+                      @if (!isEditMode && primerasComprasTemporales.length ===
+                      0) {
                       <div class="text-danger p-2">
                         <i class="bi bi-exclamation-circle me-1"></i>
                         Debes agregar al menos una compra
@@ -489,8 +594,11 @@
                     <div class="card border-success">
                       <div class="card-header bg-success text-white">
                         <h6 class="mb-0">
-                          <i class="bi bi-cart-check me-2"></i>Compras a Registrar
-                          <span class="badge bg-light text-success ms-2">{{ primerasComprasTemporales.length }}</span>
+                          <i class="bi bi-cart-check me-2"></i>Compras a
+                          Registrar
+                          <span class="badge bg-light text-success ms-2">{{
+                            primerasComprasTemporales.length
+                          }}</span>
                         </h6>
                       </div>
                       <div class="card-body">
@@ -499,50 +607,63 @@
                             <thead class="table-light">
                               <tr>
                                 <th>#</th>
+                                <th>Tipo Compra</th>
                                 <th>Tipo Lente</th>
                                 <th>Tipo Montura</th>
                                 <th>Rango Precio</th>
                                 <th>Precio Total</th>
                                 <th>Abono</th>
                                 <th>Sección</th>
+                                <th>Método Pago</th>
                                 <th class="text-center">Acciones</th>
                               </tr>
                             </thead>
                             <tbody>
-                              @for (compra of primerasComprasTemporales; track $index; let i = $index) {
-                              <tr [class.table-warning]="selectedPrimeraCompraIndex === i">
+                              @for (compra of primerasComprasTemporales; track
+                              $index; let i = $index) {
+                              <tr
+                                [class.table-warning]="
+                                  selectedPrimeraCompraIndex === i
+                                "
+                              >
                                 <td>{{ i + 1 }}</td>
-                                <td>{{ compra.tipo_lente }}</td>
-                                <td>{{ compra.tipo_montura }}</td>
-                                <td>{{ compra.rango_precio }}</td>
+                                <td>{{ compra.tipo_compra }}</td>
+                                <td>{{ compra.tipo_lente || "-" }}</td>
+                                <td>{{ compra.tipo_montura || "-" }}</td>
+                                <td>{{ compra.rango_precio || "-" }}</td>
                                 <td>
-                                  @if (compra.precio_total) {
-                                  ${{ compra.precio_total | number }}
+                                  @if (compra.precio_total) { ${{
+                                    compra.precio_total | number
+                                  }}
                                   } @else {
                                   <span class="text-muted">-</span>
                                   }
                                 </td>
                                 <td>
-                                  @if (compra.abono) {
-                                  ${{ compra.abono | number }}
+                                  @if (compra.abono) { ${{
+                                    compra.abono | number
+                                  }}
                                   } @else {
                                   <span class="text-muted">-</span>
                                   }
                                 </td>
-                                <td>
-                                  @if (compra.seccion) {
-                                  {{ compra.seccion }}
-                                  } @else {
-                                  <span class="text-muted">-</span>
-                                  }
-                                </td>
+                                <td>{{ compra.seccion || "-" }}</td>
+                                <td>{{ compra.metodo_pago || "-" }}</td>
                                 <td class="text-center">
-                                  <button type="button" class="btn btn-sm btn-outline-warning me-1"
-                                    (click)="editarPrimeraCompraTemporal(i)" title="Editar">
+                                  <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-warning me-1"
+                                    (click)="editarPrimeraCompraTemporal(i)"
+                                    title="Editar"
+                                  >
                                     <i class="bi bi-pencil"></i>
                                   </button>
-                                  <button type="button" class="btn btn-sm btn-outline-danger"
-                                    (click)="eliminarPrimeraCompraTemporal(i)" title="Eliminar">
+                                  <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    (click)="eliminarPrimeraCompraTemporal(i)"
+                                    title="Eliminar"
+                                  >
                                     <i class="bi bi-trash"></i>
                                   </button>
                                 </td>
@@ -552,8 +673,14 @@
                           </table>
                         </div>
                         <div class="d-flex justify-content-end mt-2">
-                          <button type="button" class="btn btn-sm btn-outline-secondary"
-                            (click)="primerasComprasTemporales = []; cancelarEdicionPrimeraCompra()">
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            (click)="
+                              primerasComprasTemporales = [];
+                              cancelarEdicionPrimeraCompra()
+                            "
+                          >
                             <i class="bi bi-x-circle me-1"></i>Limpiar Lista
                           </button>
                         </div>
@@ -568,11 +695,21 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type=" button" class="btn btn-secondary" (click)="closeModal()">
+          <button
+            type=" button"
+            class="btn btn-secondary"
+            (click)="closeModal()"
+          >
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary"
-            [disabled]="isLoading || (!isEditMode && primerasComprasTemporales.length === 0)">
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="
+              isLoading ||
+              (!isEditMode && primerasComprasTemporales.length === 0)
+            "
+          >
             @if (isLoading) {
             <span class="spinner-border spinner-border-sm me-2"></span>
             }
@@ -606,8 +743,30 @@
             </h6>
           </div>
           <div class="card-body">
-            <form [formGroup]="compraForm" (ngSubmit)="agregarCompraALista()">
+            <form
+              [formGroup]="compraForm"
+              (ngSubmit)="
+                isEditCompraMode ? registrarCompra() : agregarCompraALista()
+              "
+            >
               <div class="row g-3">
+                <div class="col-12">
+                  <div class="d-flex align-items-center mb-2">
+                    <label class="form-label mb-0 me-2 fw-semibold"
+                      >Tipo:</label
+                    >
+                    <select
+                      class="form-select form-select-sm"
+                      style="width: auto"
+                      formControlName="tipo_compra"
+                    >
+                      @for (tipo of tiposCompra; track tipo) {
+                      <option [value]="tipo">{{ tipo }}</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+                @if (mostrarCamposGafasFormuladas) {
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Tipo de Lente *</label>
                   <select class="form-select" formControlName="tipo_lente" [class.is-invalid]="
@@ -624,13 +783,14 @@
                   </div>
                   }
                 </div>
+                } @if (mostrarCamposOptometria) {
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Tipo de Montura *</label>
                   <select class="form-select" formControlName="tipo_montura" [class.is-invalid]="
                       tipo_montura?.invalid && tipo_montura?.touched
                     ">
                     <option value="">Seleccionar...</option>
-                    @for (tipo of tiposMontura; track tipo) {
+                    @for (tipo of monturasCompraExistente; track tipo) {
                     <option [value]="tipo">{{ tipo }}</option>
                     }
                   </select>
@@ -640,6 +800,7 @@
                   </div>
                   }
                 </div>
+                } @if (mostrarCamposGafasFormuladas) {
                 <div class="col-md-4">
                   <label class="form-label fw-semibold">Rango de Precio *</label>
                   <select class="form-select" formControlName="rango_precio" [class.is-invalid]="
@@ -656,44 +817,141 @@
                   </div>
                   }
                 </div>
+                }
+              </div>
+              <div class="row mt-3">
+                @if (mostrarCamposOptometria) {
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold">Sección (opcional)</label>
-                  <select class="form-select" formControlName="seccion">
-                    <option value="">Seleccionar...</option>
+                  <label class="form-label fw-semibold">Sección *</label>
+                  <select
+                    class="form-select"
+                    formControlName="seccion"
+                    [class.is-invalid]="
+                      compraForm.get('seccion')?.invalid &&
+                      compraForm.get('seccion')?.touched
+                    "
+                  >
+                    <option [ngValue]="null" disabled>Seleccionar...</option>
                     @for (seccion of secciones; track seccion) {
                     <option [value]="seccion">{{ seccion }}</option>
                     }
                   </select>
-                  <small class="text-muted">Sección del producto</small>
+                  @if (compraForm.get('seccion')?.invalid &&
+                  compraForm.get('seccion')?.touched) {
+                  <div class="invalid-feedback">La sección es requerida</div>
+                  }
+                </div>
+                }
+                <div class="col-md-4">
+                  <label class="form-label fw-semibold">Método de Pago *</label>
+                  <select
+                    class="form-select"
+                    formControlName="metodo_pago"
+                    [class.is-invalid]="
+                      compraForm.get('metodo_pago')?.invalid &&
+                      compraForm.get('metodo_pago')?.touched
+                    "
+                  >
+                    <option [ngValue]="null" disabled>Seleccionar...</option>
+                    @for (metodo of metodosPago; track metodo) {
+                    <option [value]="metodo">{{ metodo }}</option>
+                    }
+                  </select>
+                  @if (compraForm.get('metodo_pago')?.invalid &&
+                  compraForm.get('metodo_pago')?.touched) {
+                  <div class="invalid-feedback">
+                    El método de pago es requerido
+                  </div>
+                  }
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold">Precio Total (opcional)</label>
+                  <label class="form-label fw-semibold">Precio Total *</label>
                   <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" formControlName="precio_total" placeholder="Ej: 350000"
-                      min="0" />
+                    <input
+                      type="number"
+                      class="form-control"
+                      formControlName="precio_total"
+                      placeholder="Ej: 350000"
+                      min="0"
+                      [class.is-invalid]="
+                        compraForm.get('precio_total')?.invalid &&
+                        compraForm.get('precio_total')?.touched
+                      "
+                    />
                   </div>
-                  <small class="text-muted">Ingresa el precio exacto de la compra</small>
+                  @if (compraForm.get('precio_total')?.invalid &&
+                  compraForm.get('precio_total')?.touched) {
+                  <div class="invalid-feedback d-block">
+                    El precio total es requerido
+                  </div>
+                  }
                 </div>
                 <div class="col-md-4">
-                  <label class="form-label fw-semibold">Abono (opcional)</label>
+                  <label class="form-label fw-semibold">Abono *</label>
                   <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" formControlName="abono" placeholder="Ej: 100000"
-                      min="0" />
+                    <input
+                      type="number"
+                      class="form-control"
+                      formControlName="abono"
+                      placeholder="Ej: 100000"
+                      min="0"
+                      [disabled]="isEditCompraMode"
+                      [readonly]="isEditCompraMode"
+                      [class.is-invalid]="
+                        compraForm.get('abono')?.invalid &&
+                        compraForm.get('abono')?.touched &&
+                        !isEditCompraMode
+                      "
+                    />
                   </div>
-                  <small class="text-muted">Si el cliente dejó un abono</small>
+                  @if (compraForm.get('abono')?.invalid &&
+                  compraForm.get('abono')?.touched && !isEditCompraMode) {
+                  <div class="invalid-feedback d-block">
+                    El abono es requerido
+                  </div>
+                  } @if (isEditCompraMode) {
+                  <div class="form-text text-warning">
+                    Los abonos se editan solo desde el botón de Abonos.
+                  </div>
+                  }
                 </div>
-                <div class="col-12 mt-3">
-                  @if (isEditingTempCompra) {
-                  <button type="submit" class="btn btn-warning me-2" [disabled]="compraForm.invalid">
-                    <i class="bi bi-pencil me-2"></i>Actualizar en Lista
+              </div>
+              <div class="row mt-3">
+                <div class="col-12">
+                  @if (isEditCompraMode) {
+                  <button
+                    type="submit"
+                    class="btn btn-warning me-2"
+                    [disabled]="compraForm.invalid"
+                  >
+                    <i class="bi bi-save me-2"></i>Actualizar Compra
                   </button>
                   <button type="button" class="btn btn-secondary" (click)="cancelarEdicionTemporal()">
                     <i class="bi bi-x-circle me-2"></i>Cancelar
                   </button>
+                  } @else if (isEditingTempCompra) {
+                  <button
+                    type="submit"
+                    class="btn btn-warning me-2"
+                    [disabled]="compraForm.invalid"
+                  >
+                    <i class="bi bi-pencil me-2"></i>Actualizar en Lista
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="cancelarEdicionTemporal()"
+                  >
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                  </button>
                   } @else {
-                  <button type="submit" class="btn btn-success" [disabled]="compraForm.invalid">
+                  <button
+                    type="submit"
+                    class="btn btn-success"
+                    [disabled]="compraForm.invalid"
+                  >
                     <i class="bi bi-plus-circle me-2"></i>Agregar a Lista
                   </button>
                   }
@@ -706,11 +964,15 @@
         <!-- Lista de Compras Pendientes -->
         @if (comprasTemporales.length > 0) {
         <div class="card mb-4 border-success">
-          <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+          <div
+            class="card-header bg-success text-white d-flex justify-content-between align-items-center"
+          >
             <h6 class="mb-0">
               <i class="bi bi-cart-check me-2"></i>Compras a Registrar
             </h6>
-            <span class="badge bg-light text-success">{{ comprasTemporales.length }}</span>
+            <span class="badge bg-light text-success">{{
+              comprasTemporales.length
+            }}</span>
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -718,50 +980,57 @@
                 <thead class="table-light">
                   <tr>
                     <th>#</th>
+                    <th>Tipo Compra</th>
                     <th>Tipo Lente</th>
                     <th>Tipo Montura</th>
                     <th>Rango Precio</th>
                     <th>Precio Total</th>
                     <th>Abono</th>
                     <th>Sección</th>
+                    <th>Método Pago</th>
                     <th class="text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (compra of comprasTemporales; track $index; let i = $index) {
+                  @for (compra of comprasTemporales; track $index; let i =
+                  $index) {
                   <tr [class.table-warning]="selectedTempCompraIndex === i">
                     <td>{{ i + 1 }}</td>
-                    <td>{{ compra.tipo_lente }}</td>
-                    <td>{{ compra.tipo_montura }}</td>
-                    <td>{{ compra.rango_precio }}</td>
+                    <td>{{ compra.tipo_compra }}</td>
+                    <td>{{ compra.tipo_lente || "-" }}</td>
+                    <td>{{ compra.tipo_montura || "-" }}</td>
+                    <td>{{ compra.rango_precio || "-" }}</td>
                     <td>
-                      @if (compra.precio_total) {
-                      ${{ compra.precio_total | number }}
+                      @if (compra.precio_total) { ${{
+                        compra.precio_total | number
+                      }}
                       } @else {
                       <span class="text-muted">-</span>
                       }
                     </td>
                     <td>
-                      @if (compra.abono) {
-                      ${{ compra.abono | number }}
+                      @if (compra.abono) { ${{ compra.abono | number }}
                       } @else {
                       <span class="text-muted">-</span>
                       }
                     </td>
-                    <td>
-                      @if (compra.seccion) {
-                      {{ compra.seccion }}
-                      } @else {
-                      <span class="text-muted">-</span>
-                      }
-                    </td>
+                    <td>{{ compra.seccion || "-" }}</td>
+                    <td>{{ compra.metodo_pago || "-" }}</td>
                     <td class="text-center">
-                      <button type="button" class="btn btn-sm btn-outline-warning me-1"
-                        (click)="editarCompraTemporal(i)" title="Editar">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-warning me-1"
+                        (click)="editarCompraTemporal(i)"
+                        title="Editar"
+                      >
                         <i class="bi bi-pencil"></i>
                       </button>
-                      <button type="button" class="btn btn-sm btn-outline-danger" (click)="eliminarCompraTemporal(i)"
-                        title="Eliminar">
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="eliminarCompraTemporal(i)"
+                        title="Eliminar"
+                      >
                         <i class="bi bi-trash"></i>
                       </button>
                     </td>
@@ -771,12 +1040,19 @@
               </table>
             </div>
             <div class="d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-outline-secondary"
-                (click)="comprasTemporales = []; cancelarEdicionTemporal()">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="comprasTemporales = []; cancelarEdicionTemporal()"
+              >
                 <i class="bi bi-x-circle me-2"></i>Limpiar Lista
               </button>
-              <button type="button" class="btn btn-primary" (click)="guardarTodasLasCompras()"
-                [disabled]="isLoadingCompras">
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="guardarTodasLasCompras()"
+                [disabled]="isLoadingCompras"
+              >
                 <i class="bi bi-save me-2"></i>
                 @if (isLoadingCompras) {
                 <span>Guardando...</span>
@@ -818,10 +1094,12 @@
                 <thead class="table-light">
                   <tr>
                     <th>Fecha</th>
+                    <th>Tipo</th>
                     <th>Tipo de Lente</th>
                     <th>Tipo de Montura</th>
                     <th>Rango de Precio</th>
                     <th>Sección</th>
+                    <th>Método Pago</th>
                     <th>Precio Total</th>
                     <th>Abono</th>
                     <th class="text-end">Acciones</th>
@@ -835,19 +1113,26 @@
                       {{ formatDate(compra.fecha_compra || "") }}
                     </td>
                     <td>
+                      <span
+                        class="badge bg-primary-subtle text-primary border border-primary-subtle"
+                      >
+                        {{ compra.tipo_compra || "Gafas formuladas" }}
+                      </span>
+                    </td>
+                    <td>
                       <span class="badge bg-info text-dark">{{
-                        compra.tipo_lente
-                        }}</span>
+                        compra.tipo_lente || "-"
+                      }}</span>
                     </td>
                     <td>
                       <span class="badge bg-secondary">{{
-                        compra.tipo_montura
-                        }}</span>
+                        compra.tipo_montura || "-"
+                      }}</span>
                     </td>
                     <td>
                       <span class="badge bg-success">{{
-                        compra.rango_precio
-                        }}</span>
+                        compra.rango_precio || "-"
+                      }}</span>
                     </td>
                     <td>
                       @if (compra.seccion) {
@@ -857,6 +1142,11 @@
                       } @else {
                       <span class="text-muted">-</span>
                       }
+                    </td>
+                    <td>
+                      <span class="text-muted">{{
+                        compra.metodo_pago || "-"
+                      }}</span>
                     </td>
                     <td>
                       @if (compra.precio_total) {

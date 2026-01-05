@@ -48,6 +48,7 @@ Thumbs.db
 docs/
 *.sql
 !supabase/migrations/*.sql
+/supabase
 
 # Environment variables
 .env
