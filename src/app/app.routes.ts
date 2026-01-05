@@ -9,6 +9,7 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ClientesComponent } from './pages/clientes/clientes.component';
 import { FormulaComponent } from './pages/formula/formula.component';
+import { InventarioComponent } from './pages/inventario/inventario.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -38,6 +39,11 @@ export const routes: Routes = [
       {
         path: 'formula',
         component: FormulaComponent,
+        canActivate: [authGuard],
+      },
+      {
+        path: 'inventario',
+        component: InventarioComponent,
         canActivate: [authGuard],
       },
       {

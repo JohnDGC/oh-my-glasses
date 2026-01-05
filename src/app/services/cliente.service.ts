@@ -6,12 +6,44 @@ import {
   ClienteReferido,
   ClienteAbono,
 } from '../models/cliente.model';
+import { InventarioService } from './inventario.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClienteService {
-  constructor(private supabase: SupabaseService) {}
+  constructor(
+    private supabase: SupabaseService,
+    private inventarioService: InventarioService
+  ) {}
+
+  private async getClienteNombre(clienteId: string): Promise<string | null> {
+    const { data } = await this.supabase.client
+      .from('clientes')
+      .select('nombres')
+      .eq('id', clienteId)
+      .single();
+    return data?.nombres || null;
+  }
+
+  private async logClienteEvento(
+    clienteId: string,
+    nombres: string,
+    accion: 'creado' | 'actualizado' | 'eliminado'
+  ) {
+    try {
+      await this.inventarioService.crearMovimiento({
+        tipo: 'ajuste',
+        cantidad: 1,
+        monto: null,
+        referencia: null, // no referenciar cliente_id para no violar FK a cliente_compras
+        nota: `Cliente ${accion}`,
+        created_by: nombres,
+      });
+    } catch (e) {
+      console.error('No se pudo registrar movimiento de cliente:', e);
+    }
+  }
 
   async getClientes(): Promise<Cliente[]> {
     const { data, error } = await this.supabase.client
@@ -93,6 +125,10 @@ export class ClienteService {
       throw error;
     }
 
+    if (data?.id && data?.nombres) {
+      await this.logClienteEvento(data.id, data.nombres, 'creado');
+    }
+
     return data;
   }
 
@@ -109,10 +145,14 @@ export class ClienteService {
       throw error;
     }
 
+    if (data?.nombres)
+      await this.logClienteEvento(id, data.nombres, 'actualizado');
     return data;
   }
 
   async deleteCliente(id: string): Promise<void> {
+    const nombre = await this.getClienteNombre(id);
+
     const { error } = await this.supabase.client
       .from('clientes')
       .delete()
@@ -122,14 +162,17 @@ export class ClienteService {
       console.error('Error al eliminar cliente:', error);
       throw error;
     }
+
+    if (nombre) await this.logClienteEvento(id, nombre, 'eliminado');
   }
 
   async getComprasByCliente(clienteId: string): Promise<ClienteCompra[]> {
     const { data, error } = await this.supabase.client
       .from('cliente_compras')
-      .select('*')
+      .select('*, cliente_abonos (*)')
       .eq('cliente_id', clienteId)
-      .order('fecha_compra', { ascending: false });
+      .order('fecha_compra', { ascending: false, nullsFirst: false })
+      .order('created_at', { ascending: false, nullsFirst: false });
 
     if (error) {
       console.error('Error al obtener compras:', error);
@@ -140,6 +183,11 @@ export class ClienteService {
   }
 
   async createCompra(compra: ClienteCompra): Promise<ClienteCompra> {
+    // 1. Verificar si hay que generar cashback pendiente (si es primera compra de gafas formuladas)
+    if (compra.tipo_compra === 'Gafas formuladas') {
+      await this.verificarYGenerarCashbackPendiente(compra.cliente_id, compra);
+    }
+
     const { data, error } = await this.supabase.client
       .from('cliente_compras')
       .insert([
@@ -152,6 +200,8 @@ export class ClienteService {
           abono: compra.abono || null,
           seccion: compra.seccion || null,
           fecha_compra: new Date().toISOString(),
+          metodo_pago: compra.metodo_pago || null,
+          tipo_compra: compra.tipo_compra || 'Gafas formuladas',
         },
       ])
       .select()
@@ -172,23 +222,92 @@ export class ClienteService {
       });
     }
 
+    // Registrar movimiento de inventario (venta)
+    try {
+      const clienteNombre = await this.getClienteNombre(compra.cliente_id);
+      await this.inventarioService.registrarVentaDesdeCompra({
+        id: data?.id,
+        tipo_montura: compra.tipo_montura,
+        seccion: compra.seccion || null,
+        precio_total: compra.precio_total || null,
+        cliente_nombre: clienteNombre,
+      });
+    } catch (inventoryError) {
+      console.error(
+        'No se pudo registrar movimiento de inventario:',
+        inventoryError
+      );
+      // No lanzamos para no romper el flujo de compra
+    }
+
     return data;
+  }
+
+  async verificarYGenerarCashbackPendiente(
+    clienteId: string,
+    compra: ClienteCompra
+  ) {
+    try {
+      // Verificar si el cliente es referido y SI ya se generó cashback
+      const { data: referido } = await this.supabase.client
+        .from('cliente_referidos')
+        .select('*')
+        .eq('cliente_referido_id', clienteId)
+        .single();
+
+      // Si existe registro de referido Y el cashback generado es 0
+      if (referido && referido.cashback_generado === 0) {
+        // Calcular nuevo cashback
+        const { calcularCashback } = await import(
+          '../shared/utils/cashback.util'
+        );
+        const cashbackInfo = calcularCashback(compra.rango_precio);
+
+        if (cashbackInfo.monto > 0) {
+          // Actualizar registro de referido
+          await this.supabase.client
+            .from('cliente_referidos')
+            .update({
+              cashback_generado: cashbackInfo.monto,
+              rango_precio_compra: compra.rango_precio,
+              fecha_referido: new Date().toISOString(), // Actualizamos fecha para que sea reciente
+            })
+            .eq('id', referido.id);
+
+          // Sumar al referidor
+          await this.addCashback(
+            referido.cliente_referidor_id,
+            cashbackInfo.monto
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Error verificando cashback pendiente:', error);
+    }
   }
 
   async updateCompra(
     id: string,
     compra: Partial<ClienteCompra>
   ): Promise<ClienteCompra> {
+    const payload: any = {
+      tipo_lente: compra.tipo_lente,
+      tipo_montura: compra.tipo_montura,
+      rango_precio: compra.rango_precio,
+      precio_total: compra.precio_total || null,
+      seccion: compra.seccion || null,
+      metodo_pago: compra.metodo_pago || null,
+      tipo_compra: compra.tipo_compra || 'Gafas formuladas',
+    };
+
+    // Solo actualizar abono si se proporciona explícitamente (edición de abonos va por flujo dedicado)
+    if (compra.abono !== undefined) {
+      payload.abono = compra.abono || null;
+    }
+
     const { data, error } = await this.supabase.client
       .from('cliente_compras')
-      .update({
-        tipo_lente: compra.tipo_lente,
-        tipo_montura: compra.tipo_montura,
-        rango_precio: compra.rango_precio,
-        precio_total: compra.precio_total || null,
-        abono: compra.abono || null,
-        seccion: compra.seccion || null,
-      })
+      .update(payload)
       .eq('id', id)
       .select()
       .single();
@@ -198,10 +317,49 @@ export class ClienteService {
       throw error;
     }
 
+    const clienteNombre = compra.cliente_id
+      ? await this.getClienteNombre(compra.cliente_id)
+      : null;
+
+    // Actualizar movimiento de venta para reflejar cambios
+    await this.inventarioService.actualizarVentaDesdeCompra({
+      id,
+      tipo_montura: compra.tipo_montura,
+      seccion: compra.seccion,
+      precio_total: compra.precio_total,
+      cliente_nombre: clienteNombre,
+    });
+
     return data;
   }
 
   async deleteCompra(id: string): Promise<void> {
+    // 1. Obtener datos de la compra antes de eliminarla
+    const { data: compra, error: fetchError } = await this.supabase.client
+      .from('cliente_compras')
+      .select('id, cliente_id, tipo_montura, seccion, precio_total, created_at')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Error al obtener compra para eliminar:', fetchError);
+      throw fetchError;
+    }
+
+    // Obtener nombre del cliente para mostrar en movimientos de reversión
+    const clienteNombre = compra?.cliente_id
+      ? await this.getClienteNombre(compra.cliente_id)
+      : null;
+
+    // 2. Revertir la venta en inventario (devolver stock, ajustar dinero)
+    if (compra) {
+      await this.inventarioService.revertirVentaEliminada({
+        ...compra,
+        cliente_nombre: clienteNombre,
+      });
+    }
+
+    // 3. Eliminar la compra
     const { error } = await this.supabase.client
       .from('cliente_compras')
       .delete()
@@ -252,6 +410,38 @@ export class ClienteService {
 
     // 2. Actualizar el total de abono en la compra
     await this.updateTotalAbonoCompra(abono.compra_id);
+
+    // 3. Registrar movimiento de inventario (log de dinero, sin afectar stock)
+    try {
+      // Obtener nombre del cliente para mostrar en movimientos
+      const { data: compraInfo } = await this.supabase.client
+        .from('cliente_compras')
+        .select(`cliente_id, clientes ( nombres )`)
+        .eq('id', abono.compra_id)
+        .single();
+
+      const clienteNombre = (compraInfo as any)?.clientes?.nombres || null;
+      const fechaISO = (() => {
+        if (abono.fecha_abono) {
+          const d = new Date(`${abono.fecha_abono}T00:00:00Z`);
+          if (!isNaN(d.getTime())) return d.toISOString();
+        }
+        return new Date().toISOString();
+      })();
+
+      await this.inventarioService.crearMovimiento({
+        tipo: 'ajuste',
+        cantidad: 1, // Seccion null → no afecta stock
+        monto: abono.monto,
+        referencia: abono.compra_id,
+        nota: abono.nota ? `Abono: ${abono.nota}` : 'Abono registrado',
+        created_at: fechaISO,
+        created_by: clienteNombre,
+      });
+    } catch (movError) {
+      console.error('No se pudo registrar movimiento de abono:', movError);
+      // No interrumpir flujo de abono
+    }
 
     return data;
   }
