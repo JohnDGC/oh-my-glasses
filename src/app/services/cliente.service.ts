@@ -202,6 +202,7 @@ export class ClienteService {
           fecha_compra: new Date().toISOString(),
           metodo_pago: compra.metodo_pago || null,
           tipo_compra: compra.tipo_compra || 'Gafas formuladas',
+          nota_pago: compra.nota_pago || null,
         },
       ])
       .select()
@@ -298,6 +299,7 @@ export class ClienteService {
       seccion: compra.seccion || null,
       metodo_pago: compra.metodo_pago || null,
       tipo_compra: compra.tipo_compra || 'Gafas formuladas',
+      nota_pago: compra.nota_pago || null,
     };
 
     // Solo actualizar abono si se proporciona explícitamente (edición de abonos va por flujo dedicado)
