@@ -22,7 +22,7 @@
                   <i class="bi bi-envelope me-1"></i>
                   Email
                 </label>
-                <input type="email" class="form-control form-control-lg" id="email" formControlName="email"
+                <input type="email" class="form-control form-control-lg" id="email" name="email" formControlName="email"
                   placeholder="admin@ohmyglasses.com" [class.is-invalid]="email?.invalid && email?.touched"
                   autocomplete="email">
                 @if (email?.invalid && email?.touched) {
@@ -44,7 +44,7 @@
                 </label>
                 <div class="input-group">
                   <input [type]="showPassword ? 'text' : 'password'" class="form-control form-control-lg" id="password"
-                    formControlName="password" placeholder="Contraseña"
+                    name="password" formControlName="password" placeholder="Contraseña"
                     [class.is-invalid]="password?.invalid && password?.touched" autocomplete="current-password">
                   <button class="btn btn-outline-secondary" type="button" (click)="togglePasswordVisibility()"
                     [class.is-invalid]="password?.invalid && password?.touched">
@@ -92,13 +92,6 @@
             </div>
           </div>
         </div>
-
-        <!-- <div class="text-center mt-3">
-          <small class="text-muted">
-            <i class="bi bi-info-circle me-1"></i>
-            Configurar usuario admin en Supabase Auth
-          </small>
-        </div> -->
       </div>
     </div>
   </div>

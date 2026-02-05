@@ -1,15 +1,280 @@
+@use "../../../assets/scss/variables" as *;
+
+// ============================================================================
+// INVENTARIO - STOCK MANAGEMENT STYLES
+// ============================================================================
+
 .inventario-page {
-  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+  background: linear-gradient(to bottom, $light 0%, #fff 100%);
+  min-height: 100vh;
 
   .card {
     border-radius: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
   }
 
   .badge {
     font-weight: 600;
+    padding: 0.4em 0.65em;
   }
 
   .modal-content {
     border-radius: 14px;
+  }
+
+  // Stock Cards
+  .stock-card {
+    .card-header {
+      background: linear-gradient(135deg, rgba($primary, 0.05) 0%, rgba($secondary, 0.05) 100%);
+      border-bottom: 2px solid rgba($primary, 0.1);
+      padding: 1.25rem;
+    }
+
+    &.seccion-labradorita .card-header {
+      background: linear-gradient(135deg, rgba(#6366f1, 0.08) 0%, rgba(#a855f7, 0.08) 100%);
+      border-bottom-color: #6366f1;
+    }
+
+    &.seccion-piedras .card-header {
+      background: linear-gradient(135deg, rgba(#ec4899, 0.08) 0%, rgba(#f43f5e, 0.08) 100%);
+      border-bottom-color: #ec4899;
+    }
+
+    &.seccion-cianita .card-header {
+      background: linear-gradient(135deg, rgba(#06b6d4, 0.08) 0%, rgba(#0ea5e9, 0.08) 100%);
+      border-bottom-color: #06b6d4;
+    }
+
+    &.seccion-obsidiana .card-header {
+      background: linear-gradient(135deg, rgba(#64748b, 0.08) 0%, rgba(#475569, 0.08) 100%);
+      border-bottom-color: #64748b;
+    }
+
+    &.seccion-cuarzo .card-header {
+      background: linear-gradient(135deg, rgba(#f59e0b, 0.08) 0%, rgba(#f97316, 0.08) 100%);
+      border-bottom-color: #f59e0b;
+    }
+
+    &.seccion-citrino .card-header {
+      background: linear-gradient(135deg, rgba(#eab308, 0.08) 0%, rgba(#facc15, 0.08) 100%);
+      border-bottom-color: #eab308;
+    }
+
+    .table {
+      font-size: 0.9rem;
+
+      thead th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+      }
+
+      tbody tr {
+        transition: background-color 0.2s ease;
+
+        &.table-warning {
+          background-color: rgba(#fbbf24, 0.15);
+
+          &:hover {
+            background-color: rgba(#fbbf24, 0.25);
+          }
+        }
+      }
+
+      tfoot {
+        font-weight: 600;
+        border-top: 2px solid #dee2e6;
+      }
+    }
+  }
+
+  // Summary Cards
+  .col-lg-3 .card {
+    border-left: 4px solid transparent;
+
+    &.bg-light {
+      border-left-color: #6c757d;
+    }
+
+    &.bg-success-subtle {
+      border-left-color: #198754;
+    }
+
+    &.bg-danger-subtle {
+      border-left-color: #dc3545;
+    }
+
+    &.bg-primary {
+      border-left-color: #ffffff;
+    }
+  }
+
+  // Badges
+  .badge-reestock {
+    background-color: #3b82f6;
+    color: white;
+  }
+
+  .badge-adicion {
+    background-color: #10b981;
+    color: white;
+  }
+
+  .badge-venta {
+    background-color: #ef4444;
+    color: white;
+  }
+
+  // Tabs
+  .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+
+    .nav-link {
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: #6c757d;
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $primary;
+        border-bottom-color: rgba($primary, 0.3);
+      }
+
+      &.active {
+        color: $primary;
+        border-bottom-color: $primary;
+        background: none;
+      }
+    }
+  }
+
+  // Modal
+  .modal {
+    &.show {
+      display: block;
+    }
+
+    .modal-header {
+      border-bottom: 2px solid #dee2e6;
+
+      &.bg-primary {
+        border-bottom-color: rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    .modal-body {
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
+    }
+
+    .sticky-top {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+  }
+
+  // Table Responsive
+  .table-responsive {
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+
+      &:hover {
+        background: #555;
+      }
+    }
+  }
+
+  // Loading State
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  // Form Controls
+  .form-control,
+  .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 0.2rem rgba($primary, 0.15);
+    }
+  }
+
+  // Buttons
+  .btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  // Alert Styling
+  .alert {
+    border-radius: 12px;
+    border: none;
+    padding: 1rem 1.25rem;
+
+    &.alert-warning {
+      background-color: rgba(#fbbf24, 0.15);
+      color: #92400e;
+    }
+
+    &.alert-info {
+      background-color: rgba(#3b82f6, 0.15);
+      color: #1e3a8a;
+    }
+  }
+
+  // Responsive
+  @media (max-width: 768px) {
+    .stock-card {
+      .table {
+        font-size: 0.8rem;
+
+        thead th {
+          font-size: 0.7rem;
+          padding: 0.5rem 0.25rem;
+        }
+
+        tbody td,
+        tfoot th {
+          padding: 0.5rem 0.25rem;
+        }
+      }
+    }
+
+    .modal-dialog {
+      margin: 0.5rem;
+    }
   }
 }

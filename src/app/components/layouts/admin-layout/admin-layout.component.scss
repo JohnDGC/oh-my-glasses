@@ -1,0 +1,201 @@
+@use "../../../../assets/scss/variables" as *;
+
+.admin-shell {
+  --sidebar-width: 260px;
+  --sidebar-width-collapsed: 84px;
+  --sidebar-bg: linear-gradient(160deg, #21372b 0%, #642719 100%);
+  --sidebar-text: #f7f2da;
+  display: flex;
+  min-height: 100vh;
+  height: 100vh;
+  background: #f7f2da;
+  overflow: hidden;
+}
+
+.admin-sidebar {
+  width: var(--sidebar-width);
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  padding: 1.25rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  transition:
+    width 0.2s ease,
+    transform 0.2s ease;
+  z-index: 1020;
+
+  &.collapsed {
+    width: var(--sidebar-width-collapsed);
+
+    .brand {
+      justify-content: center;
+      gap: 0.25rem;
+    }
+
+    .sidebar-header {
+      justify-content: center !important;
+    }
+
+    .nav-item {
+      justify-content: center;
+    }
+
+    .brand-text,
+    .label,
+    .sidebar-footer span {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+    }
+  }
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  z-index: 1010;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(247, 242, 218, 0.15);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.brand-title {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.brand-subtitle {
+  color: rgba(247, 242, 218, 0.8);
+}
+
+.sidebar-header button {
+  color: var(--sidebar-text);
+  border-color: rgba(247, 242, 218, 0.4);
+
+  &:hover {
+    background: rgba(247, 242, 218, 0.12);
+  }
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-nav .nav-item {
+  color: var(--sidebar-text);
+  text-decoration: none;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+
+  .bi {
+    font-size: 1rem;
+  }
+
+  &.active {
+    background: rgba(247, 242, 218, 0.2);
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: rgba(247, 242, 218, 0.12);
+  }
+}
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100vh;
+  overflow: auto;
+}
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0.2rem 1.5rem;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.topbar-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.admin-content {
+  background: linear-gradient(to bottom, $light 0%, #fff 100%);
+  padding: 1.5rem;
+  flex: 1;
+}
+
+@media (max-width: 991.98px) {
+  .admin-shell {
+    --sidebar-width: 260px;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    transform: translateX(-100%);
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.2);
+    height: 100%;
+  }
+
+  .admin-shell.mobile-open .admin-sidebar {
+    transform: translateX(0);
+  }
+
+  .admin-shell.mobile-open .sidebar-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .admin-topbar {
+    padding: 0.85rem 1rem;
+  }
+
+  .admin-content {
+    padding: 1rem;
+    min-height: calc(100vh - 64px);
+  }
+}

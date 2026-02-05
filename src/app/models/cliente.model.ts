@@ -44,9 +44,11 @@ export interface ClienteAbono {
 export type TipoLente =
   | 'Mono ArBlue'
   | 'Mono ArVerde'
+  | 'Mono Crizal'
   | 'Mono FotoBlue'
   | 'Mono Transitions'
   | 'Mono Transitions Colores'
+  | 'Mono Transitions Crizal'
   | 'Poli Blanco'
   | 'Poli ArVerde'
   | 'Poli ArBlue'
@@ -63,6 +65,7 @@ export type TipoLente =
   | 'Progresivo Premium ArBlue'
   | 'Progresivo Premium FotoBlue'
   | 'Progresivo Premium Transitions'
+  | 'Progresivo Premium Transitions Crizal'
   | 'Bifocal Invisible ArBlue'
   | 'Bifocal Invisible FotoBlue'
   | 'Sin Lente';
@@ -72,6 +75,7 @@ export type TipoMontura =
   | 'Clásica 2'
   | 'Clásica 3'
   | 'Clásica 4'
+  | 'Clásica' // For sunglasses
   | 'Taizu'
   | 'Fento'
   | 'MH'
@@ -94,7 +98,8 @@ export type Seccion =
   | 'Cianita'
   | 'Obsidiana'
   | 'Cuarzo'
-  | 'Citrino';
+  | 'Citrino'
+  | 'Sin Seccion';
 
 export type MetodoPago =
   | 'Bancolombia'
@@ -113,9 +118,11 @@ export type TipoCompra =
 export const TIPOS_LENTE: TipoLente[] = [
   'Mono ArBlue',
   'Mono ArVerde',
+  'Mono Crizal',
   'Mono FotoBlue',
   'Mono Transitions',
   'Mono Transitions Colores',
+  'Mono Transitions Crizal',
   'Poli Blanco',
   'Poli ArVerde',
   'Poli ArBlue',
@@ -130,6 +137,7 @@ export const TIPOS_LENTE: TipoLente[] = [
   'Progresivo Alto FotoBlue',
   'Progresivo Alto Transitions',
   'Progresivo Premium ArBlue',
+  'Progresivo Premium Transitions Crizal',
   'Progresivo Premium FotoBlue',
   'Progresivo Premium Transitions',
   'Bifocal Invisible ArBlue',
@@ -142,6 +150,7 @@ export const TIPOS_MONTURA: TipoMontura[] = [
   'Clásica 2',
   'Clásica 3',
   'Clásica 4',
+  'Clásica', // For sunglasses
   'Taizu',
   'Fento',
   'MH',
@@ -167,6 +176,7 @@ export const SECCIONES: Seccion[] = [
   'Obsidiana',
   'Cuarzo',
   'Citrino',
+  'Sin Seccion',
 ];
 
 export const METODOS_PAGO: MetodoPago[] = [
