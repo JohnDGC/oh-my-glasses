@@ -90,11 +90,14 @@ export class ClientesComponent implements OnInit {
     mensajeBienvenida: '',
     mensajeReferido: '',
   };
+  showInfoModal = false;
+  infoCompras: ClienteCompra[] = [];
+  isLoadingInfoCompras = false;
 
   constructor(
     private fb: FormBuilder,
     private clienteService: ClienteService,
-    private whatsAppService: WhatsAppService
+    private whatsAppService: WhatsAppService,
   ) {
     this.initForm();
     this.initCompraForm();
@@ -155,7 +158,7 @@ export class ClientesComponent implements OnInit {
       ?.valueChanges.subscribe((metodo) => {
         this.actualizarValidadores(
           true,
-          this.clienteForm.get('primera_compra_tipo_compra')?.value
+          this.clienteForm.get('primera_compra_tipo_compra')?.value,
         );
       });
 
@@ -163,7 +166,7 @@ export class ClientesComponent implements OnInit {
       .get('cedula')
       ?.valueChanges.pipe(
         debounceTime(500), // Esperar 500ms después de que el usuario deje de escribir
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe(async (cedula) => {
         const cedulaControl = this.clienteForm.get('cedula');
@@ -171,7 +174,7 @@ export class ClientesComponent implements OnInit {
         if (cedula && cedula.length >= 6 && cedulaControl?.valid) {
           const existe = await this.clienteService.verificarCedulaExistente(
             cedula,
-            this.selectedClienteId || undefined
+            this.selectedClienteId || undefined,
           );
 
           if (existe) {
@@ -183,7 +186,7 @@ export class ClientesComponent implements OnInit {
             if (cedulaControl?.errors?.['cedulaDuplicada']) {
               const { cedulaDuplicada, ...otherErrors } = cedulaControl.errors;
               cedulaControl?.setErrors(
-                Object.keys(otherErrors).length > 0 ? otherErrors : null
+                Object.keys(otherErrors).length > 0 ? otherErrors : null,
               );
             }
           }
@@ -215,7 +218,7 @@ export class ClientesComponent implements OnInit {
     this.compraForm.get('metodo_pago')?.valueChanges.subscribe((metodo) => {
       this.actualizarValidadores(
         false,
-        this.compraForm.get('tipo_compra')?.value
+        this.compraForm.get('tipo_compra')?.value,
       );
     });
   }
@@ -283,17 +286,30 @@ export class ClientesComponent implements OnInit {
       cliente_referidor_id: cliente.cliente_referidor_id || null,
     });
     this.esReferido = cliente.es_referido || false;
-    this.clienteForm.get('primera_compra_tipo_lente')?.clearValidators();
-    this.clienteForm.get('primera_compra_tipo_montura')?.clearValidators();
-    this.clienteForm.get('primera_compra_rango_precio')?.clearValidators();
-    this.clienteForm.get('primera_compra_tipo_lente')?.updateValueAndValidity();
-    this.clienteForm
-      .get('primera_compra_tipo_montura')
-      ?.updateValueAndValidity();
-    this.clienteForm
-      .get('primera_compra_rango_precio')
-      ?.updateValueAndValidity();
 
+    // En EDIT MODE, limpiar validadores de todos los campos de Primera Compra
+    const primeraCompraFields = [
+      'primera_compra_tipo_lente',
+      'primera_compra_tipo_montura',
+      'primera_compra_rango_precio',
+      'primera_compra_precio_total',
+      'primera_compra_abono',
+      'primera_compra_seccion',
+      'primera_compra_metodo_pago',
+      'primera_compra_nota_pago',
+    ];
+
+    primeraCompraFields.forEach((fieldName) => {
+      const control = this.clienteForm.get(fieldName);
+      if (control) {
+        control.clearValidators();
+        control.updateValueAndValidity();
+      }
+    });
+
+    this.primerasComprasTemporales = [];
+    this.isEditingPrimeraCompra = false;
+    this.selectedPrimeraCompraIndex = null;
     this.showModal = true;
   }
 
@@ -327,18 +343,31 @@ export class ClientesComponent implements OnInit {
       }
     });
 
-    if (hasTempPurchases) {
-      // If we have purchases in the list, only client fields need to be valid
+    // En EDIT MODE, solo validar campos del cliente
+    if (this.isEditMode) {
       if (!isClientValid) {
         clientControls.forEach((controlName) => {
           this.clienteForm.get(controlName)?.markAsTouched();
         });
+        console.log(
+          '[onSubmit] Cliente inválido en EDIT MODE, campos:',
+          clientControls,
+        );
+        alert('Por favor completa todos los campos del cliente');
         return;
       }
     } else {
-      // If no purchases in list, standard validation applies (though this might still be problematic if users expect auto-add)
-      if (this.clienteForm.invalid) {
-        this.clienteForm.markAllAsTouched();
+      // En CREATE MODE, validar cliente + que haya al menos una compra
+      if (!isClientValid) {
+        clientControls.forEach((controlName) => {
+          this.clienteForm.get(controlName)?.markAsTouched();
+        });
+        console.log('[onSubmit] Cliente inválido en CREATE MODE');
+        return;
+      }
+
+      if (!hasTempPurchases) {
+        console.log('[onSubmit] Sin compras temporales en CREATE MODE');
         return;
       }
     }
@@ -359,14 +388,18 @@ export class ClientesComponent implements OnInit {
       let nuevoClienteId: string | undefined;
 
       if (this.isEditMode && this.selectedClienteId) {
+        console.log(
+          '[onSubmit] EDIT MODE - Cliente ID:',
+          this.selectedClienteId,
+        );
         const cedulaExiste = await this.clienteService.verificarCedulaExistente(
           formValue.cedula,
-          this.selectedClienteId
+          this.selectedClienteId,
         );
 
         if (cedulaExiste) {
           alert(
-            `⚠️ Error: Ya existe otro cliente registrado con la cédula ${formValue.cedula}`
+            `⚠️ Error: Ya existe otro cliente registrado con la cédula ${formValue.cedula}`,
           );
           this.isLoading = false;
           return;
@@ -374,7 +407,7 @@ export class ClientesComponent implements OnInit {
 
         // Detectar cambios en el referidor
         const clienteOriginal = this.clientes.find(
-          (c) => c.id === this.selectedClienteId
+          (c) => c.id === this.selectedClienteId,
         );
 
         const referidorAnterior = clienteOriginal?.cliente_referidor_id || null;
@@ -385,10 +418,17 @@ export class ClientesComponent implements OnInit {
 
         const referidorCambio = referidorAnterior !== referidorNuevo;
 
+        console.log('[onSubmit] Llamando updateCliente con:', {
+          id: this.selectedClienteId,
+          data: clienteData,
+        });
+
         await this.clienteService.updateCliente(
           this.selectedClienteId,
-          clienteData
+          clienteData,
         );
+
+        console.log('[onSubmit] updateCliente completado exitosamente');
 
         let mensaje = 'Cliente actualizado exitosamente';
 
@@ -398,7 +438,7 @@ export class ClientesComponent implements OnInit {
             await this.clienteService.cambiarReferidor(
               this.selectedClienteId,
               referidorAnterior,
-              referidorNuevo
+              referidorNuevo,
             );
 
             if (referidorNuevo && !referidorAnterior) {
@@ -418,23 +458,23 @@ export class ClientesComponent implements OnInit {
           }
         }
 
+        console.log('[onSubmit] Mostrando alert:', mensaje);
         alert(mensaje);
       } else {
         const cedulaExiste = await this.clienteService.verificarCedulaExistente(
-          formValue.cedula
+          formValue.cedula,
         );
 
         if (cedulaExiste) {
           alert(
-            `⚠️ Error: Ya existe un cliente registrado con la cédula ${formValue.cedula}.\n\nPor favor, verifica los datos o busca el cliente existente en la tabla.`
+            `⚠️ Error: Ya existe un cliente registrado con la cédula ${formValue.cedula}.\n\nPor favor, verifica los datos o busca el cliente existente en la tabla.`,
           );
           this.isLoading = false;
           return;
         }
 
-        const nuevoCliente = await this.clienteService.createCliente(
-          clienteData
-        );
+        const nuevoCliente =
+          await this.clienteService.createCliente(clienteData);
         nuevoClienteId = nuevoCliente.id;
 
         // Registrar las primeras compras
@@ -455,7 +495,7 @@ export class ClientesComponent implements OnInit {
             console.error('Error al registrar primeras compras:', error);
             if (error.code === '23514') {
               alert(
-                '⚠️ Error: El rango de precio no es válido. Por favor ejecuta el script SQL "update-rango-precio-constraint.sql" en Supabase.'
+                '⚠️ Error: El rango de precio no es válido. Por favor ejecuta el script SQL "update-rango-precio-constraint.sql" en Supabase.',
               );
             }
             this.rangoPrecioCompra =
@@ -486,7 +526,7 @@ export class ClientesComponent implements OnInit {
                   compra.rango_precio
                 ) {
                   const cashbackInfo = this.whatsAppService.calcularCashback(
-                    compra.rango_precio
+                    compra.rango_precio,
                   );
                   cashbackGenerado += cashbackInfo.monto;
                 }
@@ -504,7 +544,7 @@ export class ClientesComponent implements OnInit {
 
             // Obtener datos del referidor para el mensaje de WhatsApp
             const referidor = this.clientes.find(
-              (c) => c.id === formValue.cliente_referidor_id
+              (c) => c.id === formValue.cliente_referidor_id,
             );
             if (referidor) {
               this.clienteReferidor = {
@@ -520,7 +560,7 @@ export class ClientesComponent implements OnInit {
 
                 await this.clienteService.addCashback(
                   formValue.cliente_referidor_id,
-                  cashbackGenerado
+                  cashbackGenerado,
                 );
 
                 // Marcar que es un nuevo registro con cashback sumado
@@ -539,8 +579,10 @@ export class ClientesComponent implements OnInit {
         this.prepararMensajesWhatsApp();
       }
 
+      console.log('[onSubmit] Cerrando modal y recargando datos...');
       this.closeModal();
       await this.loadClientes();
+      console.log('[onSubmit] Datos recargados. IsEditMode:', this.isEditMode);
       if (!this.isEditMode && this.clienteRegistrado)
         this.showWhatsAppModal = true;
     } catch (error: any) {
@@ -550,13 +592,13 @@ export class ClientesComponent implements OnInit {
         alert(`⚠️ ${error.message}`);
       } else if (error.code === '23505') {
         alert(
-          `⚠️ Error: La cédula ${formValue.cedula} ya está registrada en el sistema.`
+          `⚠️ Error: La cédula ${formValue.cedula} ya está registrada en el sistema.`,
         );
       } else {
         alert(
           `❌ Error al guardar el cliente: ${
             error.message || 'Error desconocido'
-          }`
+          }`,
         );
       }
     } finally {
@@ -612,7 +654,7 @@ export class ClientesComponent implements OnInit {
     this.isLoadingCompras = true;
     try {
       this.compras = await this.clienteService.getComprasByCliente(
-        this.selectedCliente.id
+        this.selectedCliente.id,
       );
     } catch (error) {
       console.error('Error cargando compras:', error);
@@ -957,7 +999,7 @@ export class ClientesComponent implements OnInit {
     }
 
     const confirmacion = confirm(
-      `¿Confirmas guardar ${this.comprasTemporales.length} compra(s)?`
+      `¿Confirmas guardar ${this.comprasTemporales.length} compra(s)?`,
     );
 
     if (!confirmacion) return;
@@ -970,7 +1012,7 @@ export class ClientesComponent implements OnInit {
       }
 
       alert(
-        `✅ ${this.comprasTemporales.length} compra(s) registrada(s) exitosamente`
+        `✅ ${this.comprasTemporales.length} compra(s) registrada(s) exitosamente`,
       );
       this.comprasTemporales = [];
       this.compraForm.reset();
@@ -1018,7 +1060,7 @@ export class ClientesComponent implements OnInit {
         const { abono, ...compraSinAbono } = compraData as any;
         await this.clienteService.updateCompra(
           this.selectedCompraId,
-          compraSinAbono
+          compraSinAbono,
         );
         alert('Compra actualizada exitosamente');
       } else {
@@ -1107,7 +1149,7 @@ export class ClientesComponent implements OnInit {
     this.isLoadingReferidos = true;
     try {
       this.referidos = await this.clienteService.getReferidosByCliente(
-        this.selectedCliente.id
+        this.selectedCliente.id,
       );
     } catch (error) {
       console.error('Error cargando referidos:', error);
@@ -1150,8 +1192,8 @@ export class ClientesComponent implements OnInit {
 
     const confirmacion = confirm(
       `¿Confirmas redimir $${cashbackDisponible.toLocaleString(
-        'es-CO'
-      )} de ${referidosActivos} referido(s) activo(s)?\n\nSe marcará como redimido a todos los referidos activos.`
+        'es-CO',
+      )} de ${referidosActivos} referido(s) activo(s)?\n\nSe marcará como redimido a todos los referidos activos.`,
     );
 
     if (!confirmacion) return;
@@ -1162,7 +1204,7 @@ export class ClientesComponent implements OnInit {
       const fechaRedencion = new Date().toISOString();
       await this.clienteService.redimirReferidosActivos(
         this.selectedCliente.id,
-        fechaRedencion
+        fechaRedencion,
       );
 
       // Reiniciar cashback del cliente
@@ -1182,7 +1224,7 @@ export class ClientesComponent implements OnInit {
 
       // Actualizar en lista principal
       const clienteEnLista = this.clientes.find(
-        (c) => c.id === this.selectedCliente?.id
+        (c) => c.id === this.selectedCliente?.id,
       );
       if (clienteEnLista) {
         clienteEnLista.cashback_acumulado = 0;
@@ -1190,8 +1232,8 @@ export class ClientesComponent implements OnInit {
 
       alert(
         `✅ Cashback de $${cashbackDisponible.toLocaleString(
-          'es-CO'
-        )} redimido exitosamente.`
+          'es-CO',
+        )} redimido exitosamente.`,
       );
     } catch (error) {
       console.error('Error al redimir referidos:', error);
@@ -1249,7 +1291,7 @@ export class ClientesComponent implements OnInit {
     this.isLoadingAbonos = true;
     try {
       this.abonos = await this.clienteService.getAbonosByCompra(
-        this.selectedCompraForAbono.id
+        this.selectedCompraForAbono.id,
       );
     } catch (error) {
       console.error('Error cargando abonos:', error);
@@ -1309,7 +1351,7 @@ export class ClientesComponent implements OnInit {
     try {
       await this.clienteService.deleteAbono(
         abono.id,
-        this.selectedCompraForAbono!.id!
+        this.selectedCompraForAbono!.id!,
       );
       await this.loadAbonos();
       await this.loadCompras(); // Actualizar total en tabla compras
@@ -1490,7 +1532,7 @@ export class ClientesComponent implements OnInit {
       this.clienteRegistrado,
       this.clienteReferidor,
       this.rangoPrecioCompra || undefined,
-      this.cashbackAcumuladoReferidor
+      this.cashbackAcumuladoReferidor,
     );
 
     this.whatsAppBienvenida = mensajes.bienvenida;
@@ -1501,7 +1543,7 @@ export class ClientesComponent implements OnInit {
     if (this.whatsAppBienvenida) {
       const url = this.whatsAppService.generarUrlWhatsApp(
         this.whatsAppBienvenida.telefono,
-        this.whatsAppBienvenida.mensaje
+        this.whatsAppBienvenida.mensaje,
       );
       window.open(url, '_blank');
     }
@@ -1511,7 +1553,7 @@ export class ClientesComponent implements OnInit {
     if (this.whatsAppReferido) {
       const url = this.whatsAppService.generarUrlWhatsApp(
         this.whatsAppReferido.telefono,
-        this.whatsAppReferido.mensaje
+        this.whatsAppReferido.mensaje,
       );
       window.open(url, '_blank');
     }
@@ -1544,7 +1586,7 @@ export class ClientesComponent implements OnInit {
 
     if (cliente.es_referido && cliente.cliente_referidor_id) {
       const referidor = this.clientes.find(
-        (c) => c.id === cliente.cliente_referidor_id
+        (c) => c.id === cliente.cliente_referidor_id,
       );
       if (referidor) {
         this.clienteReferidor = {
@@ -1556,7 +1598,7 @@ export class ClientesComponent implements OnInit {
         this.referidorYaRedimio = (referidor.cashback_acumulado || 0) === 0;
 
         const ultimaCompra = await this.clienteService.getUltimaCompraCliente(
-          cliente.id!
+          cliente.id!,
         );
         if (ultimaCompra) {
           this.rangoPrecioCompra = ultimaCompra.rango_precio;
@@ -1567,7 +1609,7 @@ export class ClientesComponent implements OnInit {
               cliente.nombres,
               ultimaCompra.rango_precio,
               referidor.cashback_acumulado || 0,
-              false // Es cliente existente, el cashback ya está incluido en el total
+              false, // Es cliente existente, el cashback ya está incluido en el total
             ),
           };
         }
@@ -1593,8 +1635,8 @@ export class ClientesComponent implements OnInit {
       `¿Confirmas que ${
         this.selectedCliente.nombres
       } ha redimido su cashback de $${cashbackActual.toLocaleString(
-        'es-CO'
-      )}?\n\nEsto reiniciará el contador a $0.`
+        'es-CO',
+      )}?\n\nEsto reiniciará el contador a $0.`,
     );
 
     if (!confirmacion) return;
@@ -1606,7 +1648,7 @@ export class ClientesComponent implements OnInit {
       this.selectedCliente.cashback_acumulado = 0;
 
       const clienteEnLista = this.clientes.find(
-        (c) => c.id === this.selectedCliente?.id
+        (c) => c.id === this.selectedCliente?.id,
       );
       if (clienteEnLista) {
         clienteEnLista.cashback_acumulado = 0;
@@ -1614,8 +1656,8 @@ export class ClientesComponent implements OnInit {
 
       alert(
         `✅ Cashback de $${cashbackActual.toLocaleString(
-          'es-CO'
-        )} redimido exitosamente.`
+          'es-CO',
+        )} redimido exitosamente.`,
       );
     } catch (error) {
       console.error('Error al reiniciar cashback:', error);
@@ -1645,7 +1687,7 @@ export class ClientesComponent implements OnInit {
   resetWhatsAppConfig(): void {
     if (
       confirm(
-        '¿Estás seguro de restaurar los mensajes por defecto?\n\nEsto sobrescribirá tu configuración actual.'
+        '¿Estás seguro de restaurar los mensajes por defecto?\n\nEsto sobrescribirá tu configuración actual.',
       )
     ) {
       this.whatsAppService.resetConfig();
@@ -1659,5 +1701,55 @@ export class ClientesComponent implements OnInit {
       return '{NOMBRE} = Primer nombre del cliente\n{NEGOCIO} = Nombre del negocio';
     }
     return '{NOMBRE_REFERIDOR} = Quien refirió\n{NOMBRE_REFERIDO} = Nuevo cliente\n{NEGOCIO} = Nombre del negocio\n{CASHBACK_COMPRA} = Cashback de esta compra\n{RANGO_COMPRA} = Rango de precio\n{CASHBACK_TOTAL} = Total acumulado';
+  }
+
+  // ========== MODAL INFORMACIÓN COMPLETA ==========
+
+  async openInfoModal(cliente: Cliente): Promise<void> {
+    this.selectedCliente = cliente;
+    this.showInfoModal = true;
+    this.isLoadingInfoCompras = true;
+    this.infoCompras = [];
+
+    try {
+      this.infoCompras = await this.clienteService.getComprasByCliente(
+        cliente.id!,
+      );
+    } catch (error) {
+      console.error('Error cargando compras del cliente:', error);
+    } finally {
+      this.isLoadingInfoCompras = false;
+    }
+  }
+
+  closeInfoModal(): void {
+    this.showInfoModal = false;
+    this.selectedCliente = null;
+    this.infoCompras = [];
+  }
+
+  getAbonosTotal(compra: ClienteCompra): number {
+    if (!compra.cliente_abonos || compra.cliente_abonos.length === 0) {
+      return compra.abono || 0;
+    }
+    return compra.cliente_abonos.reduce((sum, abono) => sum + abono.monto, 0);
+  }
+
+  getTotalPrecio(): number {
+    return this.infoCompras.reduce(
+      (sum, compra) => sum + (compra.precio_total || 0),
+      0,
+    );
+  }
+
+  getTotalAbonos(): number {
+    return this.infoCompras.reduce(
+      (sum, compra) => sum + this.getAbonosTotal(compra),
+      0,
+    );
+  }
+
+  getTotalSaldo(): number {
+    return this.getTotalPrecio() - this.getTotalAbonos();
   }
 }

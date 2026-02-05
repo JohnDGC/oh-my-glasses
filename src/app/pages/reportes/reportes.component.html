@@ -1,0 +1,1199 @@
+<div class="reportes-container container-fluid py-4">
+  <!-- Header con título y KPIs rápidos -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">
+          <i class="bi bi-graph-up me-2"></i>
+          Reportes y Análisis
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs Rápidos (siempre visibles) -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted mb-1 small">Ventas Hoy</p>
+              <h4 class="mb-0">{{ ventasHoy.total_ventas }}</h4>
+              <small class="text-success">{{ formatCurrency(ventasHoy.dinero_total) }}</small>
+            </div>
+            <i class="bi bi-calendar-day fs-3 text-primary opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted mb-1 small">Últimos 7 días</p>
+              <h4 class="mb-0">{{ ventas7Dias.total_ventas }}</h4>
+              <small class="text-success">{{ formatCurrency(ventas7Dias.dinero_total) }}</small>
+            </div>
+            <i class="bi bi-calendar-week fs-3 text-info opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted mb-1 small">Últimos 30 días</p>
+              <h4 class="mb-0">{{ ventas30Dias.total_ventas }}</h4>
+              <small class="text-success">{{ formatCurrency(ventas30Dias.dinero_total) }}</small>
+            </div>
+            <i class="bi bi-calendar-month fs-3 text-warning opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card kpi-card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <p class="text-muted mb-1 small">Stock Bajo Mínimo</p>
+              <h4 class="mb-0 text-danger">{{ stockBajoMinimo.length }}</h4>
+              <small class="text-muted">Requieren restock</small>
+            </div>
+            <i class="bi bi-exclamation-triangle fs-3 text-danger opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs de Navegación -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'dashboard'"
+        (click)="changeTab('dashboard')"
+        type="button">
+        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'ventas'"
+        (click)="changeTab('ventas')"
+        type="button">
+        <i class="bi bi-cash-stack me-2"></i>Ventas
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'inventario'"
+        (click)="changeTab('inventario')"
+        type="button">
+        <i class="bi bi-box-seam me-2"></i>Inventario
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'clientes'"
+        (click)="changeTab('clientes')"
+        type="button">
+        <i class="bi bi-people me-2"></i>Clientes
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'configuracion'"
+        (click)="changeTab('configuracion')"
+        type="button">
+        <i class="bi bi-gear me-2"></i>Configuración
+      </button>
+    </li>
+  </ul>
+
+  <!-- TAB 1: DASHBOARD EJECUTIVO -->
+  @if (activeTab === 'dashboard') {
+    <div class="tab-content">
+      @if (loadingDashboard) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      } @else if (metricasDashboard) {
+        <!-- Métricas del Mes -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm">
+              <div class="card-body text-center">
+                <i class="bi bi-cart-check fs-1 text-success mb-2"></i>
+                <h3 class="mb-0">{{ metricasDashboard.ventas_mes_actual }}</h3>
+                <p class="text-muted mb-0 small">Ventas este mes</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm">
+              <div class="card-body text-center">
+                <i class="bi bi-currency-dollar fs-1 text-primary mb-2"></i>
+                <h3 class="mb-0">{{ formatCurrency(metricasDashboard.dinero_mes_actual) }}</h3>
+                <p class="text-muted mb-0 small">Ingresos del mes</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm">
+              <div class="card-body text-center">
+                <i class="bi bi-person-plus fs-1 text-info mb-2"></i>
+                <h3 class="mb-0">{{ metricasDashboard.clientes_nuevos_mes }}</h3>
+                <p class="text-muted mb-0 small">Clientes nuevos</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card metric-card border-0 shadow-sm">
+              <div class="card-body text-center">
+                <i class="bi bi-box fs-1 text-warning mb-2"></i>
+                <h3 class="mb-0">{{ metricasDashboard.stock_total }}</h3>
+                <p class="text-muted mb-0 small">Stock total</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Secciones y Monturas -->
+        <div class="row g-3 mb-4">
+          <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-transparent border-bottom">
+                <h5 class="mb-0">
+                  <i class="bi bi-trophy me-2 text-warning"></i>
+                  Secciones Más Vendidas
+                </h5>
+              </div>
+              <div class="card-body">
+                @if (metricasDashboard.top_secciones.length > 0) {
+                  <ul class="list-unstyled mb-0">
+                    @for (seccion of metricasDashboard.top_secciones; track seccion.seccion) {
+                      <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="fw-medium">{{ seccion.seccion }}</span>
+                        <span class="badge bg-primary rounded-pill">{{ seccion.ventas }} ventas</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="text-muted mb-0">No hay datos disponibles</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-transparent border-bottom">
+                <h5 class="mb-0">
+                  <i class="bi bi-eyeglasses me-2 text-primary"></i>
+                  Monturas Más Vendidas
+                </h5>
+              </div>
+              <div class="card-body">
+                @if (metricasDashboard.top_monturas.length > 0) {
+                  <ul class="list-unstyled mb-0">
+                    @for (montura of metricasDashboard.top_monturas; track $index + '|' + montura.tipo_montura + '|' + (montura.tipo_lente || '')) {
+                      <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="fw-medium">
+                          {{ montura.descripcion }}
+                        </span>
+                        <span class="badge bg-success rounded-pill">{{ montura.ventas }} ventas</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="text-muted mb-0">No hay datos disponibles</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-transparent border-bottom">
+                <h5 class="mb-0">
+                  <i class="bi bi-layers me-2 text-info"></i>
+                  Lentes Sin Montura
+                </h5>
+              </div>
+              <div class="card-body">
+                @if (metricasDashboard.lentes_sin_montura.length > 0) {
+                  <ul class="list-unstyled mb-0">
+                    @for (lente of metricasDashboard.lentes_sin_montura; track lente.tipo_lente) {
+                      <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="fw-medium">{{ lente.descripcion }}</span>
+                        <span class="badge bg-info rounded-pill">{{ lente.ventas }} ventas</span>
+                      </li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="text-muted mb-0">No hay datos disponibles</p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tendencia de Ventas -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-transparent border-bottom">
+                <h5 class="mb-0">
+                  <i class="bi bi-graph-up-arrow me-2 text-success"></i>
+                  Tendencia de Ventas (Últimos 6 meses)
+                </h5>
+              </div>
+              <div class="card-body">
+                @if (metricasDashboard.tendencia_ventas.length > 0) {
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>Mes</th>
+                          <th class="text-end">Ventas</th>
+                          <th class="text-end">Ingresos</th>
+                          <th class="text-end">Promedio</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (mes of metricasDashboard.tendencia_ventas; track mes.mes) {
+                          <tr>
+                            <td>{{ mes.mes }}</td>
+                            <td class="text-end">{{ mes.ventas }}</td>
+                            <td class="text-end">{{ formatCurrency(mes.dinero) }}</td>
+                            <td class="text-end">
+                              {{ mes.ventas > 0 ? formatCurrency(mes.dinero / mes.ventas) : '$0' }}
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                } @else {
+                  <p class="text-muted mb-0">No hay datos de tendencia disponibles</p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- TAB 2: VENTAS -->
+  @if (activeTab === 'ventas') {
+    <div class="tab-content">
+      <!-- Filtros -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <!-- Filtro por Período -->
+            <div class="col-12">
+              <label class="form-label small">
+                <i class="bi bi-calendar3 me-1"></i>
+                Filtro rápido por período
+              </label>
+              <div class="d-flex gap-2">
+                <select class="form-select form-select-sm flex-grow-1" [(ngModel)]="periodoSeleccionadoVentas">
+                  <option value="">Selecciona un período o usa fechas personalizadas</option>
+                  @for (periodo of periodosDisponibles; track periodo.nombre) {
+                    <option [value]="periodo.nombre">{{ periodo.nombre }}</option>
+                  }
+                </select>
+                <button
+                  class="btn btn-sm btn-outline-primary flex-shrink-0"
+                  (click)="aplicarFiltroPeriodoVentas()"
+                  [disabled]="!periodoSeleccionadoVentas"
+                  style="white-space: nowrap;">
+                  Aplicar
+                </button>
+              </div>
+            </div>
+
+            <div class="col-12"><hr class="my-1"></div>
+
+            <div class="col-md-3">
+              <label class="form-label small">Fecha Desde</label>
+              <input
+                type="date"
+                class="form-control form-control-sm"
+                [(ngModel)]="filtros.fechaDesde" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label small">Fecha Hasta</label>
+              <input
+                type="date"
+                class="form-control form-control-sm"
+                [(ngModel)]="filtros.fechaHasta" />
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label small">Sección</label>
+              <select class="form-select form-select-sm" [(ngModel)]="filtros.seccion">
+                <option value="">Todas</option>
+                @for (seccion of secciones; track seccion) {
+                  <option [value]="seccion">{{ seccion }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label small">Montura</label>
+              <select class="form-select form-select-sm" [(ngModel)]="filtros.tipoMontura">
+                <option value="">Todas</option>
+                @for (tipo of tiposMonturas; track tipo) {
+                  <option [value]="tipo">{{ tipo }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <button class="btn btn-primary btn-sm w-100 mb-1" (click)="aplicarFiltros()">
+                <i class="bi bi-funnel me-1"></i>Filtrar
+              </button>
+              <button class="btn btn-outline-secondary btn-sm w-100" (click)="limpiarFiltros()">
+                <i class="bi bi-x-circle me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de Ventas -->
+      @if (!loadingVentas && reporteVentas.length > 0) {
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Total Ventas</h5>
+                <h3 class="mb-0">{{ calcularTotalVentas().total_ventas }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Dinero Total</h5>
+                <h3 class="mb-0 text-success">{{ formatCurrency(calcularTotalVentas().dinero_total) }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Abonos Pagados</h5>
+                <h3 class="mb-0 text-primary">{{ formatCurrency(calcularTotalVentas().abonos_pagados) }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Tabla de Ventas -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Reporte de Ventas por Fecha</h5>
+          <button
+            class="btn btn-sm btn-outline-success"
+            (click)="exportarVentas()"
+            [disabled]="reporteVentas.length === 0">
+            <i class="bi bi-download me-1"></i>Exportar CSV
+          </button>
+        </div>
+        <div class="card-body">
+          @if (loadingVentas) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else if (reporteVentas.length > 0) {
+            <div class="table-responsive">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th class="text-end">Ventas</th>
+                    <th class="text-end">Monturas</th>
+                    <th class="text-end">Dinero Total</th>
+                    <th class="text-end">Abonos Pagados</th>
+                    <th class="text-end">Saldo Pendiente</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (venta of ventasPaginated; track venta.fecha) {
+                    <tr>
+                      <td>{{ formatDate(venta.fecha) }}</td>
+                      <td class="text-end">{{ venta.total_ventas }}</td>
+                      <td class="text-end">{{ venta.total_monturas }}</td>
+                      <td class="text-end fw-medium text-success">{{ formatCurrency(venta.dinero_total) }}</td>
+                      <td class="text-end text-primary">{{ formatCurrency(venta.abonos_pagados) }}</td>
+                      <td class="text-end text-warning">{{ formatCurrency(venta.dinero_total - venta.abonos_pagados) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+              <small class="text-muted">
+                Mostrando {{ ventasStartIndex }} a {{ ventasEndIndex }} de {{ reporteVentas.length }} ventas
+              </small>
+              <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small text-muted">Mostrar:</label>
+                <select
+                  class="form-select form-select-sm"
+                  [value]="ventasItemsPerPage"
+                  (change)="setVentasItemsPerPage(+$any($event.target).value)"
+                  style="width: auto">
+                  @for (option of ventasItemsPerPageOptions; track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            @if (ventasTotalPages > 1) {
+              <nav class="mt-2" aria-label="Paginación de ventas">
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                  <li class="page-item" [class.disabled]="ventasPage === 1">
+                    <button class="page-link" (click)="goVentasPage(ventasPage - 1)" [disabled]="ventasPage === 1">
+                      <i class="bi bi-chevron-left"></i>
+                    </button>
+                  </li>
+                  @for (page of ventasPageNumbers; track page) {
+                    <li class="page-item" [class.active]="ventasPage === page">
+                      <button class="page-link" (click)="goVentasPage(page)">
+                        {{ page }}
+                      </button>
+                    </li>
+                  }
+                  <li class="page-item" [class.disabled]="ventasPage === ventasTotalPages">
+                    <button class="page-link" (click)="goVentasPage(ventasPage + 1)" [disabled]="ventasPage === ventasTotalPages">
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            }
+          } @else {
+            <div class="text-center py-5">
+              <i class="bi bi-inbox fs-1 text-muted mb-2 d-block"></i>
+              <p class="text-muted mb-0">No hay ventas con los filtros seleccionados</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 3: INVENTARIO -->
+  @if (activeTab === 'inventario') {
+    <div class="tab-content">
+      <!-- Filtros -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small">Sección</label>
+              <select class="form-select form-select-sm" [(ngModel)]="filtros.seccion">
+                <option value="">Todas</option>
+                @for (seccion of secciones; track seccion) {
+                  <option [value]="seccion">{{ seccion }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label small">Montura</label>
+              <select class="form-select form-select-sm" [(ngModel)]="filtros.tipoMontura">
+                <option value="">Todas</option>
+                @for (tipo of tiposMonturas; track tipo) {
+                  <option [value]="tipo">{{ tipo }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <button class="btn btn-primary btn-sm w-100 mb-1" (click)="aplicarFiltros()">
+                <i class="bi bi-funnel me-1"></i>Filtrar
+              </button>
+              <button class="btn btn-outline-secondary btn-sm w-100" (click)="limpiarFiltros()">
+                <i class="bi bi-x-circle me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de Inventario -->
+      @if (!loadingInventario && reporteInventario.length > 0) {
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Stock Total</h5>
+                <h3 class="mb-0 text-primary">{{ calcularTotalStock().total_stock }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Total Vendido</h5>
+                <h3 class="mb-0 text-success">{{ calcularTotalStock().total_vendido }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Bajo Mínimo</h5>
+                <h3 class="mb-0 text-danger">{{ calcularTotalStock().bajo_minimo }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Tabla de Inventario -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Reporte de Inventario y Rotación</h5>
+          <button
+            class="btn btn-sm btn-outline-success"
+            (click)="exportarInventario()"
+            [disabled]="reporteInventario.length === 0">
+            <i class="bi bi-download me-1"></i>Exportar CSV
+          </button>
+        </div>
+        <div class="card-body">
+          @if (loadingInventario) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else if (reporteInventario.length > 0) {
+            <div class="table-responsive">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th>Sección</th>
+                    <th>Montura</th>
+                    <th class="text-end">Stock Actual</th>
+                    <th class="text-end">Stock Mínimo</th>
+                    <th class="text-end">Vendido</th>
+                    <th class="text-end">Rotación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of reporteInventario; track item.seccion + item.tipo_montura) {
+                    <tr>
+                      <td>{{ item.seccion }}</td>
+                      <td>{{ item.tipo_montura }}</td>
+                      <td class="text-end" [ngClass]="getStockClass(item.stock_actual, item.stock_minimo)">
+                        {{ item.stock_actual }}
+                        @if (item.stock_actual < item.stock_minimo) {
+                          <i class="bi bi-exclamation-triangle text-danger ms-1"></i>
+                        }
+                      </td>
+                      <td class="text-end text-muted">{{ item.stock_minimo }}</td>
+                      <td class="text-end">{{ item.total_vendido }}</td>
+                      <td class="text-end" [ngClass]="getRotacionClass(item.rotacion)">
+                        {{ item.rotacion }}x
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="text-center py-5">
+              <i class="bi bi-inbox fs-1 text-muted mb-2 d-block"></i>
+              <p class="text-muted mb-0">No hay datos de inventario</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 4: CLIENTES -->
+  @if (activeTab === 'clientes') {
+    <div class="tab-content">
+      <!-- Filtros -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small">Fecha Desde</label>
+              <input
+                type="date"
+                class="form-control form-control-sm"
+                [(ngModel)]="filtros.fechaDesde" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label small">Fecha Hasta</label>
+              <input
+                type="date"
+                class="form-control form-control-sm"
+                [(ngModel)]="filtros.fechaHasta" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label small">Buscar cliente</label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white">
+                  <i class="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  class="form-control border-start-0"
+                  placeholder="Nombre o cédula"
+                  [(ngModel)]="searchClientesTerm"
+                  (input)="onSearchClientesInput()" />
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label small">Estado de pago</label>
+              <select
+                class="form-select form-select-sm"
+                [(ngModel)]="filtroPagoClientes"
+                (change)="onFiltroPagoChange()">
+                <option value="todos">Todos</option>
+                <option value="completo">Pagado</option>
+                <option value="pendiente">Pendiente</option>
+              </select>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+              <button class="btn btn-primary btn-sm" (click)="aplicarFiltros()">
+                <i class="bi bi-funnel me-1"></i>Filtrar
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" (click)="limpiarFiltros()">
+                <i class="bi bi-x-circle me-1"></i>Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de Clientes -->
+      @if (!loadingClientes && reporteClientes.length > 0) {
+        <div class="row g-3 mb-3">
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Total Clientes</h5>
+                <h3 class="mb-0">{{ calcularTotalClientes().total_clientes }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Dinero Total</h5>
+                <h3 class="mb-0 text-success">{{ formatCurrency(calcularTotalClientes().dinero_total) }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Saldo Pendiente</h5>
+                <h3 class="mb-0 text-warning">{{ formatCurrency(calcularTotalClientes().saldo_pendiente) }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center">
+              <div class="card-body">
+                <h5 class="text-muted">Promedio/Cliente</h5>
+                <h3 class="mb-0 text-primary">{{ formatCurrency(calcularTotalClientes().promedio_compra) }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Tabla de Clientes -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Análisis de Clientes</h5>
+          <button
+            class="btn btn-sm btn-outline-success"
+            (click)="exportarClientes()"
+            [disabled]="reporteClientes.length === 0">
+            <i class="bi bi-download me-1"></i>Exportar CSV
+          </button>
+        </div>
+        <div class="card-body">
+          @if (loadingClientes) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else if (clientesFiltrados.length > 0) {
+            <div class="table-responsive">
+              <table class="table table-hover table-sm">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th class="text-end">Compras</th>
+                    <th>Monturas</th>
+                    <th class="text-end">Total</th>
+                    <th class="text-end">Abonos</th>
+                    <th class="text-end">Pendiente</th>
+                    <th class="text-end">Última Compra</th>
+                    <th class="text-center">Info</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (cliente of clientesPaginated; track cliente.cliente_id) {
+                    <tr>
+                      <td class="fw-medium">{{ cliente.cliente_nombre }}</td>
+                      <td class="text-end">{{ cliente.total_compras }}</td>
+                      <td class="text-muted small">{{ cliente.monturas || 'N/A' }}</td>
+                      <td class="text-end fw-medium">{{ formatCurrency(cliente.dinero_total) }}</td>
+                      <td class="text-end text-success">{{ formatCurrency(cliente.abonos_pagados) }}</td>
+                      <td class="text-end" [class.text-warning]="cliente.saldo_pendiente > 0">
+                        {{ formatCurrency(cliente.saldo_pendiente) }}
+                      </td>
+                      <td class="text-end text-muted">{{ formatDate(cliente.ultima_compra) }}</td>
+                      <td class="text-center">
+                        <button
+                          class="btn btn-sm btn-outline-info"
+                          title="Ver información completa"
+                          (click)="openInfoModalFromReporte(cliente)">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+              <small class="text-muted">
+                Mostrando {{ clientesStartIndex }} a {{ clientesEndIndex }} de {{ clientesFiltrados.length }} clientes
+              </small>
+              <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small text-muted">Mostrar:</label>
+                <select
+                  class="form-select form-select-sm"
+                  [value]="clientesItemsPerPage"
+                  (change)="setClientesItemsPerPage(+$any($event.target).value)"
+                  style="width: auto">
+                  @for (option of clientesItemsPerPageOptions; track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            @if (clientesTotalPages > 1) {
+              <nav class="mt-2" aria-label="Paginación de clientes">
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                  <li class="page-item" [class.disabled]="clientesPage === 1">
+                    <button class="page-link" (click)="goClientesPage(clientesPage - 1)" [disabled]="clientesPage === 1">
+                      <i class="bi bi-chevron-left"></i>
+                    </button>
+                  </li>
+                  @for (page of clientesPageNumbers; track page) {
+                    <li class="page-item" [class.active]="clientesPage === page">
+                      <button class="page-link" (click)="goClientesPage(page)">
+                        {{ page }}
+                      </button>
+                    </li>
+                  }
+                  <li class="page-item" [class.disabled]="clientesPage === clientesTotalPages">
+                    <button class="page-link" (click)="goClientesPage(clientesPage + 1)" [disabled]="clientesPage === clientesTotalPages">
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            }
+          } @else {
+            <div class="text-center py-5">
+              <i class="bi bi-inbox fs-1 text-muted mb-2 d-block"></i>
+              <p class="text-muted mb-0">No hay clientes con los filtros seleccionados</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- TAB 5: CONFIGURACIÓN -->
+  @if (activeTab === 'configuracion') {
+    <div class="row">
+      <!-- Card: Configuración de Períodos -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <div>
+              <i class="bi bi-gear-fill me-2"></i>
+              <strong>Configuración de Períodos</strong>
+            </div>
+            @if (!editandoConfig) {
+              <button class="btn btn-sm btn-light" (click)="activarEdicionConfig()">
+                <i class="bi bi-pencil me-1"></i>Editar
+              </button>
+            }
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info mb-3">
+              <i class="bi bi-info-circle me-2"></i>
+              <small>
+                Define el día del mes en que finaliza cada período de inventario.
+                El sistema calculará automáticamente 6 períodos históricos para filtrar reportes.
+              </small>
+            </div>
+
+            @if (editandoConfig) {
+              <!-- Modo Edición -->
+              <form [formGroup]="configForm">
+                <div class="mb-3">
+                  <label for="diaCorte" class="form-label fw-medium">
+                    Día de Corte del Período
+                  </label>
+                  <input
+                    type="number"
+                    id="diaCorte"
+                    class="form-control"
+                    formControlName="dia_corte"
+                    min="1"
+                    max="31"
+                    placeholder="Ej: 5"
+                  />
+                  <div class="form-text">
+                    Ingresa un número entre 1 y 31. Por ejemplo, si ingresas "5", cada período
+                    terminará el día 5 del mes a las 23:59.
+                  </div>
+                  @if (configForm.get('dia_corte')?.invalid && configForm.get('dia_corte')?.touched) {
+                    <div class="text-danger small mt-1">
+                      El día debe estar entre 1 y 31
+                    </div>
+                  }
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button
+                    type="button"
+                    class="btn btn-success"
+                    (click)="guardarConfiguracion()"
+                    [disabled]="configForm.invalid || isLoading"
+                  >
+                    <i class="bi bi-check-lg me-1"></i>
+                    Guardar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="cancelarEdicionConfig()"
+                    [disabled]="isLoading"
+                  >
+                    <i class="bi bi-x-lg me-1"></i>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <!-- Modo Visualización -->
+              <div class="d-flex align-items-center mb-3">
+                <div class="me-4">
+                  <div class="text-muted small">Día de Corte Actual</div>
+                  <div class="fs-2 fw-bold text-primary">
+                    {{ reportesConfig?.dia_corte || 5 }}
+                  </div>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="text-muted small mb-1">Ejemplo de Período</div>
+                  @if (periodosDisponibles.length > 0) {
+                    <div class="badge bg-light text-dark border">
+                      {{ periodosDisponibles[0].nombre }}
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <div class="bg-light p-3 rounded">
+                <h6 class="mb-2">
+                  <i class="bi bi-calendar-range me-2"></i>
+                  ¿Cómo funciona?
+                </h6>
+                <ul class="mb-0 small">
+                  <li>Los períodos terminan el día <strong>{{ reportesConfig?.dia_corte || 5 }}</strong> de cada mes a las 23:59</li>
+                  <li>Los períodos comienzan el día siguiente a las 00:00</li>
+                  <li>Se generan automáticamente 6 períodos históricos</li>
+                  <li>Puedes usar estos períodos para filtrar en la pestaña "Ventas"</li>
+                </ul>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Períodos Disponibles -->
+      <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-secondary text-white">
+            <i class="bi bi-calendar3 me-2"></i>
+            <strong>Períodos Disponibles</strong>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-secondary mb-3">
+              <i class="bi bi-lightbulb me-2"></i>
+              <small>
+                Selecciona un período y presiona "Aplicar Filtro" para ver las ventas de ese rango.
+                Luego ve a la pestaña "Ventas" para ver los resultados.
+              </small>
+            </div>
+
+            @if (periodosDisponibles.length > 0) {
+              <div class="list-group mb-3">
+                @for (periodo of periodosDisponibles; track periodo.nombre) {
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    [class.active]="periodoSeleccionado === periodo"
+                    (click)="periodoSeleccionado = periodo"
+                  >
+                    <div>
+                      <div class="fw-medium">{{ periodo.nombre }}</div>
+                      <small class="text-muted">
+                        {{ formatDate(periodo.fecha_inicio) }} - {{ formatDate(periodo.fecha_fin) }}
+                      </small>
+                    </div>
+                    @if (periodoSeleccionado === periodo) {
+                      <i class="bi bi-check-circle-fill text-white"></i>
+                    }
+                  </button>
+                }
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-primary w-100"
+                [disabled]="!periodoSeleccionado"
+                (click)="aplicarFiltroPeriodo()"
+              >
+                <i class="bi bi-funnel me-2"></i>
+                Aplicar Filtro al Período Seleccionado
+              </button>
+
+              @if (periodoSeleccionado) {
+                <div class="mt-2 text-center">
+                  <small class="text-muted">
+                    Filtrarás desde el {{ formatDate(periodoSeleccionado.fecha_inicio) }}
+                    hasta el {{ formatDate(periodoSeleccionado.fecha_fin) }}
+                  </small>
+                </div>
+              }
+            } @else {
+              <div class="text-center py-4">
+                <i class="bi bi-calendar-x fs-1 text-muted mb-2 d-block"></i>
+                <p class="text-muted mb-0">No hay períodos disponibles</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal Información del Cliente (reutilizado) -->
+  @if (showInfoModal && selectedCliente) {
+    <div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+      <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title">
+              <i class="bi bi-person-badge me-2"></i>
+              Información del Cliente
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeInfoModal()"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Información Personal -->
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-person me-2"></i>Información Personal
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-person-fill text-primary me-2 mt-1"></i>
+                      <div>
+                        <small class="text-muted d-block">Nombres Completos</small>
+                        <strong>{{ selectedCliente.nombres }}</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-card-text text-primary me-2 mt-1"></i>
+                      <div>
+                        <small class="text-muted d-block">Cédula</small>
+                        <strong>{{ selectedCliente.cedula }}</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-calendar-event text-primary me-2 mt-1"></i>
+                      <div>
+                        <small class="text-muted d-block">Fecha de Nacimiento</small>
+                        <strong>{{ formatDate(selectedCliente.fecha_nacimiento) }}</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-whatsapp text-success me-2 mt-1"></i>
+                      <div>
+                        <small class="text-muted d-block">Teléfono</small>
+                        <strong>
+                          <a [href]="'https://wa.me/57' + selectedCliente.telefono" target="_blank"
+                            class="text-decoration-none text-success">
+                            {{ selectedCliente.telefono }}
+                          </a>
+                        </strong>
+                      </div>
+                    </div>
+                  </div>
+                  @if (selectedCliente.correo) {
+                    <div class="col-md-6">
+                      <div class="d-flex align-items-start">
+                        <i class="bi bi-envelope text-primary me-2 mt-1"></i>
+                        <div>
+                          <small class="text-muted d-block">Correo</small>
+                          <strong>{{ selectedCliente.correo }}</strong>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                  <div class="col-md-6">
+                    <div class="d-flex align-items-start">
+                      <i class="bi bi-calendar-check text-primary me-2 mt-1"></i>
+                      <div>
+                        <small class="text-muted d-block">Fecha de Registro</small>
+                        <strong>{{ formatDate(selectedCliente.fecha_registro || selectedCliente.created_at || '') }}</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Historial de Compras -->
+            <div class="card shadow-sm border-0">
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="bi bi-cart-check me-2"></i>Historial de Compras
+                </h6>
+              </div>
+              <div class="card-body">
+                @if (isLoadingInfoCompras) {
+                  <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-muted mt-2 mb-0">Cargando compras...</p>
+                  </div>
+                } @else if (infoCompras.length === 0) {
+                  <div class="text-center py-4">
+                    <i class="bi bi-inbox display-6 text-muted"></i>
+                    <p class="text-muted mt-2 mb-0">Este cliente aún no tiene compras registradas</p>
+                  </div>
+                } @else {
+                  <div class="table-responsive">
+                    <table class="table table-hover table-sm mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Fecha</th>
+                          <th>Tipo</th>
+                          <th>Lente</th>
+                          <th>Montura</th>
+                          <th>Sección</th>
+                          <th class="text-end">Precio Total</th>
+                          <th class="text-end">Abonado</th>
+                          <th class="text-end">Saldo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (compra of infoCompras; track compra.id) {
+                          <tr>
+                            <td>{{ formatDate(compra.fecha_compra || compra.created_at || '') }}</td>
+                            <td>{{ compra.tipo_compra || 'N/A' }}</td>
+                            <td>{{ compra.tipo_lente || 'N/A' }}</td>
+                            <td>{{ compra.tipo_montura || 'N/A' }}</td>
+                            <td>{{ compra.seccion || 'N/A' }}</td>
+                            <td class="text-end">{{ formatCurrency(compra.precio_total || 0) }}</td>
+                            <td class="text-end text-success">{{ formatCurrency(getAbonosTotal(compra)) }}</td>
+                            <td class="text-end text-warning">
+                              {{ formatCurrency((compra.precio_total || 0) - getAbonosTotal(compra)) }}
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="d-flex justify-content-end mt-3">
+                    <div class="text-end">
+                      <div class="small text-muted">Totales</div>
+                      <div><strong>Total:</strong> {{ formatCurrency(getTotalPrecio()) }}</div>
+                      <div class="text-success"><strong>Abonado:</strong> {{ formatCurrency(getTotalAbonos()) }}</div>
+                      <div class="text-warning"><strong>Saldo:</strong> {{ formatCurrency(getTotalSaldo()) }}</div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

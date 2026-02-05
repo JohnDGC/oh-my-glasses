@@ -1,0 +1,127 @@
+  <!-- TAB 5: CONFIGURACIÓN -->
+  @if (activeTab === 'configuracion') {
+    <div class="tab-content">
+      <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <!-- Configuración de Día de Corte -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">
+                <i class="bi bi-calendar-range me-2 text-primary"></i>
+                Configuración de Períodos
+              </h5>
+            </div>
+            <div class="card-body">
+              <p class="text-muted mb-3">
+                Configure el día del mes en que finalizan los períodos de inventario.
+                El nuevo período comenzará el día siguiente.
+              </p>
+
+              @if (reportesConfig && !editandoConfig) {
+                <div class="alert alert-info">
+                  <strong>Día de corte actual:</strong> {{ reportesConfig.dia_corte }}
+                  <br>
+                  <small class="text-muted">
+                    Los períodos terminan el día {{ reportesConfig.dia_corte }} a las 23:59:59.
+                    El nuevo período inicia el día {{ reportesConfig.dia_corte + 1 }} a las 00:00:00.
+                  </small>
+                </div>
+
+                <button class="btn btn-primary" (click)="activarEdicionConfig()">
+                  <i class="bi bi-pencil me-2"></i>Editar Configuración
+                </button>
+              }
+
+              @if (editandoConfig) {
+                <div class="mb-3">
+                  <label class="form-label">Día de corte (1-31)</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    [(ngModel)]="diaCorteTemp"
+                    min="1"
+                    max="31"
+                    placeholder="Ej: 5" />
+                  <small class="text-muted">
+                    Ejemplo: Si configuras el día 5, los períodos terminarán el 5 de cada mes y comenzarán el 6.
+                  </small>
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button class="btn btn-success" (click)="guardarConfiguracion()">
+                    <i class="bi bi-check-circle me-2"></i>Guardar
+                  </button>
+                  <button class="btn btn-outline-secondary" (click)="cancelarEdicionConfig()">
+                    <i class="bi bi-x-circle me-2"></i>Cancelar
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Períodos Calculados -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-bottom">
+              <h5 class="mb-0">
+                <i class="bi bi-calendar3 me-2 text-success"></i>
+                Períodos Disponibles
+              </h5>
+            </div>
+            <div class="card-body">
+              @if (periodosDisponibles.length > 0) {
+                <p class="text-muted mb-3">
+                  Últimos 6 períodos calculados según el día de corte configurado:
+                </p>
+
+                <div class="list-group mb-3">
+                  @for (periodo of periodosDisponibles; track periodo.nombre) {
+                    <div class="list-group-item">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <strong>{{ periodo.nombre }}</strong>
+                          <br>
+                          <small class="text-muted">
+                            {{ formatDate(periodo.fecha_inicio) }} - {{ formatDate(periodo.fecha_fin) }}
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <hr>
+
+                <h6 class="mb-3">Filtrar por Período en Reportes</h6>
+                <div class="row g-2">
+                  <div class="col-md-8">
+                    <select class="form-select" [(ngModel)]="periodoSeleccionado">
+                      <option value="">Selecciona un período</option>
+                      @for (periodo of periodosDisponibles; track periodo.nombre) {
+                        <option [value]="periodo.nombre">{{ periodo.nombre }}</option>
+                      }
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <button
+                      class="btn btn-primary w-100"
+                      (click)="aplicarFiltroPeriodo()"
+                      [disabled]="!periodoSeleccionado">
+                      <i class="bi bi-funnel me-2"></i>Aplicar en {{ activeTab === 'ventas' ? 'Ventas' : activeTab === 'inventario' ? 'Inventario' : 'Clientes' }}
+                    </button>
+                  </div>
+                </div>
+
+                <small class="text-muted d-block mt-2">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Al aplicar un período, se configurarán automáticamente las fechas desde/hasta en la pestaña actual.
+                  Ve a Ventas, Inventario o Clientes para ver los filtros aplicados.
+                </small>
+              } @else {
+                <p class="text-muted mb-0">No hay períodos calculados</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }

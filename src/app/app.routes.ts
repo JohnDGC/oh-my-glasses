@@ -5,11 +5,13 @@ import { WomenComponent } from './pages/women/women.component';
 import { KidsComponent } from './pages/kids/kids.component';
 import { AllProductsComponent } from './pages/all-products/all-products.component';
 import { MainLayoutComponent } from './components/layouts/main-layout/main-layout.component';
+import { AdminLayoutComponent } from './components/layouts/admin-layout/admin-layout.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ClientesComponent } from './pages/clientes/clientes.component';
 import { FormulaComponent } from './pages/formula/formula.component';
 import { InventarioComponent } from './pages/inventario/inventario.component';
+import { ReportesComponent } from './pages/reportes/reportes.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -26,6 +28,19 @@ export const routes: Routes = [
       { path: 'mujeres', component: WomenComponent },
       { path: 'ninos', component: KidsComponent },
       { path: 'todos', component: AllProductsComponent },
+      {
+        path: 'producto/:id',
+        loadComponent: () =>
+          import('./pages/product-detail/product-detail.component').then(
+            (m) => m.ProductDetailComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: '',
+    component: AdminLayoutComponent,
+    children: [
       {
         path: 'admin',
         component: AdminComponent,
@@ -47,11 +62,9 @@ export const routes: Routes = [
         canActivate: [authGuard],
       },
       {
-        path: 'producto/:id',
-        loadComponent: () =>
-          import('./pages/product-detail/product-detail.component').then(
-            (m) => m.ProductDetailComponent
-          ),
+        path: 'reportes',
+        component: ReportesComponent,
+        canActivate: [authGuard],
       },
     ],
   },

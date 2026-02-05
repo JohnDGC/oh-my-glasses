@@ -1,0 +1,532 @@
+<div class="inventario-page min-vh-100 py-4">
+  <div class="container-fluid px-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+      <div>
+        <h1 class="fw-bold mb-1">
+          <i class="bi bi-box-seam me-2 text-primary"></i>Inventario
+        </h1>
+        <p class="text-muted mb-0">Gestión de stock, entradas y ventas</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" (click)="openMovimientoModal('ajuste')">
+          <i class="bi bi-sliders2 me-2"></i>Ajuste / Corrección
+        </button>
+        <button class="btn btn-success" (click)="openMovimientoModal('entrada')">
+          <i class="bi bi-arrow-down-circle me-2"></i>Registrar Entrada
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard KPIs -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="text-muted">Hoy</span>
+              <span class="badge bg-primary-subtle text-primary">Diario</span>
+            </div>
+            <h3 class="mb-2">{{ dashboardDia?.monturas_vendidas || 0 }} ventas</h3>
+            <div class="mb-2">
+              <p class="text-success fw-semibold mb-0">
+                <i class="bi bi-cash-coin me-1"></i>
+                ${{ (dashboardDia?.dinero_real_entrado || 0) | number:'1.0-0' }}
+              </p>
+              <small class="text-muted">Dinero que entró</small>
+            </div>
+            @if ((dashboardDia?.dinero_pendiente || 0) > 0) {
+            <p class="text-warning small mb-1">
+              <i class="bi bi-clock-history me-1"></i>
+              Pendiente: ${{ (dashboardDia?.dinero_pendiente || 0) | number:'1.0-0' }}
+            </p>
+            }
+            <p class="text-muted small mb-0">Entradas: {{ dashboardDia?.entradas || 0 }} · Ajustes: {{ dashboardDia?.ajustes || 0 }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="text-muted">Últimos 7 días</span>
+              <span class="badge bg-info-subtle text-info">Semanal</span>
+            </div>
+            <h3 class="mb-2">{{ dashboardSemana?.monturas_vendidas || 0 }} ventas</h3>
+            <div class="mb-2">
+              <p class="text-success fw-semibold mb-0">
+                <i class="bi bi-cash-coin me-1"></i>
+                ${{ (dashboardSemana?.dinero_real_entrado || 0) | number:'1.0-0' }}
+              </p>
+              <small class="text-muted">Dinero que entró</small>
+            </div>
+            @if ((dashboardSemana?.dinero_pendiente || 0) > 0) {
+            <p class="text-warning small mb-1">
+              <i class="bi bi-clock-history me-1"></i>
+              Pendiente: ${{ (dashboardSemana?.dinero_pendiente || 0) | number:'1.0-0' }}
+            </p>
+            }
+            <p class="text-muted small mb-0">Entradas: {{ dashboardSemana?.entradas || 0 }} · Ajustes: {{ dashboardSemana?.ajustes || 0 }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="text-muted">Últimos 30 días</span>
+              <span class="badge bg-success-subtle text-success">Mensual</span>
+            </div>
+            <h3 class="mb-2">{{ dashboardMes?.monturas_vendidas || 0 }} ventas</h3>
+            <div class="mb-2">
+              <p class="text-success fw-semibold mb-0">
+                <i class="bi bi-cash-coin me-1"></i>
+                ${{ (dashboardMes?.dinero_real_entrado || 0) | number:'1.0-0' }}
+              </p>
+              <small class="text-muted">Dinero que entró</small>
+            </div>
+            @if ((dashboardMes?.dinero_pendiente || 0) > 0) {
+            <p class="text-warning small mb-1">
+              <i class="bi bi-clock-history me-1"></i>
+              Pendiente: ${{ (dashboardMes?.dinero_pendiente || 0) | number:'1.0-0' }}
+            </p>
+            }
+            <p class="text-muted small mb-0">Entradas: {{ dashboardMes?.entradas || 0 }} · Ajustes: {{ dashboardMes?.ajustes || 0 }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="card shadow-sm border-0 h-100 bg-primary text-white">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="opacity-75">Filtrado actual</span>
+              <i class="bi bi-filter"></i>
+            </div>
+            <h3 class="mb-2">{{ movimientos.length }} registros</h3>
+            <p class="fw-semibold mb-1">${{ dineroVentas | number:'1.0-0' }}</p>
+            <p class="opacity-75 small mb-0">Total del período seleccionado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'stock'"
+          (click)="setActiveTab('stock')"
+          type="button"
+          role="tab">
+          <i class="bi bi-boxes me-2"></i>Stock por Sección
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'movimientos'"
+          (click)="setActiveTab('movimientos')"
+          type="button"
+          role="tab">
+          <i class="bi bi-clock-history me-2"></i>Movimientos Recientes
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'deudores'"
+          (click)="setActiveTab('deudores')"
+          type="button"
+          role="tab">
+          <i class="bi bi-people me-2"></i>Cuentas por Cobrar
+          @if (clientesDeudores.length > 0) {
+            <span class="badge bg-warning text-dark ms-1">{{ clientesDeudores.length }}</span>
+          }
+        </button>
+      </li>
+    </ul>
+
+    <!-- Tab Content: Stock -->
+    @if (activeTab === 'stock') {
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-grid-1x2 me-2 text-primary"></i>Stock por sección</h5>
+        <div class="d-flex gap-2 align-items-center">
+          <button
+            class="btn btn-sm btn-outline-info"
+            (click)="sincronizarHistorico()"
+            [disabled]="isSyncingHistoric"
+            title="Importar compras históricas a inventario">
+            <i class="bi" [class.bi-arrow-repeat]="!isSyncingHistoric" [class.spinner-border]="isSyncingHistoric" [class.spinner-border-sm]="isSyncingHistoric"></i>
+            {{ isSyncingHistoric ? 'Sincronizando...' : 'Sincronizar Compras' }}
+          </button>
+          <span class="text-muted small">Actualizado en tiempo real</span>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="px-4 py-3">Sección</th>
+                <th class="py-3">Stock actual</th>
+                <th class="py-3">Stock mínimo</th>
+                <th class="py-3">Actualizado</th>
+                <th class="py-3 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (secciones.length === 0) {
+              <tr>
+                <td colspan="5" class="text-center py-4 text-muted">Sin registros de inventario</td>
+              </tr>
+              } @for (sec of secciones; track sec.id) {
+              <tr>
+                <td class="px-4 py-3 fw-semibold">{{ sec.nombre }}</td>
+                <td>
+                  <span [class.text-danger]="sec.stock_actual <= (sec.stock_minimo || 0)" [class.fw-bold]="sec.stock_actual <= (sec.stock_minimo || 0)">
+                    {{ sec.stock_actual }}
+                  </span>
+                  @if (sec.stock_actual <= (sec.stock_minimo ?? 0) && (sec.stock_minimo ?? 0) > 0) {
+                    <i class="bi bi-exclamation-triangle-fill text-danger ms-1" title="Stock bajo"></i>
+                  }
+                </td>
+                <td>{{ sec.stock_minimo || 0 }}</td>
+                <td class="text-muted small">{{ sec.updated_at | date:'short' }}</td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-primary" (click)="openEditStockModal(sec)" title="Editar stock mínimo">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Tab Content: Movimientos -->
+    @if (activeTab === 'movimientos') {
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+          <div>
+            <h5 class="mb-1"><i class="bi bi-clock-history me-2 text-primary"></i>Movimientos recientes</h5>
+            <p class="text-muted small mb-0">Entradas, salidas, ventas y ajustes</p>
+          </div>
+          <div class="d-flex flex-column flex-md-row gap-2 align-items-stretch align-items-md-center">
+            <div class="d-flex gap-2">
+              <input type="date" class="form-control form-control-sm" [(ngModel)]="fechaSeleccionada" (change)="onFechaChange()" placeholder="Fecha específica" />
+              <input type="month" class="form-control form-control-sm" [(ngModel)]="mesSeleccionado" (change)="onMesChange()" placeholder="Mes" />
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" (click)="limpiarFiltros()">
+              <i class="bi bi-x-circle me-1"></i>Limpiar
+            </button>
+            <button class="btn btn-sm btn-primary" (click)="openMovimientoModal('entrada')">
+              <i class="bi bi-plus-circle me-1"></i>Nueva entrada
+            </button>
+            <button class="btn btn-sm btn-outline-primary" (click)="openMovimientoModal('ajuste')">
+              <i class="bi bi-wrench me-1"></i>Ajuste
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="px-4 py-3">Fecha</th>
+                <th class="py-3">Tipo</th>
+                <th class="py-3">Cliente</th>
+                <th class="py-3">Sección</th>
+                <th class="py-3">Montura</th>
+                <th class="py-3">Cantidad</th>
+                <th class="py-3">Monto</th>
+                <th class="py-3">Nota</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (movimientos.length === 0) {
+              <tr>
+                <td colspan="8" class="text-center py-4 text-muted">Sin movimientos registrados</td>
+              </tr>
+              } @for (mov of movimientos; track mov.id) {
+              <tr>
+                <td class="px-4 py-3">{{ mov.created_at | date:'d/M/yy, h:mm a':'UTC-5' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="{
+                      'bg-success-subtle text-success': mov.tipo === 'entrada',
+                      'bg-danger-subtle text-danger': mov.tipo === 'venta' || mov.tipo === 'salida',
+                      'bg-warning-subtle text-warning': mov.tipo === 'ajuste'
+                    }">{{ mov.tipo | titlecase }}</span>
+                </td>
+                <td>{{ mov.cliente_nombre || '—' }}</td>
+                <td>{{ mov.seccion_nombre || '—' }}</td>
+                <td>{{ mov.tipo_montura || '—' }}</td>
+                <td>{{ mov.cantidad }}</td>
+                <td>
+                  @if (mov.monto) {
+                  ${{ mov.monto | number:'1.0-0' }}
+                  } @else {
+                  —
+                  }
+                </td>
+                <td class="text-muted">{{ mov.nota || '—' }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Tab Content: Deudores -->
+    @if (activeTab === 'deudores') {
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h5 class="mb-1"><i class="bi bi-people me-2 text-warning"></i>Clientes con Saldo Pendiente</h5>
+              <p class="text-muted small mb-0">Lista de cuentas por cobrar</p>
+            </div>
+            @if (clientesDeudores.length > 0) {
+              <div class="text-end">
+                <h4 class="text-warning mb-0">
+                  ${{ getTotalPorCobrar() | number:'1.0-0' }}
+                </h4>
+                <small class="text-muted">Total por cobrar</small>
+              </div>
+            }
+          </div>
+
+          @if (clientesDeudores.length > 0) {
+          <div class="row g-3 mb-3">
+            <div class="col-lg-4 col-md-6">
+              <label class="form-label small text-muted mb-1">Buscar por nombre o cédula</label>
+              <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" placeholder="Ej: Juan o 123" [(ngModel)]="deudoresSearchTerm" />
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <label class="form-label small text-muted mb-1">Filtrar por fecha de compra</label>
+              <div class="d-flex gap-2">
+                <input type="date" class="form-control form-control-sm" [(ngModel)]="deudoresFechaDesde" />
+                <input type="date" class="form-control form-control-sm" [(ngModel)]="deudoresFechaHasta" />
+              </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+              <label class="form-label small text-muted mb-1">Ordenar</label>
+              <select class="form-select form-select-sm" [(ngModel)]="deudoresSort">
+                <option value="fecha_desc">Última compra (reciente primero)</option>
+                <option value="fecha_asc">Última compra (antigua primero)</option>
+                <option value="saldo_desc">Saldo pendiente (alto a bajo)</option>
+                <option value="saldo_asc">Saldo pendiente (bajo a alto)</option>
+              </select>
+            </div>
+          </div>
+          }
+
+          @if (isLoadingDeudores) {
+            <div class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          } @else if (clientesDeudores.length === 0) {
+            <div class="text-center py-5">
+              <i class="bi bi-emoji-smile display-1 text-success"></i>
+              <h5 class="mt-3 text-muted">¡Excelente! No hay cuentas pendientes</h5>
+              <p class="text-muted">Todos los clientes están al día con sus pagos</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="px-4 py-3">Cliente</th>
+                    <th class="py-3">Cédula</th>
+                    <th class="py-3">Última compra</th>
+                    <th class="py-3 text-end">Total Compras</th>
+                    <th class="py-3 text-end">Abonado</th>
+                    <th class="py-3 text-end">Saldo Pendiente</th>
+                    <th class="py-3 text-center">Compras Pendientes</th>
+                    <th class="py-3 text-center">Detalle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (deudor of deudoresFiltrados; track deudor.cliente_id) {
+                  <tr>
+                    <td class="px-4 py-3">
+                      <span class="fw-semibold">{{ deudor.cliente_nombre }}</span>
+                    </td>
+                    <td>{{ deudor.cliente_cedula }}</td>
+                    <td>{{ deudor.latest_compra | date:'mediumDate' }}</td>
+                    <td class="text-end">${{ deudor.total_compras | number:'1.0-0' }}</td>
+                    <td class="text-end text-success">${{ deudor.total_abonado | number:'1.0-0' }}</td>
+                    <td class="text-end">
+                      <span class="badge bg-warning-subtle text-warning fs-6">
+                        ${{ deudor.saldo_pendiente | number:'1.0-0' }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge bg-secondary">{{ deudor.compras_pendientes }}</span>
+                    </td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary" (click)="openDetalleDeudor(deudor)">
+                        <i class="bi bi-eye me-1"></i>Ver
+                      </button>
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  </div>
+</div>
+
+  <!-- Modal movimiento -->
+  @if (showMovimientoModal) {
+  <div class="modal d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-clipboard-plus me-2"></i>
+            {{ movimientoForm.value.tipo === 'entrada' ? 'Registrar entrada' : 'Ajuste de stock' }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeMovimientoModal()"></button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="movimientoForm" (ngSubmit)="registrarMovimiento()">
+            <div class="alert alert-info">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>Tipos de movimiento:</strong><br>
+              • <strong>Entrada</strong>: Cuando recibes nuevas monturas (compras a proveedor)<br>
+              • <strong>Ajuste</strong>: Para corregir inventario por conteo físico, pérdida o hallazgo
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Sección *</label>
+                <select class="form-select" formControlName="seccion_nombre">
+                  <option [ngValue]="null" disabled>Seleccionar...</option>
+                  @for (sec of seccionesDisponibles; track sec) {
+                  <option [value]="sec">{{ sec }}</option>
+                  }
+                  <option value="Piedras Preciosas">Piedras Preciosas</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Tipo de montura (opcional)</label>
+                <select class="form-select" formControlName="tipo_montura">
+                  <option [ngValue]="null">Seleccionar...</option>
+                  @for (tipo of tiposMontura; track tipo) {
+                  <option [value]="tipo">{{ tipo }}</option>
+                  }
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Cantidad *</label>
+                <input type="number" class="form-control" formControlName="cantidad" min="1" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Monto (opcional)</label>
+                <div class="input-group">
+                  <span class="input-group-text">$</span>
+                  <input type="number" class="form-control" formControlName="monto" min="0" />
+                </div>
+                <small class="text-muted">Útil para valor de reposición o venta</small>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label fw-semibold">Nota</label>
+                <textarea class="form-control" rows="2" formControlName="nota" placeholder="Detalle del movimiento"></textarea>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-outline-secondary" (click)="closeMovimientoModal()">Cancelar</button>
+              <button type="submit" class="btn btn-primary" [disabled]="movimientoForm.invalid">
+                <i class="bi bi-save me-2"></i>Guardar movimiento
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+
+<!-- Overlay for modals -->
+@if (showMovimientoModal || showEditStockModal || showDeudorModal) {
+  <div class="modal-backdrop fade show"></div>
+}
+
+<!-- Modal detalle deudor -->
+@if (showDeudorModal && deudorSeleccionado) {
+<div class="modal d-block" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-person-lines-fill me-2"></i>
+          Detalle de {{ deudorSeleccionado.cliente_nombre }}
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDetalleDeudor()"></button>
+      </div>
+      <div class="modal-body">
+        @if (isLoadingDetalle) {
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+          </div>
+        } @else if (comprasPendientesDetalle.length === 0) {
+          <div class="text-center py-4 text-muted">
+            <i class="bi bi-emoji-smile display-5 d-block mb-2"></i>
+            Sin compras pendientes
+          </div>
+        } @else {
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Fecha</th>
+                  <th>Montura</th>
+                  <th>Rango precio</th>
+                  <th class="text-end">Total</th>
+                  <th class="text-end">Abonado</th>
+                  <th class="text-end">Saldo</th>
+                  <th>Sección</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (compra of comprasPendientesDetalle; track compra.id) {
+                <tr>
+                  <td>{{ compra.fecha | date:'mediumDate' }}</td>
+                  <td>{{ compra.tipo_montura || '—' }}</td>
+                  <td>{{ compra.rango_precio || '—' }}</td>
+                  <td class="text-end">${{ compra.precio_total | number:'1.0-0' }}</td>
+                  <td class="text-end text-success">${{ compra.abonado | number:'1.0-0' }}</td>
+                  <td class="text-end text-warning">${{ compra.saldo | number:'1.0-0' }}</td>
+                  <td>{{ compra.seccion || '—' }}</td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" (click)="closeDetalleDeudor()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+}

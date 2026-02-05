@@ -14,7 +14,7 @@ import { InventarioService } from './inventario.service';
 export class ClienteService {
   constructor(
     private supabase: SupabaseService,
-    private inventarioService: InventarioService
+    private inventarioService: InventarioService,
   ) {}
 
   private async getClienteNombre(clienteId: string): Promise<string | null> {
@@ -29,21 +29,8 @@ export class ClienteService {
   private async logClienteEvento(
     clienteId: string,
     nombres: string,
-    accion: 'creado' | 'actualizado' | 'eliminado'
-  ) {
-    try {
-      await this.inventarioService.crearMovimiento({
-        tipo: 'ajuste',
-        cantidad: 1,
-        monto: null,
-        referencia: null, // no referenciar cliente_id para no violar FK a cliente_compras
-        nota: `Cliente ${accion}`,
-        created_by: nombres,
-      });
-    } catch (e) {
-      console.error('No se pudo registrar movimiento de cliente:', e);
-    }
-  }
+    accion: 'creado' | 'actualizado' | 'eliminado',
+  ) {}
 
   async getClientes(): Promise<Cliente[]> {
     const { data, error } = await this.supabase.client
@@ -76,7 +63,7 @@ export class ClienteService {
 
   async verificarCedulaExistente(
     cedula: string,
-    excludeId?: string
+    excludeId?: string,
   ): Promise<boolean> {
     let query = this.supabase.client
       .from('clientes')
@@ -118,7 +105,7 @@ export class ClienteService {
 
       if (error.code === '23505' && error.message.includes('cedula')) {
         throw new Error(
-          `Ya existe un cliente registrado con la cédula ${cliente.cedula}`
+          `Ya existe un cliente registrado con la cédula ${cliente.cedula}`,
         );
       }
 
@@ -141,7 +128,7 @@ export class ClienteService {
       .single();
 
     if (error) {
-      console.error('Error al actualizar cliente:', error);
+      console.error(`[updateCliente] Error en Supabase para ${id}:`, error);
       throw error;
     }
 
@@ -223,20 +210,34 @@ export class ClienteService {
       });
     }
 
-    // Registrar movimiento de inventario (venta)
+    // Registrar movimiento de inventario (venta) con nuevo sistema
+    // Solo si la fecha de compra está después de la fecha de inicio de tracking
     try {
-      const clienteNombre = await this.getClienteNombre(compra.cliente_id);
-      await this.inventarioService.registrarVentaDesdeCompra({
-        id: data?.id,
-        tipo_montura: compra.tipo_montura,
-        seccion: compra.seccion || null,
-        precio_total: compra.precio_total || null,
-        cliente_nombre: clienteNombre,
-      });
+      const fechaCompra = data?.fecha_compra || new Date().toISOString();
+      const shouldTrack =
+        await this.inventarioService.shouldTrackPurchase(fechaCompra);
+
+      // Only track glasses sales (not optometry consultations)
+      const tipoCompra = compra.tipo_compra || 'Gafas formuladas';
+      const isGlassesSale =
+        tipoCompra === 'Gafas formuladas' || tipoCompra === 'Gafas de sol';
+
+      if (shouldTrack && isGlassesSale) {
+        const clienteNombre = await this.getClienteNombre(compra.cliente_id);
+        await this.inventarioService.registrarVenta(
+          compra.tipo_montura,
+          tipoCompra as 'Gafas formuladas' | 'Gafas de sol',
+          compra.seccion || null,
+          data?.id!,
+          clienteNombre || undefined,
+        );
+      } else if (!shouldTrack) {
+      } else {
+      }
     } catch (inventoryError) {
       console.error(
         'No se pudo registrar movimiento de inventario:',
-        inventoryError
+        inventoryError,
       );
       // No lanzamos para no romper el flujo de compra
     }
@@ -246,7 +247,7 @@ export class ClienteService {
 
   async verificarYGenerarCashbackPendiente(
     clienteId: string,
-    compra: ClienteCompra
+    compra: ClienteCompra,
   ) {
     try {
       // Verificar si el cliente es referido y SI ya se generó cashback
@@ -259,9 +260,8 @@ export class ClienteService {
       // Si existe registro de referido Y el cashback generado es 0
       if (referido && referido.cashback_generado === 0) {
         // Calcular nuevo cashback
-        const { calcularCashback } = await import(
-          '../shared/utils/cashback.util'
-        );
+        const { calcularCashback } =
+          await import('../shared/utils/cashback.util');
         const cashbackInfo = calcularCashback(compra.rango_precio);
 
         if (cashbackInfo.monto > 0) {
@@ -278,7 +278,7 @@ export class ClienteService {
           // Sumar al referidor
           await this.addCashback(
             referido.cliente_referidor_id,
-            cashbackInfo.monto
+            cashbackInfo.monto,
           );
         }
       }
@@ -289,7 +289,7 @@ export class ClienteService {
 
   async updateCompra(
     id: string,
-    compra: Partial<ClienteCompra>
+    compra: Partial<ClienteCompra>,
   ): Promise<ClienteCompra> {
     const payload: any = {
       tipo_lente: compra.tipo_lente,
@@ -323,14 +323,23 @@ export class ClienteService {
       ? await this.getClienteNombre(compra.cliente_id)
       : null;
 
-    // Actualizar movimiento de venta para reflejar cambios
-    await this.inventarioService.actualizarVentaDesdeCompra({
-      id,
-      tipo_montura: compra.tipo_montura,
-      seccion: compra.seccion,
-      precio_total: compra.precio_total,
-      cliente_nombre: clienteNombre,
-    });
+    // Actualizar movimiento de venta para reflejar cambios con nuevo sistema
+    // Nota: Si cambió tipo_montura o sección, se revertirá el viejo y se registrará el nuevo
+    if (compra.tipo_montura) {
+      const tipoCompra = compra.tipo_compra || 'Gafas formuladas';
+      const isGlassesSale =
+        tipoCompra === 'Gafas formuladas' || tipoCompra === 'Gafas de sol';
+
+      if (isGlassesSale) {
+        await this.inventarioService.actualizarVenta(
+          id,
+          compra.tipo_montura,
+          tipoCompra as 'Gafas formuladas' | 'Gafas de sol',
+          compra.seccion,
+          // Note: old montura/seccion/tipo_compra are optional - method will fetch from movement detail if needed
+        );
+      }
+    }
 
     return data;
   }
@@ -339,7 +348,9 @@ export class ClienteService {
     // 1. Obtener datos de la compra antes de eliminarla
     const { data: compra, error: fetchError } = await this.supabase.client
       .from('cliente_compras')
-      .select('id, cliente_id, tipo_montura, seccion, precio_total, created_at')
+      .select(
+        'id, cliente_id, tipo_montura, seccion, precio_total, created_at, tipo_compra',
+      )
       .eq('id', id)
       .single();
 
@@ -353,12 +364,20 @@ export class ClienteService {
       ? await this.getClienteNombre(compra.cliente_id)
       : null;
 
-    // 2. Revertir la venta en inventario (devolver stock, ajustar dinero)
-    if (compra) {
-      await this.inventarioService.revertirVentaEliminada({
-        ...compra,
-        cliente_nombre: clienteNombre,
-      });
+    // 2. Revertir la venta en inventario (devolver stock) con nuevo sistema
+    if (compra && compra.tipo_montura) {
+      const tipoCompra = (compra as any).tipo_compra || 'Gafas formuladas';
+      const isGlassesSale =
+        tipoCompra === 'Gafas formuladas' || tipoCompra === 'Gafas de sol';
+
+      if (isGlassesSale) {
+        await this.inventarioService.revertirVenta(
+          compra.id,
+          compra.tipo_montura,
+          tipoCompra as 'Gafas formuladas' | 'Gafas de sol',
+          compra.seccion,
+        );
+      }
     }
 
     // 3. Eliminar la compra
@@ -431,17 +450,10 @@ export class ClienteService {
         return new Date().toISOString();
       })();
 
-      await this.inventarioService.crearMovimiento({
-        tipo: 'ajuste',
-        cantidad: 1, // Seccion null → no afecta stock
-        monto: abono.monto,
-        referencia: abono.compra_id,
-        nota: abono.nota ? `Abono: ${abono.nota}` : 'Abono registrado',
-        created_at: fechaISO,
-        created_by: clienteNombre,
-      });
+      // Payment tracking is now handled in Reportes module
+      // No inventory movement needed for abonos
     } catch (movError) {
-      console.error('No se pudo registrar movimiento de abono:', movError);
+      console.error('Error registering abono:', movError);
       // No interrumpir flujo de abono
     }
 
@@ -487,7 +499,7 @@ export class ClienteService {
         `
         *,
         cliente_referido:clientes!cliente_referidos_cliente_referido_id_fkey(*)
-      `
+      `,
       )
       .eq('cliente_referidor_id', clienteId)
       .order('fecha_referido', { ascending: false });
@@ -578,7 +590,7 @@ export class ClienteService {
    * (para calcular el cashback del referidor)
    */
   async getUltimaCompraCliente(
-    clienteId: string
+    clienteId: string,
   ): Promise<ClienteCompra | null> {
     const { data, error } = await this.supabase.client
       .from('cliente_compras')
@@ -598,7 +610,7 @@ export class ClienteService {
 
   async redimirReferidosActivos(
     clienteId: string,
-    fechaRedencion: string
+    fechaRedencion: string,
   ): Promise<void> {
     const { error } = await this.supabase.client
       .from('cliente_referidos')
@@ -621,7 +633,7 @@ export class ClienteService {
    */
   async asignarReferidorRetroactivo(
     clienteId: string,
-    clienteReferidorId: string
+    clienteReferidorId: string,
   ): Promise<void> {
     // 1. Verificar si ya tiene compras
     const ultimaCompra = await this.getUltimaCompraCliente(clienteId);
@@ -646,9 +658,8 @@ export class ClienteService {
       // Como movimos la lógica a un util compartido, lo importaremos al inicio del archivo.
       // Por ahora, asumiremos que se importará.
       // IMPORTANTE: Este archivo necesita importar calcularCashback
-      const { calcularCashback } = await import(
-        '../shared/utils/cashback.util'
-      );
+      const { calcularCashback } =
+        await import('../shared/utils/cashback.util');
       const cashbackInfo = calcularCashback(ultimaCompra.rango_precio);
 
       if (cashbackInfo.monto > 0) {
@@ -677,7 +688,7 @@ export class ClienteService {
   async cambiarReferidor(
     clienteId: string,
     antiguoReferidorId: string | null,
-    nuevoReferidorId: string | null
+    nuevoReferidorId: string | null,
   ): Promise<void> {
     // 1. Si había un referidor anterior, revertir el cashback
     if (antiguoReferidorId) {
@@ -727,7 +738,7 @@ export class ClienteService {
         if (errorCashback) {
           console.error(
             'Error revirtiendo cashback del referidor anterior:',
-            errorCashback
+            errorCashback,
           );
         }
       }
