@@ -28,7 +28,7 @@ export class AuthService {
   constructor(
     private supabaseService: SupabaseService,
     private router: Router,
-    private ngZone: NgZone
+    private ngZone: NgZone,
   ) {
     this.currentUserSubject = new BehaviorSubject<User | null>(null);
     this.currentUser = this.currentUserSubject.asObservable();
@@ -46,7 +46,6 @@ export class AuthService {
   private async initAuthListener(): Promise<void> {
     try {
       if (this.hasSessionExpiredByInactivity()) {
-        console.log('Sesión expirada por inactividad');
         await this.supabaseService.client.auth.signOut();
         localStorage.removeItem(this.STORAGE_KEY_LAST_ACTIVITY);
         this._isInitialized = true;
@@ -102,7 +101,7 @@ export class AuthService {
         fromEvent(document, 'mousedown'),
         fromEvent(document, 'keydown'),
         fromEvent(document, 'touchstart'),
-        fromEvent(document, 'scroll')
+        fromEvent(document, 'scroll'),
       ).pipe(throttleTime(30000));
 
       this.activitySubscription = activityEvents$.subscribe(() => {
@@ -139,7 +138,6 @@ export class AuthService {
   }
 
   private async handleInactivityTimeout(): Promise<void> {
-    console.log('Sesión cerrada por inactividad');
     alert('Tu sesión ha sido cerrada por inactividad (2 hora sin actividad).');
     await this.signOut();
   }

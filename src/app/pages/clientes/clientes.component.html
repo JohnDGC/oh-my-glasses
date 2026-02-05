@@ -120,6 +120,10 @@
                 </td>
                 <td class="py-3">
                   <div class="d-flex flex-md-row gap-2 justify-content-center">
+                    <button class="btn btn-sm btn-outline-info" (click)="openInfoModal(cliente)"
+                      title="Ver información completa">
+                      <i class="bi bi-eye"></i>
+                    </button>
                     <button class="btn btn-sm btn-outline-success" (click)="openWhatsAppModalForCliente(cliente)"
                       title="Enviar WhatsApp">
                       <i class="bi bi-whatsapp"></i>
@@ -129,7 +133,7 @@
                       <i class="bi bi-cart-plus"></i>
                       <span class="d-none d-xl-inline"></span>
                     </button>
-                    <button class="btn btn-sm btn-outline-info" (click)="openReferidosModal(cliente)"
+                    <button class="btn btn-sm btn-outline-warning" (click)="openReferidosModal(cliente)"
                       title="Ver referidos">
                       <i class="bi bi-people"></i>
                       <span class="d-none d-xl-inline"></span>
@@ -1693,6 +1697,228 @@
         </small>
         <button type="button" class="btn btn-secondary" (click)="closeWhatsAppModal()">
           Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+<!-- Modal Información del Cliente -->
+@if (showInfoModal && selectedCliente) {
+<div class="modal show d-block" tabindex="-1" style="background-color: rgba(0, 0, 0, 0.5)">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-badge me-2"></i>
+          Información del Cliente
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeInfoModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Información Personal -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">
+              <i class="bi bi-person me-2"></i>Información Personal
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-person-fill text-primary me-2 mt-1"></i>
+                  <div>
+                    <small class="text-muted d-block">Nombres Completos</small>
+                    <strong>{{ selectedCliente.nombres }}</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-card-text text-primary me-2 mt-1"></i>
+                  <div>
+                    <small class="text-muted d-block">Cédula</small>
+                    <strong>{{ selectedCliente.cedula }}</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-calendar-event text-primary me-2 mt-1"></i>
+                  <div>
+                    <small class="text-muted d-block">Fecha de Nacimiento</small>
+                    <strong>{{ formatDate(selectedCliente.fecha_nacimiento) }}</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-whatsapp text-success me-2 mt-1"></i>
+                  <div>
+                    <small class="text-muted d-block">Teléfono</small>
+                    <strong>
+                      <a [href]="'https://wa.me/57' + selectedCliente.telefono" target="_blank"
+                        class="text-decoration-none text-success">
+                        {{ selectedCliente.telefono }}
+                      </a>
+                    </strong>
+                  </div>
+                </div>
+              </div>
+              @if (selectedCliente.correo) {
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-envelope text-primary me-2 mt-1"></i>
+                  <div>
+                    <small class="text-muted d-block">Correo</small>
+                    <strong>{{ selectedCliente.correo }}</strong>
+                  </div>
+                </div>
+              </div>
+              }
+              <div class="col-md-6">
+                <div class="d-flex align-items-start">
+                  <i class="bi bi-calendar-check text-primary me-2 mt-1"></i>
+                  <div>
+                    <small class="text-muted d-block">Fecha de Registro</small>
+                    <strong>{{ formatDate(selectedCliente.fecha_registro || selectedCliente.created_at || '') }}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Referidos -->
+        @if (selectedCliente.es_referido && selectedCliente.cliente_referidor_id) {
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">
+              <i class="bi bi-person-check me-2"></i>Información de Referido
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Es cliente referido</strong>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Cashback -->
+        @if ((selectedCliente.cashback_acumulado || 0) > 0) {
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">
+              <i class="bi bi-cash-coin me-2"></i>Cashback Acumulado
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="badge bg-success fs-5 py-2 px-3">
+                <i class="bi bi-currency-dollar me-1"></i>
+                {{ selectedCliente.cashback_acumulado || 0 | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}
+              </span>
+            </div>
+          </div>
+        </div>
+        }
+
+        <!-- Historial de Compras -->
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-light">
+            <h6 class="mb-0">
+              <i class="bi bi-cart-check me-2"></i>Historial de Compras
+            </h6>
+          </div>
+          <div class="card-body">
+            @if (isLoadingInfoCompras) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+              <p class="text-muted mt-2 mb-0">Cargando compras...</p>
+            </div>
+            } @else if (infoCompras.length === 0) {
+            <div class="text-center py-4">
+              <i class="bi bi-inbox display-6 text-muted"></i>
+              <p class="text-muted mt-2 mb-0">Este cliente aún no tiene compras registradas</p>
+            </div>
+            } @else {
+            <div class="table-responsive">
+              <table class="table table-hover table-sm mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Lente</th>
+                    <th>Montura</th>
+                    <th>Sección</th>
+                    <th class="text-end">Precio Total</th>
+                    <th class="text-end">Abonado</th>
+                    <th class="text-end">Saldo</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (compra of infoCompras; track compra.id) {
+                  <tr>
+                    <td>{{ formatDate(compra.created_at || '') }}</td>
+                    <td><span class="badge bg-secondary">{{ compra.tipo_compra }}</span></td>
+                    <td>{{ compra.tipo_lente || '-' }}</td>
+                    <td>{{ compra.tipo_montura || '-' }}</td>
+                    <td>
+                      @if (compra.seccion) {
+                        <span class="badge bg-info">{{ compra.seccion }}</span>
+                      } @else {
+                        <span class="text-muted">-</span>
+                      }
+                    </td>
+                    <td class="text-end">
+                      <strong>{{ compra.precio_total || 0 | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}</strong>
+                    </td>
+                    <td class="text-end">
+                      @if (getAbonosTotal(compra) > 0) {
+                        <span class="text-success">{{ getAbonosTotal(compra) | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
+                      } @else {
+                        <span class="text-muted">{{ 0 | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
+                      }
+                    </td>
+                    <td class="text-end">
+                      @if (((compra.precio_total || 0) - getAbonosTotal(compra)) > 0) {
+                        <span class="text-danger fw-semibold">{{ ((compra.precio_total || 0) - getAbonosTotal(compra)) | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}</span>
+                      } @else {
+                        <span class="badge bg-success">Pagado</span>
+                      }
+                    </td>
+                  </tr>
+                  }
+                </tbody>
+                <tfoot class="table-light">
+                  <tr>
+                    <td colspan="5" class="text-end"><strong>Totales:</strong></td>
+                    <td class="text-end">
+                      <strong>{{ getTotalPrecio() | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}</strong>
+                    </td>
+                    <td class="text-end">
+                      <strong class="text-success">{{ getTotalAbonos() | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}</strong>
+                    </td>
+                    <td class="text-end">
+                      <strong class="text-danger">{{ getTotalSaldo() | currency : 'COP' : 'symbol-narrow' : '1.0-0' }}</strong>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeInfoModal()">
+          <i class="bi bi-x-lg me-1"></i>Cerrar
         </button>
       </div>
     </div>

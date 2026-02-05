@@ -1,0 +1,169 @@
+.reportes-container {
+  min-height: calc(100vh - 200px);
+
+  h2 {
+    color: #21372B;
+    font-weight: 600;
+  }
+}
+
+// KPI Cards
+.kpi-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+}
+
+// Metric Cards (Dashboard)
+.metric-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  i {
+    display: inline-block;
+  }
+}
+
+// Tabs
+.nav-tabs {
+  border-bottom: 2px solid #dee2e6;
+
+  .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #21372B;
+      border-bottom-color: rgba(#21372B, 0.3);
+      background-color: rgba(#21372B, 0.02);
+    }
+
+    &.active {
+      color: #21372B;
+      border-bottom-color: #21372B;
+      background-color: transparent;
+    }
+
+    i {
+      opacity: 0.7;
+    }
+  }
+}
+
+// Tables
+.table {
+  th {
+    font-weight: 600;
+    color: #21372B;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: rgba(#21372B, 0.02);
+    border-bottom: 2px solid #dee2e6;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: rgba(#21372B, 0.03);
+    }
+  }
+}
+
+// Cards
+.card {
+  border-radius: 0.5rem;
+
+  .card-header {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: #21372B;
+
+    h5 {
+      margin-bottom: 0;
+      font-size: 1rem;
+    }
+  }
+}
+
+// Badges
+.badge {
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 0.35em 0.65em;
+}
+
+// Spinner
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+// Empty States
+.text-center {
+  .bi-inbox {
+    opacity: 0.3;
+  }
+}
+
+// Utility Classes
+.text-success {
+  color: #198754 !important;
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-info {
+  color: #0dcaf0 !important;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+
+    i {
+      display: none;
+    }
+  }
+
+  .table {
+    font-size: 0.875rem;
+  }
+
+  .metric-card,
+  .kpi-card {
+    margin-bottom: 1rem;
+  }
+}
