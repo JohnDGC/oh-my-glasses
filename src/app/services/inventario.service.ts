@@ -895,8 +895,6 @@ export class InventarioService {
       console.error('Error updating config:', error);
       throw error;
     }
-
-    return data || [];
   }
 
   /**
@@ -1139,8 +1137,6 @@ export class InventarioService {
         error: error instanceof Error ? error.message : 'Error desconocido',
       };
     }
-
-    return data || [];
   }
 
   /**
