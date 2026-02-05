@@ -24,6 +24,7 @@ import {
   TIPOS_MONTURA,
   SECCIONES,
 } from '../../models/cliente.model';
+import { PaginationHelper } from '../../shared/utils/pagination.util';
 
 @Component({
   selector: 'app-inventario',
@@ -88,6 +89,11 @@ export class InventarioComponent implements OnInit {
   ventasFechaDesde = '';
   ventasFechaHasta = '';
   ventasSeccionFiltro = '';
+
+  // Pagination helpers
+  paginationHistoricoPeriodos = new PaginationHelper<HistoricoPeriodo>([10, 20, 30], 10);
+  paginationHistoricoReestock = new PaginationHelper<MovimientoDetalle>([30, 50, 100], 30);
+  paginationHistoricoVentas = new PaginationHelper<MovimientoDetalle>([25, 50, 100], 25);
 
   // New: Configuration
   configuracion: any = {
@@ -229,6 +235,7 @@ export class InventarioComponent implements OnInit {
 
       this.historicoPeriodos =
         await this.inventarioService.getHistoricoPeriodos(filters);
+      this.paginationHistoricoPeriodos.setItems(this.historicoPeriodos);
     } catch (error) {
       console.error('Error loading historico:', error);
     } finally {
@@ -750,6 +757,7 @@ export class InventarioComponent implements OnInit {
 
       this.historicoReestock =
         await this.inventarioService.getHistoricoReestock(filters);
+      this.paginationHistoricoReestock.setItems(this.historicoReestock);
     } catch (error) {
       console.error('Error loading historico reestock:', error);
       alert('No se pudo cargar el histórico de reestock');
@@ -779,6 +787,7 @@ export class InventarioComponent implements OnInit {
 
       this.historicoVentas =
         await this.inventarioService.getHistoricoVentasPorSeccion(filters);
+      this.paginationHistoricoVentas.setItems(this.historicoVentas);
       this.estadisticasVentas =
         await this.inventarioService.getEstadisticasVentasPorSeccion(filters);
     } catch (error) {

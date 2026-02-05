@@ -315,7 +315,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (periodo of historicoPeriodos; track periodo.id) {
+                  @for (periodo of paginationHistoricoPeriodos.paginatedItems; track periodo.id) {
                   <tr>
                     <td>
                       <small><strong>{{ formatDateShort(periodo.fecha_operacion) }}</strong></small>
@@ -379,8 +379,89 @@
               </table>
             </div>
           </div>
-        </div>
 
+          <!-- Paginador -->
+          <div class="card-footer bg-white border-top">
+            <div class="d-flex flex-column flex-sm-row align-items-center gap-2">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Mostrando <strong>{{ paginationHistoricoPeriodos.startIndex + 1 }}</strong> a
+                <strong>{{ paginationHistoricoPeriodos.endIndex }}</strong>
+                de <strong>{{ paginationHistoricoPeriodos.totalItems }}</strong> operaciones
+              </small>
+              <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small text-muted">Mostrar:</label>
+                <select class="form-select form-select-sm" [value]="paginationHistoricoPeriodos.itemsPerPage" (change)="
+                    paginationHistoricoPeriodos.setItemsPerPage(+$any($event.target).value)
+                  " style="width: auto">
+                  @for (option of paginationHistoricoPeriodos.itemsPerPageOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            @if (paginationHistoricoPeriodos.totalPages > 1) {
+            <nav aria-label="Paginación de operaciones" class="mt-2">
+              <ul class="pagination pagination-sm justify-content-center justify-content-md-end mb-0">
+                <!-- Botón Anterior -->
+                <li class="page-item" [class.disabled]="paginationHistoricoPeriodos.currentPage === 1">
+                  <button class="page-link" (click)="paginationHistoricoPeriodos.previousPage()"
+                    [disabled]="paginationHistoricoPeriodos.currentPage === 1">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                </li>
+
+                <!-- Primera página -->
+                @if (paginationHistoricoPeriodos.getPageNumbers()[0] > 1) {
+                <li class="page-item">
+                  <button class="page-link" (click)="paginationHistoricoPeriodos.goToPage(1)">
+                    1
+                  </button>
+                </li>
+                @if (paginationHistoricoPeriodos.shouldShowStartEllipsis()) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+                }
+                }
+
+                <!-- Números de página -->
+                @for (page of paginationHistoricoPeriodos.getPageNumbers(); track page) {
+                <li class="page-item" [class.active]="paginationHistoricoPeriodos.currentPage === page">
+                  <button class="page-link" (click)="paginationHistoricoPeriodos.goToPage(page)">
+                    {{ page }}
+                  </button>
+                </li>
+                }
+
+                <!-- Última página -->
+                @if
+                (paginationHistoricoPeriodos.getPageNumbers()[paginationHistoricoPeriodos.getPageNumbers().length - 1] < paginationHistoricoPeriodos.totalPages) {
+                @if (paginationHistoricoPeriodos.shouldShowEndEllipsis()) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+                }
+                <li class="page-item">
+                  <button class="page-link" (click)="paginationHistoricoPeriodos.goToPage(paginationHistoricoPeriodos.totalPages)">
+                    {{ paginationHistoricoPeriodos.totalPages }}
+                  </button>
+                </li>
+                }
+
+                <!-- Botón Siguiente -->
+                <li class="page-item" [class.disabled]="paginationHistoricoPeriodos.currentPage === paginationHistoricoPeriodos.totalPages">
+                  <button class="page-link" (click)="paginationHistoricoPeriodos.nextPage()"
+                    [disabled]="paginationHistoricoPeriodos.currentPage === paginationHistoricoPeriodos.totalPages">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+            }
+          </div>
+        </div>
         }
         }
 
@@ -445,7 +526,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (mov of historicoReestock; track mov.id) {
+                  @for (mov of paginationHistoricoReestock.paginatedItems; track mov.id) {
                   <tr>
                     <td>{{ formatDate(mov.created_at!) }}</td>
                     <td>
@@ -464,6 +545,88 @@
                 </tbody>
               </table>
             </div>
+          </div>
+
+          <!-- Paginador -->
+          <div class="card-footer bg-white border-top">
+            <div class="d-flex flex-column flex-sm-row align-items-center gap-2">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Mostrando <strong>{{ paginationHistoricoReestock.startIndex + 1 }}</strong> a
+                <strong>{{ paginationHistoricoReestock.endIndex }}</strong>
+                de <strong>{{ paginationHistoricoReestock.totalItems }}</strong> entradas
+              </small>
+              <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small text-muted">Mostrar:</label>
+                <select class="form-select form-select-sm" [value]="paginationHistoricoReestock.itemsPerPage" (change)="
+                    paginationHistoricoReestock.setItemsPerPage(+$any($event.target).value)
+                  " style="width: auto">
+                  @for (option of paginationHistoricoReestock.itemsPerPageOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            @if (paginationHistoricoReestock.totalPages > 1) {
+            <nav aria-label="Paginación de entradas" class="mt-2">
+              <ul class="pagination pagination-sm justify-content-center justify-content-md-end mb-0">
+                <!-- Botón Anterior -->
+                <li class="page-item" [class.disabled]="paginationHistoricoReestock.currentPage === 1">
+                  <button class="page-link" (click)="paginationHistoricoReestock.previousPage()"
+                    [disabled]="paginationHistoricoReestock.currentPage === 1">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                </li>
+
+                <!-- Primera página -->
+                @if (paginationHistoricoReestock.getPageNumbers()[0] > 1) {
+                <li class="page-item">
+                  <button class="page-link" (click)="paginationHistoricoReestock.goToPage(1)">
+                    1
+                  </button>
+                </li>
+                @if (paginationHistoricoReestock.shouldShowStartEllipsis()) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+                }
+                }
+
+                <!-- Números de página -->
+                @for (page of paginationHistoricoReestock.getPageNumbers(); track page) {
+                <li class="page-item" [class.active]="paginationHistoricoReestock.currentPage === page">
+                  <button class="page-link" (click)="paginationHistoricoReestock.goToPage(page)">
+                    {{ page }}
+                  </button>
+                </li>
+                }
+
+                <!-- Última página -->
+                @if
+                (paginationHistoricoReestock.getPageNumbers()[paginationHistoricoReestock.getPageNumbers().length - 1] < paginationHistoricoReestock.totalPages) {
+                @if (paginationHistoricoReestock.shouldShowEndEllipsis()) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+                }
+                <li class="page-item">
+                  <button class="page-link" (click)="paginationHistoricoReestock.goToPage(paginationHistoricoReestock.totalPages)">
+                    {{ paginationHistoricoReestock.totalPages }}
+                  </button>
+                </li>
+                }
+
+                <!-- Botón Siguiente -->
+                <li class="page-item" [class.disabled]="paginationHistoricoReestock.currentPage === paginationHistoricoReestock.totalPages">
+                  <button class="page-link" (click)="paginationHistoricoReestock.nextPage()"
+                    [disabled]="paginationHistoricoReestock.currentPage === paginationHistoricoReestock.totalPages">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+            }
           </div>
         </div>
         }
@@ -561,7 +724,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (mov of historicoVentas; track mov.id) {
+                  @for (mov of paginationHistoricoVentas.paginatedItems; track mov.id) {
                   <tr>
                     <td class="small">{{ formatDate(mov.created_at!) }}</td>
                     <td class="small">{{ mov.seccion }}</td>
@@ -576,6 +739,88 @@
                 </tbody>
               </table>
             </div>
+          </div>
+
+          <!-- Paginador -->
+          <div class="card-footer bg-white border-top">
+            <div class="d-flex flex-column flex-sm-row align-items-center gap-2">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Mostrando <strong>{{ paginationHistoricoVentas.startIndex + 1 }}</strong> a
+                <strong>{{ paginationHistoricoVentas.endIndex }}</strong>
+                de <strong>{{ paginationHistoricoVentas.totalItems }}</strong> ventas
+              </small>
+              <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 small text-muted">Mostrar:</label>
+                <select class="form-select form-select-sm" [value]="paginationHistoricoVentas.itemsPerPage" (change)="
+                    paginationHistoricoVentas.setItemsPerPage(+$any($event.target).value)
+                  " style="width: auto">
+                  @for (option of paginationHistoricoVentas.itemsPerPageOptions; track option) {
+                  <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            @if (paginationHistoricoVentas.totalPages > 1) {
+            <nav aria-label="Paginación de ventas" class="mt-2">
+              <ul class="pagination pagination-sm justify-content-center justify-content-md-end mb-0">
+                <!-- Botón Anterior -->
+                <li class="page-item" [class.disabled]="paginationHistoricoVentas.currentPage === 1">
+                  <button class="page-link" (click)="paginationHistoricoVentas.previousPage()"
+                    [disabled]="paginationHistoricoVentas.currentPage === 1">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                </li>
+
+                <!-- Primera página -->
+                @if (paginationHistoricoVentas.getPageNumbers()[0] > 1) {
+                <li class="page-item">
+                  <button class="page-link" (click)="paginationHistoricoVentas.goToPage(1)">
+                    1
+                  </button>
+                </li>
+                @if (paginationHistoricoVentas.shouldShowStartEllipsis()) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+                }
+                }
+
+                <!-- Números de página -->
+                @for (page of paginationHistoricoVentas.getPageNumbers(); track page) {
+                <li class="page-item" [class.active]="paginationHistoricoVentas.currentPage === page">
+                  <button class="page-link" (click)="paginationHistoricoVentas.goToPage(page)">
+                    {{ page }}
+                  </button>
+                </li>
+                }
+
+                <!-- Última página -->
+                @if
+                (paginationHistoricoVentas.getPageNumbers()[paginationHistoricoVentas.getPageNumbers().length - 1] < paginationHistoricoVentas.totalPages) {
+                @if (paginationHistoricoVentas.shouldShowEndEllipsis()) {
+                <li class="page-item disabled">
+                  <span class="page-link">...</span>
+                </li>
+                }
+                <li class="page-item">
+                  <button class="page-link" (click)="paginationHistoricoVentas.goToPage(paginationHistoricoVentas.totalPages)">
+                    {{ paginationHistoricoVentas.totalPages }}
+                  </button>
+                </li>
+                }
+
+                <!-- Botón Siguiente -->
+                <li class="page-item" [class.disabled]="paginationHistoricoVentas.currentPage === paginationHistoricoVentas.totalPages">
+                  <button class="page-link" (click)="paginationHistoricoVentas.nextPage()"
+                    [disabled]="paginationHistoricoVentas.currentPage === paginationHistoricoVentas.totalPages">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+            }
           </div>
         </div>
         }
