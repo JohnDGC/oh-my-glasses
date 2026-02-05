@@ -214,7 +214,7 @@
               <div class="card-body">
                 @if (metricasDashboard.top_monturas.length > 0) {
                   <ul class="list-unstyled mb-0">
-                    @for (montura of metricasDashboard.top_monturas; track montura.tipo_montura) {
+                    @for (montura of metricasDashboard.top_monturas; track $index + '|' + montura.tipo_montura + '|' + (montura.tipo_lente || '')) {
                       <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
                         <span class="fw-medium">
                           {{ montura.descripcion }}
@@ -324,9 +324,10 @@
                   }
                 </select>
                 <button
-                  class="btn btn-sm btn-outline-primary"
+                  class="btn btn-sm btn-outline-primary flex-shrink-0"
                   (click)="aplicarFiltroPeriodoVentas()"
-                  [disabled]="!periodoSeleccionadoVentas">
+                  [disabled]="!periodoSeleccionadoVentas"
+                  style="white-space: nowrap;">
                   Aplicar
                 </button>
               </div>

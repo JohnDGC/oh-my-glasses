@@ -657,6 +657,11 @@
                       (click)="sincronizarComprasAnteriores()">
                       <i class="bi bi-arrow-repeat me-2"></i>Sincronizar Compras Anteriores
                     </button>
+                    <button type="button" class="btn btn-outline-warning btn-lg" [disabled]="isLoading"
+                      (click)="actualizarMovimientosDesincronizados()"
+                      title="Actualizar nombres de cliente y fechas reales en los movimientos">
+                      <i class="bi bi-pencil-square me-2"></i>Actualizar Datos de Movimientos
+                    </button>
                   </div>
                 </form>
               </div>

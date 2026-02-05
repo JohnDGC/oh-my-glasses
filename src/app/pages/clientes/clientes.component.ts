@@ -286,17 +286,30 @@ export class ClientesComponent implements OnInit {
       cliente_referidor_id: cliente.cliente_referidor_id || null,
     });
     this.esReferido = cliente.es_referido || false;
-    this.clienteForm.get('primera_compra_tipo_lente')?.clearValidators();
-    this.clienteForm.get('primera_compra_tipo_montura')?.clearValidators();
-    this.clienteForm.get('primera_compra_rango_precio')?.clearValidators();
-    this.clienteForm.get('primera_compra_tipo_lente')?.updateValueAndValidity();
-    this.clienteForm
-      .get('primera_compra_tipo_montura')
-      ?.updateValueAndValidity();
-    this.clienteForm
-      .get('primera_compra_rango_precio')
-      ?.updateValueAndValidity();
 
+    // En EDIT MODE, limpiar validadores de todos los campos de Primera Compra
+    const primeraCompraFields = [
+      'primera_compra_tipo_lente',
+      'primera_compra_tipo_montura',
+      'primera_compra_rango_precio',
+      'primera_compra_precio_total',
+      'primera_compra_abono',
+      'primera_compra_seccion',
+      'primera_compra_metodo_pago',
+      'primera_compra_nota_pago',
+    ];
+
+    primeraCompraFields.forEach((fieldName) => {
+      const control = this.clienteForm.get(fieldName);
+      if (control) {
+        control.clearValidators();
+        control.updateValueAndValidity();
+      }
+    });
+
+    this.primerasComprasTemporales = [];
+    this.isEditingPrimeraCompra = false;
+    this.selectedPrimeraCompraIndex = null;
     this.showModal = true;
   }
 
@@ -330,18 +343,31 @@ export class ClientesComponent implements OnInit {
       }
     });
 
-    if (hasTempPurchases) {
-      // If we have purchases in the list, only client fields need to be valid
+    // En EDIT MODE, solo validar campos del cliente
+    if (this.isEditMode) {
       if (!isClientValid) {
         clientControls.forEach((controlName) => {
           this.clienteForm.get(controlName)?.markAsTouched();
         });
+        console.log(
+          '[onSubmit] Cliente inválido en EDIT MODE, campos:',
+          clientControls,
+        );
+        alert('Por favor completa todos los campos del cliente');
         return;
       }
     } else {
-      // If no purchases in list, standard validation applies (though this might still be problematic if users expect auto-add)
-      if (this.clienteForm.invalid) {
-        this.clienteForm.markAllAsTouched();
+      // En CREATE MODE, validar cliente + que haya al menos una compra
+      if (!isClientValid) {
+        clientControls.forEach((controlName) => {
+          this.clienteForm.get(controlName)?.markAsTouched();
+        });
+        console.log('[onSubmit] Cliente inválido en CREATE MODE');
+        return;
+      }
+
+      if (!hasTempPurchases) {
+        console.log('[onSubmit] Sin compras temporales en CREATE MODE');
         return;
       }
     }
@@ -362,6 +388,10 @@ export class ClientesComponent implements OnInit {
       let nuevoClienteId: string | undefined;
 
       if (this.isEditMode && this.selectedClienteId) {
+        console.log(
+          '[onSubmit] EDIT MODE - Cliente ID:',
+          this.selectedClienteId,
+        );
         const cedulaExiste = await this.clienteService.verificarCedulaExistente(
           formValue.cedula,
           this.selectedClienteId,
@@ -388,10 +418,17 @@ export class ClientesComponent implements OnInit {
 
         const referidorCambio = referidorAnterior !== referidorNuevo;
 
+        console.log('[onSubmit] Llamando updateCliente con:', {
+          id: this.selectedClienteId,
+          data: clienteData,
+        });
+
         await this.clienteService.updateCliente(
           this.selectedClienteId,
           clienteData,
         );
+
+        console.log('[onSubmit] updateCliente completado exitosamente');
 
         let mensaje = 'Cliente actualizado exitosamente';
 
@@ -421,6 +458,7 @@ export class ClientesComponent implements OnInit {
           }
         }
 
+        console.log('[onSubmit] Mostrando alert:', mensaje);
         alert(mensaje);
       } else {
         const cedulaExiste = await this.clienteService.verificarCedulaExistente(
@@ -541,8 +579,10 @@ export class ClientesComponent implements OnInit {
         this.prepararMensajesWhatsApp();
       }
 
+      console.log('[onSubmit] Cerrando modal y recargando datos...');
       this.closeModal();
       await this.loadClientes();
+      console.log('[onSubmit] Datos recargados. IsEditMode:', this.isEditMode);
       if (!this.isEditMode && this.clienteRegistrado)
         this.showWhatsAppModal = true;
     } catch (error: any) {

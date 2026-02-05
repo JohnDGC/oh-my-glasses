@@ -469,6 +469,7 @@ export class InventarioService {
     seccion: Seccion | null | undefined,
     compraId: string,
     clienteNombre?: string,
+    fechaOriginal?: string,
   ): Promise<void> {
     try {
       const seccionResuelta = this.resolveSeccionNombre(
@@ -535,7 +536,7 @@ export class InventarioService {
           nota: `Venta registrada${clienteNombre ? ` - ${clienteNombre}` : ''}`,
           referencia_compra_id: compraId,
           cliente_nombre: clienteNombre,
-          created_at: new Date().toISOString(),
+          created_at: fechaOriginal || new Date().toISOString(),
         });
 
       if (movError) throw movError;
@@ -661,6 +662,10 @@ export class InventarioService {
     seccion: Seccion | null | undefined,
   ): Promise<void> {
     try {
+      console.log(
+        `[revertirVenta] Revirtiendo: ${tipoMontura} | ${tipoCompra} | Sección: ${seccion}`,
+      );
+
       const seccionResuelta = this.resolveSeccionNombre(
         tipoMontura,
         tipoCompra,
@@ -669,6 +674,9 @@ export class InventarioService {
 
       if (!seccionResuelta) {
         // No stock impact to revert
+        console.log(
+          `❌ No hay sección resuelta para revertir: ${tipoMontura} (${tipoCompra})`,
+        );
         return;
       }
 
@@ -679,8 +687,15 @@ export class InventarioService {
         tipoCompra,
       );
 
-      if (currentStock && currentStock.stock_salidas > 0) {
-        await this.supabase.client
+      if (!currentStock) {
+        console.warn(
+          `⚠️ Stock no encontrado para revertir: ${seccionResuelta} - ${tipoMontura} (${tipoCompra})`,
+        );
+        return;
+      }
+
+      if (currentStock.stock_salidas > 0) {
+        const { error: updateError } = await this.supabase.client
           .from('inventario_stock')
           .update({
             stock_salidas: currentStock.stock_salidas - 1,
@@ -688,16 +703,28 @@ export class InventarioService {
           .eq('seccion', seccionResuelta)
           .eq('tipo_montura', tipoMontura)
           .eq('tipo_compra', tipoCompra);
+
+        if (updateError) throw updateError;
+
+        console.log(
+          `✅ stock_salidas decrementado: ${seccionResuelta} | ${tipoMontura} (${currentStock.stock_salidas} → ${currentStock.stock_salidas - 1})`,
+        );
       }
 
       // Delete movement record
-      await this.supabase.client
+      const { error: delError } = await this.supabase.client
         .from('inventario_movimientos_detalle')
         .delete()
         .eq('referencia_compra_id', compraId)
         .eq('tipo_movimiento', 'venta');
+
+      if (delError) {
+        console.error(`❌ Error borrando movimiento de venta:`, delError);
+      } else {
+        console.log(`✅ Movimiento de venta eliminado: ${compraId}`);
+      }
     } catch (error) {
-      console.error('Error revirtiendo venta en inventario:', error);
+      console.error('❌ Error revirtiendo venta en inventario:', error);
       throw error;
     }
   }
@@ -1061,18 +1088,37 @@ export class InventarioService {
         (compra) => !idsRegistrados.has(compra.id),
       );
 
-      // 5. Registrar cada compra pendiente
+      // 5. Obtener nombres de clientes para compras pendientes
+      const clientesIds = Array.from(
+        new Set(comprasPendientes.map((c) => c.cliente_id)),
+      ).filter(Boolean);
+
+      const { data: clientesData } = await this.supabase.client
+        .from('clientes')
+        .select('id, nombres')
+        .in('id', clientesIds);
+
+      const clientesMap = new Map(
+        (clientesData || []).map((c) => [c.id, c.nombres]),
+      );
+
+      // 6. Registrar cada compra pendiente con nombre de cliente y fecha original
       let sincronizadas = 0;
       for (const compra of comprasPendientes) {
         try {
+          const nombreCliente = clientesMap.get(compra.cliente_id);
           await this.registrarVenta(
             compra.tipo_montura,
             compra.tipo_compra as 'Gafas formuladas' | 'Gafas de sol',
             compra.seccion || null,
             compra.id,
-            undefined, // clienteNombre opcional
+            nombreCliente || undefined,
+            compra.fecha_compra, // Usar fecha original de la compra
           );
           sincronizadas++;
+          console.log(
+            `✅ Sincronizada compra ${compra.id} - ${nombreCliente} (${compra.fecha_compra})`,
+          );
         } catch (error) {
           console.error(`❌ Error sincronizando compra ${compra.id}:`, error);
           // Continuar con las siguientes
@@ -1088,6 +1134,136 @@ export class InventarioService {
       return {
         totalCompras: 0,
         totalSincronizadas: 0,
+        error: error instanceof Error ? error.message : 'Error desconocido',
+      };
+    }
+  }
+
+  /**
+   * Actualizar movimientos de venta con datos correctos
+   * - Rellenar cliente_nombre si está vacío
+   * - Usar fecha_compra real en lugar de created_at actual
+   */
+  async actualizarMovimientosDesincronizados(): Promise<{
+    totalActualizados: number;
+    error?: string;
+  }> {
+    try {
+      console.log(
+        '[actualizarMovimientosDesincronizados] Iniciando actualización de movimientos...',
+      );
+
+      // 1. Obtener todos los movimientos de venta que necesitan actualización
+      const { data: movimientos, error: movError } = await this.supabase.client
+        .from('inventario_movimientos_detalle')
+        .select('id, referencia_compra_id, cliente_nombre, created_at')
+        .eq('tipo_movimiento', 'venta')
+        .or('cliente_nombre.is.null,cliente_nombre.eq.""');
+
+      if (movError) {
+        console.error(
+          '[actualizarMovimientosDesincronizados] Error obteniendo movimientos:',
+          movError,
+        );
+        throw movError;
+      }
+
+      if (!movimientos || movimientos.length === 0) {
+        console.log(
+          '[actualizarMovimientosDesincronizados] No hay movimientos para actualizar',
+        );
+        return { totalActualizados: 0 };
+      }
+
+      console.log(
+        `[actualizarMovimientosDesincronizados] Encontrados ${movimientos.length} movimientos para actualizar`,
+      );
+
+      // 2. Obtener todas las compras y clientes para mapearlas
+      const comprasIds = movimientos
+        .map((m) => m.referencia_compra_id)
+        .filter(Boolean);
+
+      const { data: compras } = await this.supabase.client
+        .from('cliente_compras')
+        .select('id, cliente_id, fecha_compra')
+        .in('id', comprasIds);
+
+      const clientesIds = Array.from(
+        new Set((compras || []).map((c) => c.cliente_id)),
+      ).filter(Boolean);
+
+      const { data: clientes } = await this.supabase.client
+        .from('clientes')
+        .select('id, nombres')
+        .in('id', clientesIds);
+
+      const comprasMap = new Map(
+        (compras || []).map((c) => [
+          c.id,
+          { cliente_id: c.cliente_id, fecha_compra: c.fecha_compra },
+        ]),
+      );
+
+      const clientesMap = new Map(
+        (clientes || []).map((c) => [c.id, c.nombres]),
+      );
+
+      // 3. Actualizar cada movimiento
+      let actualizado = 0;
+      for (const movimiento of movimientos) {
+        try {
+          const compraData = comprasMap.get(movimiento.referencia_compra_id);
+          if (!compraData) {
+            console.warn(
+              `⚠️ No se encontró compra para movimiento ${movimiento.id}`,
+            );
+            continue;
+          }
+
+          const nombreCliente =
+            clientesMap.get(compraData.cliente_id) || 'Desconocido';
+          const fechaReal = compraData.fecha_compra;
+
+          const { error: updateError } = await this.supabase.client
+            .from('inventario_movimientos_detalle')
+            .update({
+              cliente_nombre: nombreCliente,
+              created_at: fechaReal,
+            })
+            .eq('id', movimiento.id);
+
+          if (updateError) {
+            console.error(
+              `❌ Error actualizando movimiento ${movimiento.id}:`,
+              updateError,
+            );
+          } else {
+            actualizado++;
+            console.log(
+              `✅ Movimiento ${movimiento.id} actualizado: ${nombreCliente} - ${fechaReal}`,
+            );
+          }
+        } catch (error) {
+          console.error(
+            `❌ Error procesando movimiento ${movimiento.id}:`,
+            error,
+          );
+        }
+      }
+
+      console.log(
+        `[actualizarMovimientosDesincronizados] Actualización completada: ${actualizado} de ${movimientos.length}`,
+      );
+
+      return { totalActualizados: actualizado };
+    } catch (error) {
+      console.error(
+        '[actualizarMovimientosDesincronizados] Error general:',
+        error,
+      );
+      return {
+        totalActualizados: 0,
         error: error instanceof Error ? error.message : 'Error desconocido',
       };
     }

@@ -694,6 +694,41 @@ export class InventarioComponent implements OnInit {
     }
   }
 
+  async actualizarMovimientosDesincronizados() {
+    if (
+      !confirm(
+        '¿Actualizar datos de movimientos?\n\n' +
+          'Esto rellenará los nombres de clientes faltantes y ajustará las fechas ' +
+          'de los movimientos a sus valores reales (fecha de compra original).\n\n' +
+          '¿Deseas continuar?',
+      )
+    ) {
+      return;
+    }
+
+    this.isLoading = true;
+    try {
+      const resultado =
+        await this.inventarioService.actualizarMovimientosDesincronizados();
+
+      if (resultado.error) {
+        alert(`❌ Error: ${resultado.error}`);
+      } else {
+        alert(
+          `✅ Actualización completada\n\n` +
+            `Movimientos actualizados: ${resultado.totalActualizados}`,
+        );
+        // Recargar datos para reflejar cambios
+        await this.loadStockCards();
+      }
+    } catch (error) {
+      console.error('Error actualizando movimientos:', error);
+      alert('No se pudo completar la actualización');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
   // ============================================================================
   // HISTORICAL REPORTS
   // ============================================================================

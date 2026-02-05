@@ -128,7 +128,7 @@ export class ClienteService {
       .single();
 
     if (error) {
-      console.error('Error al actualizar cliente:', error);
+      console.error(`[updateCliente] Error en Supabase para ${id}:`, error);
       throw error;
     }
 
@@ -348,7 +348,9 @@ export class ClienteService {
     // 1. Obtener datos de la compra antes de eliminarla
     const { data: compra, error: fetchError } = await this.supabase.client
       .from('cliente_compras')
-      .select('id, cliente_id, tipo_montura, seccion, precio_total, created_at')
+      .select(
+        'id, cliente_id, tipo_montura, seccion, precio_total, created_at, tipo_compra',
+      )
       .eq('id', id)
       .single();
 
